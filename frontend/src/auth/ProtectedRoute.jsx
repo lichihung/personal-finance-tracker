@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom"
-import {isAuthed} from "./auth"
+import { isAuthed } from "./auth"
 
 export default function ProtectedRoute(){
     if (!isAuthed()) {
