@@ -5,6 +5,7 @@ import { useNavigate} from "react-router-dom"
 
 import AuthCard from "../components/auth/AuthCard"
 import { isAuthed, signIn} from "../auth/auth"
+import FormField from "../components/ui/FormField"
 
 function isValidEmail(value){
   return value.includes("@") || "Please enter a valid email."
@@ -47,17 +48,14 @@ export default function Login() {
         <AuthCard title={title} subtitle={subtitle}>
           <Box as="form" onSubmit={handleSubmit(onSubmit)}>
             <VStack spacing={4} align="stretch">
-              <FormControl isInvalid={!!errors.email}>
-                <FormLabel>Email</FormLabel>
+              <FormField label="email" error={errors.email?.message}>
                 <Input
                   placeholder="liz@example.com"
                   {...register("email", {required: "Email is required.", validate: isValidEmail})}
                 />
-                <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
-              </FormControl>
+              </FormField>
 
-              <FormControl isInvalid={!!errors.password}>
-                <FormLabel>Password</FormLabel>
+              <FormField label="Password" error={errors.password?.message}>
                 <InputGroup>
                   <Input
                     placeholder="Minimum 8 characters"
@@ -70,12 +68,10 @@ export default function Login() {
                     </Button>
                   </InputRightElement>
                 </InputGroup>
-                <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
-              </FormControl>
+              </FormField>
 
               {mode === "register" ? (
-                <FormControl isInvalid={!!errors.confirmPassword}>
-                  <FormLabel>Confirm Password</FormLabel>
+                <FormField label="Confirm Password" error={errors.confirmPassword?.message}>
                   <Input
                     placeholder="Re-enter password"
                     type={showPw ? "password" : "text"}
@@ -83,8 +79,7 @@ export default function Login() {
                       required: "Please confrim your password.", 
                       validate: (v) => v === password || "Password do not match",})}
                   />
-                  <FormErrorMessage>{errors.confirmPassword?.message}</FormErrorMessage>
-                </FormControl>
+                </FormField>
               ) : null}
 
               <Button
