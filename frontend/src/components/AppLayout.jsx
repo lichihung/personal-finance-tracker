@@ -1,5 +1,6 @@
-import {Box, Flex, VStack, Link, Text} from '@chakra-ui/react'
-import {NavLink, Outlet} from "react-router-dom"
+import {Box, Flex, VStack, Link, Text, Button} from '@chakra-ui/react'
+import {NavLink, Outlet, useNavigate} from "react-router-dom"
+import {signOut} from "../auth/auth"
 
 const navStyle = ({isActive})=>({
     textDecoration: "none",
@@ -10,6 +11,13 @@ const navStyle = ({isActive})=>({
 })
 
 export default function AppLayout(){
+
+    const navigate = useNavigate()
+    const handleLogout = () =>{
+        signOut()
+        navigate("/login")
+    }
+
     return (
         <Flex minH="100vh">
             {/* Sidebar */}
@@ -24,9 +32,9 @@ export default function AppLayout(){
                 </VStack>
                 {/* Logout */}
                 <Box mt="auto" pt={6}>
-                    <Text fontSize="sm" opacity={0.7}>
-                        Logout (coming soon)
-                    </Text>
+                    <Button size="sm" w="full" onClick={handleLogout}>
+                        Logout
+                    </Button>
                 </Box>
             </Box>
             {/* Main content */}
