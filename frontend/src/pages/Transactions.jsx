@@ -109,7 +109,7 @@ export default function Transactions() {
           setMonth("") 
           setCategory("") 
           setType("")}}>
-          Clear
+          Reset
         </Button>
       </HStack>
 

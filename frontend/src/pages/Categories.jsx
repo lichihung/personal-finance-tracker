@@ -69,6 +69,8 @@ export default function Categories() {
       ])
       toast({ title: "Category added.", status: "success"})
     }
+    setIsModalOpen(false)
+    setEditing(null)
   }
 
   const confirmDelete = () => {
@@ -125,7 +127,7 @@ export default function Categories() {
       />
 
       <ConfirmDialog
-        isOpen={!!deleteId}
+        isOpen={deleteId !== null}
         onClose={() => setDeleteId(null)}
         onConfirm={confirmDelete}
         title="Delete Category?"

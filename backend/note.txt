@@ -1,0 +1,18 @@
+Credentials
+
+//////Admin//////
+username: lizhung
+password: finpro26
+
+Token:
+{
+	"refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2OTgxMDc2MCwiaWF0IjoxNzY5NzI0MzYwLCJqdGkiOiI5NDUzZTMyYTYxZDE0MjRiYmYzYjQ0MjRhZDJmMGFkNCIsInVzZXJfaWQiOiIxIn0.l419Fwh8R-wltq814O8HpojJDg3NJlUTkBZp84DSbNI",
+	"access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY5NzI0NjYwLCJpYXQiOjE3Njk3MjQzNjAsImp0aSI6IjgyYmNiMWM4MjU0MjQ5YTViZWU2ZDQzNGQ2NDIyZjYxIiwidXNlcl9pZCI6IjEifQ.dqsS2Y8P3cYrlJqPeOHbw4qh3ummJFi1oUt8q3LtFpA"
+}
+
+//////Users//////
+username: user1
+password: finpro2601
+
+username: user2
+password: finpro2602
