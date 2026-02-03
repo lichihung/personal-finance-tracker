@@ -5,6 +5,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 from .models import Category, Transaction
 from .serializers import CategorySerializer, TransactionSerializer, RegisterSerializer
 from datetime import date
@@ -41,19 +42,26 @@ class TransactionViewSet(ModelViewSet):
                 year_str, mon_str = month.split("-",1)
                 year = int(year_str)
                 mon = int(mon_str)
+                if mon < 1 or mon > 12:
+                    raise ValueError
                 qs = qs.filter(date__year=year, date__month=mon)
             except Exception:
-                pass
+                raise ValidationError({"month": ["Invalid format. Use YYYY-MM."]})
 
         sort = self.request.query_params.get("sort")
-        if sort == "date_desc":
-            qs = qs.order_by("-date")
-        elif sort == "date_asc":
-            qs = qs.order_by("date")
-        elif sort == "amount_desc":
-            qs = qs.order_by("-amount")
-        elif sort == "amount_asc":
-            qs = qs.order_by("amount")
+        allowed_sort = {"date_desc", "date_asc", "amount_desc", "amount_asc"}
+        if sort:
+            if sort not in allowed_sort:
+                raise ValidationError({"sort": ["Invalid sort."]})
+            
+            if sort == "date_desc":
+                qs = qs.order_by("-date")
+            elif sort == "date_asc":
+                qs = qs.order_by("date")
+            elif sort == "amount_desc":
+                qs = qs.order_by("-amount")
+            elif sort == "amount_asc":
+                qs = qs.order_by("amount")
         
         q = self.request.query_params.get("q")
         if q:
