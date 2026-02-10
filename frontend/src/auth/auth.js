@@ -1,13 +1,12 @@
-const KEY = "pft_is_authed"
+import { clearTokens } from "../api/clientFetch"
 
-export function isAuthed(){
-    return localStorage.getItem(KEY) === "true"
+export function isAuthed() {
+  return !!localStorage.getItem("access")
 }
 
-export function signIn(){
-    localStorage.setItem(KEY, "true")
+export function signIn() {
 }
 
-export function signOut(){
-    localStorage.removeItem(KEY)
+export function signOut() {
+  clearTokens()
 }

@@ -15,14 +15,14 @@ export default function AppLayout(){
     const navigate = useNavigate()
     const handleLogout = () =>{
         signOut()
-        navigate("/login")
+        navigate("/login", { replace: true })
     }
 
     return (
         <Flex minH="100vh">
             {/* Sidebar */}
             <Box w="240px" bg='gray.800' color='white' p={4}>
-                <Text font-size="lg" fontWeight="bold" mb={6}>
+                <Text fontSize="lg" fontWeight="bold" mb={6}>
                     Finance Tracker
                 </Text>
                 <VStack align='stretch' spacing={3}>

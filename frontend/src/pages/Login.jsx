@@ -4,8 +4,9 @@ import { useForm } from "react-hook-form"
 import { useNavigate} from "react-router-dom"
 
 import AuthCard from "../components/auth/AuthCard"
-import { isAuthed, signIn} from "../auth/auth"
 import FormField from "../components/ui/FormField"
+import { login } from "../api/authFetch"
+import { isAuthed } from "../api/clientFetch"
 
 function isValidEmail(value){
   return value.includes("@") || "Please enter a valid email."
@@ -14,7 +15,7 @@ function isValidEmail(value){
 export default function Login() {
   const navigate = useNavigate()
   const [mode, setMode] = useState("login")
-  const [showPw, setShowPw] = useState("true")
+  const [showPw, setShowPw] = useState(true)
 
   const title = useMemo(
     () => (mode === "login" ? "Welcome back" : "Create account"), [mode]
@@ -24,7 +25,9 @@ export default function Login() {
   )
 
   useEffect(() => {
-    if (isAuthed()) navigate("/dashboard", {replace: true})
+    if (isAuthed()) {
+      navigate("/dashboard", { replace: true })
+    }
   }, [navigate])
 
   const {
@@ -33,13 +36,17 @@ export default function Login() {
     watch,
     formState: {errors, isSubmitting},
   } = useForm({
-    defaultValues: {email: "", password: "", confirmPassword: ""},
+    defaultValues: {username: "", password: "", confirmPassword: ""},
   })
   const password = watch("password")
 
   const onSubmit = async (values) => {
-    signIn()
-    navigate("/dashboard")
+    try {
+      await login(values.username, values.password)
+      navigate("/dashboard", {replace: true})
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   return (
@@ -48,10 +55,10 @@ export default function Login() {
         <AuthCard title={title} subtitle={subtitle}>
           <Box as="form" onSubmit={handleSubmit(onSubmit)}>
             <VStack spacing={4} align="stretch">
-              <FormField label="email" error={errors.email?.message}>
+              <FormField label="Username" error={errors.username?.message}>
                 <Input
-                  placeholder="liz@example.com"
-                  {...register("email", {required: "Email is required.", validate: isValidEmail})}
+                  placeholder="username"
+                  {...register("username", {required: "Username is required."})}
                 />
               </FormField>
 
