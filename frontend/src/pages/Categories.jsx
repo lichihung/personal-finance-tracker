@@ -1,25 +1,36 @@
-import { useMemo, useState} from "react"
+import { useEffect, useMemo, useState} from "react"
 import { Box, Button, Heading, HStack, IconButton, Table, Tbody, Td, Th, Thead, Tr, Text, useToast} from "@chakra-ui/react"
 import { EditIcon, DeleteIcon } from "@chakra-ui/icons"
 import ConfirmDialog from "../components/ui/ConfirmDialog"
 import CategoryModal from "../components/categories/CategoryModal"
+import { apiFetch } from "../api/clientFetch"
 
-function nowDate() {
-  const d = new Date()
-  const yyyy = d.getFullYear()
-  const mm = String(d.getMonth() + 1).padStart(2, "0")
-  const dd = String(d.getDate()).padStart(2, "0")
-  return `${yyyy}-${mm}-${dd}`
-}
+
 export default function Categories() {
   const toast = useToast()
 
-  const [categories, setCategories] = useState(() => [
-    { id: 1, name: "Food", createdAt: "2026-01-21"},
-    { id: 2, name: "Rent", createdAt: "2026-01-20"},
-    { id: 3, name: "Transport", createdAt: "2026-01-21"},
-  ])
+  const [categories, setCategories] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [errorMsg, setErrorMsg] = useState("")
   const [deleteId, setDeleteId] = useState(null)
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true)
+      setErrorMsg("")
+      try {
+        const data = await apiFetch("/categories/")
+        if (Array.isArray(data)) setCategories(data)
+        else if (data && Array.isArray(data.results)) setCategories(data.results)
+        else setCategories([])
+      } catch (err) {
+        setErrorMsg(err.message || "Failed to load categories")
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [])
 
   const categoryToDelete = useMemo(
     () => categories.find((c) => c.id === deleteId) || null,
@@ -57,27 +68,58 @@ export default function Categories() {
     }
 
     if (editing) {
-      setCategories((prev) =>
-        prev.map((c) => (c.id === editing.id ? {...c, name:trimmed} : c))
-      )
-      toast({ title: "Category updated.", status: "success"})
+      try {
+        await apiFetch(`/categories/${editing.id}/`, {
+          method: "PATCH",
+          body: {name: trimmed}
+        })
+        
+        const fresh = await apiFetch("/categories/")
+        if (Array.isArray(fresh)) setCategories(fresh)
+        else if (fresh && Array.isArray(fresh.results)) setCategories(fresh.results)
+        else setCategories([])
+
+        toast({ title: "Category updated.", status: "success"})
+      } catch (err) {
+        toast({ title: err.message || "Update failed", status: "error"})
+        return
+      }
     } else {
-      const nextId = Math.max(0, ...categories.map((c) => c.id)) + 1
-      setCategories((prev) => [
-        ...prev,
-        { id: nextId, name: trimmed, createdAt: nowDate()},
-      ])
-      toast({ title: "Category added.", status: "success"})
+      try {
+        const created = await apiFetch("/categories/", {
+          method: "POST",
+          body: {name: trimmed}
+        })
+
+        const fresh = await apiFetch("/categories/")
+        if (Array.isArray(fresh)) setCategories(fresh)
+        else if (fresh && Array.isArray(fresh.results)) setCategories(fresh.results)
+        else setCategories([])
+
+        toast({ title: "Category added.", status: "success" })
+      } catch (err) {
+        toast({ title: err.message || "Created failed", status: "error"})
+        return
+      }
     }
     setIsModalOpen(false)
     setEditing(null)
   }
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!categoryToDelete) return
-    setCategories((prev) => prev.filter((c) => c.id !== categoryToDelete.id))
-    setDeleteId(null)
-    toast({title: "Category deleted.", status: "success"})
+
+    try {
+      await apiFetch(`/categories/${categoryToDelete.id}/`, {
+        method: "DELETE",
+      })
+
+      setCategories((prev) => prev.filter((c) => c.id !== categoryToDelete.id))
+      setDeleteId(null)
+      toast({ title: "Category deleted.", status: "success"})
+    } catch (err) {
+      toast({ title: err.data ? JSON.stringify(err.data) : (err.message || "Delete failed"), status: "error"})
+    }
   }
 
   return (
@@ -87,7 +129,10 @@ export default function Categories() {
         <Button colorScheme="teal" onClick={openAdd}>+ Add Category</Button>
       </HStack>
 
-      {categories.length === 0 ? (
+      {loading ? <Text>Loading...</Text> : null}
+      {errorMsg ? <Text color="red.500">{errorMsg}</Text> : null}
+      {!loading && !errorMsg ? (
+      categories.length === 0 ? (
         <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
           <Text color="gray.600">No categories yet. Add your first one.</Text>
         </Box>
@@ -105,7 +150,7 @@ export default function Categories() {
               {categories.map((c) => (
                 <Tr key={c.id}>
                   <Td>{c.name}</Td>
-                  <Td>{c.createdAt}</Td>
+                  <Td>{c.created_at ? c.created_at.slice(0,10) : null}</Td>
                   <Td textAlign="right">
                     <HStack justify="flex-end">
                       <IconButton aria-label="Edit category" icon={<EditIcon/>} size="sm" onClick={() => openEdit(c.id)}/>
@@ -117,7 +162,7 @@ export default function Categories() {
             </Tbody>
           </Table>
         </Box>
-      )}
+      )): null}
 
       <CategoryModal
        isOpen={isModalOpen}

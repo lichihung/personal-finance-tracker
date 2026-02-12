@@ -42,13 +42,26 @@ export default function Transactions() {
   const [q, setQ] = useState("")
   const [sort, setSort] = useState("date_desc")
 
-  useEffect(() => {
-    const loadCategories = async () => {
-        const cats = await apiFetch("/categories/")
-        if (Array.isArray(cats)) setCategories(cats)
-        else if (cats && Array.isArray(cats.results)) setCategories(cats.results)
+  const loadCategories = async () => {
+    try {
+      const cats = await apiFetch("/categories/")
+      if (Array.isArray(cats)) setCategories(cats)
+      else if (cats && Array.isArray(cats.results)) setCategories(cats.results)
+      else setCategories([])
+    } catch (err) {
+
     }
+  }
+  useEffect(() => {
     loadCategories()
+  }, [])
+
+  useEffect(() => {
+    const onFocus = () => {
+      loadCategories()
+    }
+    window.addEventListener("focus", onFocus)
+    return () => window.removeEventListener("focus", onFocus)
   }, [])
 
   const fetchTransactions = async (params = {}) => {
@@ -67,6 +80,7 @@ export default function Transactions() {
     if (data && Array.isArray(data.results)) return data.results
     return []
   }
+
 
   useEffect(() => {
     const run = async () => {
