@@ -1,9 +1,9 @@
 import { Box, Heading, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Badge, Text, Select, HStack, Button } from "@chakra-ui/react"
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, ModalCloseButton, useDisclosure } from "@chakra-ui/react"
 import { FormControl, FormLabel, Input, NumberInput, NumberInputField, RadioGroup, Radio, Stack } from "@chakra-ui/react"
-import { useMemo, useState } from "react"
-import { mockTransactions } from "../mock/transactions"
+import { useEffect, useMemo, useState } from "react"
 import FormField from "../components/ui/FormField"
+import { apiFetch } from "../api/clientFetch"
 
 
 // Badge UI for transaction type
@@ -11,6 +11,14 @@ const typeBadge = (type) => {
   if (type === "income") return <Badge colorScheme="green">Income</Badge>
   return <Badge colorScheme="red">Expense</Badge>
 }
+
+const getCategoryName = (t) => {
+  if (!t) return ""
+  if (typeof t.category === "string") return t.category
+  if (t.category && typeof t.category === "object" && t.category.name) return t.category.name
+  return ""
+}
+
 export default function Transactions() {
   const { isOpen, onOpen, onClose } = useDisclosure()
 
@@ -25,33 +33,65 @@ export default function Transactions() {
     description: "",
     amount: "",
   })
-  const [errors, setErrors] = useState({})
-  const [transactions, setTransactions] = useState(mockTransactions)
+  const [errorMsg, setErrorMsg] = useState("")
+  const [fieldErrors, setFieldErrors] = useState({})
+  const [loading, setLoading] = useState(true)
+  const [transactions, setTransactions] = useState([])
   const [editingId, setEditingId] = useState(null)
+  const [categories, setCategories] = useState([])
+  const [q, setQ] = useState("")
+  const [sort, setSort] = useState("date_desc")
+
+  useEffect(() => {
+    const loadCategories = async () => {
+        const cats = await apiFetch("/categories/")
+        if (Array.isArray(cats)) setCategories(cats)
+        else if (cats && Array.isArray(cats.results)) setCategories(cats.results)
+    }
+    loadCategories()
+  }, [])
+
+  const fetchTransactions = async (params = {}) => {
+    const qs = new URLSearchParams()
+
+    if (params.month) qs.set("month", params.month)
+    if (params.type) qs.set("type", params.type)
+    if (params.category) qs.set("category", params.category)
+    if (params.q) qs.set("q", params.q)
+    if (params.sort) qs.set("sort", params.sort)
+
+    const url = qs.toString() ? `/transactions/?${qs.toString()}` : "/transactions/"
+    const data = await apiFetch(url)
+
+    if (Array.isArray(data)) return data
+    if (data && Array.isArray(data.results)) return data.results
+    return []
+  }
+
+  useEffect(() => {
+    const run = async () => {
+      setLoading(true)
+      setErrorMsg("")
+      try {
+        const list = await fetchTransactions({ month, type, category, q, sort})
+        setTransactions(list)
+      } catch(err) {
+        setErrorMsg(err.message || "Failed to load transactions")
+      } finally {
+        setLoading(false)
+      }
+    }
+    run()
+  }, [month, type, category, q, sort])
 
   // Build Month options from current transactions (auto updates after add)
   const monthOptions = useMemo(() => {
     const set = new Set()
-    for (const t of transactions) set.add(t.date.slice(0, 7))
+    for (const t of transactions) {
+      if (t && typeof t.date === "string") set.add(t.date.slice(0, 7))
+    }
     return Array.from(set).sort().reverse()
   }, [transactions])
-
-  // Build Category options from current transactions (auto updates after add)
-  const categoryOptions = useMemo(() => {
-    const set = new Set()
-    for (const t of transactions) set.add(t.category)
-    return Array.from(set).sort()
-  }, [transactions])
-
-  // Apply filters to transactions
-  const filteredTransactions = useMemo(() => {
-    return transactions.filter((t) => {
-      const matchMonth = month ? t.date.startsWith(month) : true
-      const matchCategory = category ? t.category === category : true
-      const matchType = type ? t.type === type : true
-      return matchMonth && matchCategory && matchType
-    })
-  }, [transactions, month, category, type])
 
   // Generic form updater (updates one field at a time)
   const updateForm = (field, value) => {
@@ -65,7 +105,7 @@ export default function Transactions() {
     if (!form.type) e.type = "Type is required"
     if (!form.category) e.category = "Category is required"
     if (!form.amount || Number(form.amount) <= 0) e.amount = "Amount must be greater than 0"
-    setErrors(e)
+    setFieldErrors(e)
     return Object.keys(e).length === 0
   }
 
@@ -83,7 +123,7 @@ export default function Transactions() {
             description: "",
             amount: "",
           })
-          setErrors({})
+          setFieldErrors({})
           onOpen()
         }}>Add Transaction</Button>
       </HStack>
@@ -96,24 +136,37 @@ export default function Transactions() {
             ))}
           </Select>
           <Select placeholder="All Categories" maxW="200px" value={category} onChange={(e) => setCategory(e.target.value)}>
-            {categoryOptions.map((c) => (
-              <option key={c} value={c}>{c}</option>
+            {categories.map((c) => (
+              <option key={c.id} value={String(c.id)}>{c.name}</option>
             ))}
           </Select>
           <Select placeholder="All Types" maxW="200px" value={type} onChange={(e) => setType(e.target.value)}>
             <option value="income">Income</option>
             <option value="expense">Expense</option>
           </Select>
+          <Select maxW="220px" value={sort} onChange={(e) => setSort(e.target.value)}>
+            <option value="date_desc">Date: New → Old </option>
+            <option value="date_asc">Date: Old → New </option>
+            <option value="amount_desc">Amount: High → Low </option>
+            <option value="amount_asc">Amount: Low → High </option>
+          </Select>
+          <Input placeholder="Search" maxW="260px" value={q} onChange={(e) => setQ(e.target.value)} />
         </HStack>
         <Button variant="outline" size="md" minW="96px" onClick={() => {
           setMonth("") 
           setCategory("") 
-          setType("")}}>
+          setType("")
+          setQ("")
+          setSort("date_desc")}}>
           Reset
         </Button>
       </HStack>
 
-    {filteredTransactions.length === 0 ? (
+    {loading ? <Text>Loading</Text> : null}
+    {errorMsg ? <Text color="red.500">{errorMsg}</Text> : null}
+
+    {!loading && !errorMsg ? (
+      transactions.length === 0 ? (
         <Box bg="white" borderRadius="12px" p={10} textAlign="center" boxShadow="sm">
           <Text fontSize="lg" fontWeight="semibold" mb={2}>No transactions found.</Text>
           <Text color="gray.500">Try adjusting your filters or add a new transaction</Text>
@@ -132,27 +185,35 @@ export default function Transactions() {
             </Thead>
 
             <Tbody>
-              {filteredTransactions.map((t) => (
+              {transactions.map((t) => (
                 <Tr
                  key={t.id}
                  cursor="pointer"
                  _hover={{ bg: "gray.50"}}
                  onClick={() => {
                   setEditingId(t.id)
+
+                  let categoryValue = ""
+                  if (t.category && typeof t.category === "object" && t.category.id != null) {
+                    categoryValue = String(t.category.id)
+                  } else if (t.category != null) {
+                    categoryValue = String(t.category)
+                  }
+
                   setForm({
                     date: t.date,
                     type: t.type,
-                    category: t.category,
+                    category: categoryValue,
                     description: t.description,
                     amount: t.amount,
                   })
-                  setErrors({})
+                  setFieldErrors({})
                   onOpen()
                  }}
                 >
                   <Td>{t.date}</Td>
                   <Td>{typeBadge(t.type)}</Td>
-                  <Td>{t.category}</Td>
+                  <Td>{getCategoryName(t)}</Td>
                   <Td>
                     <Text noOfLines={1}>{t.description}</Text>
                   </Td>
@@ -162,7 +223,8 @@ export default function Transactions() {
             </Tbody>
           </Table>
         </TableContainer>
-      )}
+      )
+    ) : null}
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
@@ -174,7 +236,7 @@ export default function Transactions() {
 
           <ModalBody>
             <Stack spacing={4}>
-              <FormField label="Date" error={errors.date}>
+              <FormField label="Date" error={fieldErrors.date}>
                 <Input 
                  type="date"
                  value={form.date}
@@ -182,7 +244,7 @@ export default function Transactions() {
                 />
               </FormField>
 
-              <FormField label="Type" error={errors.type}>
+              <FormField label="Type" error={fieldErrors.type}>
                 <RadioGroup value={form.type} onChange={(v) => updateForm("type", v)}>
                   <Stack direction="row">
                     <Radio value="expense">Expense</Radio>
@@ -191,12 +253,17 @@ export default function Transactions() {
                 </RadioGroup>
               </FormField>
 
-              <FormField label="Category" error={errors.category}>
-                <Input
-                 placeholder="e.g. Food"
-                 value={form.category}
-                 onChange={(e) => updateForm("category", e.target.value)}
-                />
+              <FormField label="Category" error={fieldErrors.category}>
+                <Select
+                  placeholder="Select category"
+                  value={form.category}
+                  onChange={(e) => updateForm("category", e.target.value)}>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                </Select>
               </FormField>
 
               <FormControl>
@@ -208,7 +275,7 @@ export default function Transactions() {
                 />
               </FormControl>
 
-              <FormField label="Amount" error={errors.amount}>
+              <FormField label="Amount" error={fieldErrors.amount}>
                 <NumberInput value={form.amount} onChange={(v) => updateForm("amount", v)}>
                   <NumberInputField />
                 </NumberInput>
@@ -218,31 +285,73 @@ export default function Transactions() {
 
           <ModalFooter>
             <Button variant="ghost" mr={3} onClick={onClose}>Cancel</Button>
-            <Button colorScheme="blue" onClick={() => {
+            { editingId ? (
+              <Button
+                colorScheme="red"
+                variant="ghost"
+                mr={3}
+                onClick={async () => {
+                  const ok = window.confirm("Delete this transaction?")
+                  if (!ok) return
+
+                  setErrorMsg("")
+                  try {
+                    await apiFetch(`/transactions/${editingId}/`, { method: "DELETE"})
+                    const list = await fetchTransactions({ month, type, category })
+                    setTransactions(list)
+                    onClose()
+                    setEditingId(null)
+                  } catch (err){
+                    setErrorMsg(err.data ? JSON.stringify(err.data) : (err.message || "Delete failed"))
+                  }
+                }}
+                >
+                Delete
+              </Button>
+            ): null}
+            <Button colorScheme="blue" onClick={async () => {
               if (!validateForm()) return
 
               if (editingId) {
-                setTransactions((prev) =>
-                  prev.map((t) =>
-                    t.id === editingId ? {
-                      ...t,
-                      date: form.date,
-                      type: form.type,
-                      category: form.category.trim(),
-                      description: form.description.trim(),
-                      amount: Number(form.amount),
-                    } : t
-                  ))
-              } else {
-                const newTx = {
-                  id: crypto.randomUUID(),
+                const payload = {
                   date: form.date,
                   type: form.type,
-                  category: form.category.trim(),
+                  category_id: Number(form.category),
+                  description: form.description.trim(),
+                  amount: Number(form.amount),
+                }
+
+                await apiFetch("/transactions/" + editingId + "/", {
+                  method: "PATCH",
+                  body: payload,
+                })
+
+                const list = await fetchTransactions({ month, type, category })
+                setTransactions(list)
+              } else {
+                const payload = {
+                  date: form.date,
+                  type: form.type,
+                  category_id: Number(form.category),
                   description: form.description.trim(),
                   amount: Number(form.amount),
                   }
-                setTransactions((prev) => [...prev, newTx])
+
+                try {
+                  await apiFetch("/transactions/", {
+                    method: "POST",
+                    body: payload,
+                  })
+                } catch (err) {
+                  console.log("POST status:", err.status)
+                  console.log("POST data:", err.data)
+                  setErrorMsg(err.data ? JSON.stringify(err.data) : (err.message || "Create failed"))
+                  return
+                }
+
+
+                const list = await fetchTransactions({ month, type, category })
+                setTransactions(list)
               }
 
               setForm({
@@ -253,7 +362,7 @@ export default function Transactions() {
                 amount: "",
               })
               setEditingId(null)
-              setErrors({})
+              setFieldErrors({})
               onClose()
             }}>
               Save</Button>

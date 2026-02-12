@@ -10,6 +10,7 @@ class Category(models.Model):
     class Meta:
         unique_together = ("user", "name")
         ordering = ["name"]
+        verbose_name_plural = "Categories"
 
     def __str__(self):
         return self.name
