@@ -1,7 +1,9 @@
 import { Box, Heading, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Badge, Text, Select, HStack, Button } from "@chakra-ui/react"
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, ModalCloseButton, useDisclosure } from "@chakra-ui/react"
 import { FormControl, FormLabel, Input, NumberInput, NumberInputField, RadioGroup, Radio, Stack } from "@chakra-ui/react"
-import { useEffect, useMemo, useState } from "react"
+import { Spinner, Center, Alert, AlertIcon, AlertTitle, AlertDescription, useToast, AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay } from "@chakra-ui/react"
+import { useEffect, useMemo, useState, useRef } from "react"
+import { FiFileText } from "react-icons/fi"
 import FormField from "../components/ui/FormField"
 import { apiFetch } from "../api/clientFetch"
 
@@ -21,6 +23,8 @@ const getCategoryName = (t) => {
 
 export default function Transactions() {
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const toast = useToast()
+  const cancelRef = useRef()
 
   // Filter states
   const [month, setMonth] = useState("")
@@ -36,11 +40,14 @@ export default function Transactions() {
   const [errorMsg, setErrorMsg] = useState("")
   const [fieldErrors, setFieldErrors] = useState({})
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [transactions, setTransactions] = useState([])
   const [editingId, setEditingId] = useState(null)
   const [categories, setCategories] = useState([])
   const [q, setQ] = useState("")
   const [sort, setSort] = useState("date_desc")
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 
   const loadCategories = async () => {
     try {
@@ -80,15 +87,18 @@ export default function Transactions() {
     if (data && Array.isArray(data.results)) return data.results
     return []
   }
-
+  
+  const reloadTransactions = async () => {
+    const list = await fetchTransactions({ month, type, category, q, sort})
+    setTransactions(list)
+  }
 
   useEffect(() => {
     const run = async () => {
       setLoading(true)
       setErrorMsg("")
       try {
-        const list = await fetchTransactions({ month, type, category, q, sort})
-        setTransactions(list)
+        await reloadTransactions()
       } catch(err) {
         setErrorMsg(err.message || "Failed to load transactions")
       } finally {
@@ -122,6 +132,9 @@ export default function Transactions() {
     setFieldErrors(e)
     return Object.keys(e).length === 0
   }
+
+  const openDelete = () => setIsDeleteOpen(true)
+  const closeDelete = () => setIsDeleteOpen(false)
 
   return (
 
@@ -176,14 +189,64 @@ export default function Transactions() {
         </Button>
       </HStack>
 
-    {loading ? <Text>Loading</Text> : null}
-    {errorMsg ? <Text color="red.500">{errorMsg}</Text> : null}
+    {loading ? (
+      <Center py={16}>
+        <HStack spacing={3}>
+          <Spinner />
+          <Text>Loading transactions...</Text>
+        </HStack>
+      </Center>
+    ) : null }
+
+    {!loading && errorMsg ? (
+      <Alert status="error" borderRadius="12px" mb={6}>
+        <AlertIcon />
+        <Box flex="1">
+          <AlertTitle>Failed to load transactions</AlertTitle>
+          <AlertDescription>{errorMsg}</AlertDescription>
+        </Box>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={async () => {
+            setLoading(true)
+            setErrorMsg("")
+            try {
+              await reloadTransactions()
+            } catch (err) {
+              setErrorMsg(err.message || "Failed to load transactions")
+            } finally {
+              setLoading(false)
+            }
+          }}
+          >
+          Retry
+        </Button>
+      </Alert>
+    ) : null}
 
     {!loading && !errorMsg ? (
       transactions.length === 0 ? (
         <Box bg="white" borderRadius="12px" p={10} textAlign="center" boxShadow="sm">
+          <Box w="72px" h="72px" mx="auto" mb={5} borderRadius="20px" bg="blue.50" display="flex" alignItems="center" justifyContent="center">
+            <FiFileText size={32} color="#3182CE" />
+          </Box>
           <Text fontSize="lg" fontWeight="semibold" mb={2}>No transactions found.</Text>
           <Text color="gray.500">Try adjusting your filters or add a new transaction</Text>
+          <Button mt={6} colorScheme="blue" onClick={() => {
+            setEditingId(null)
+            setForm({
+              date: "",
+              type: "expense",
+              category: "",
+              description: "",
+              amount: "",
+            })
+            setFieldErrors({})
+            onOpen()
+          }}>
+            Add Transaction
+          </Button>
         </Box>
       ) : (
         <TableContainer bg="white" borderRadius="12px" p={4} boxShadow="sm">
@@ -304,85 +367,133 @@ export default function Transactions() {
                 colorScheme="red"
                 variant="ghost"
                 mr={3}
-                onClick={async () => {
-                  const ok = window.confirm("Delete this transaction?")
-                  if (!ok) return
-
-                  setErrorMsg("")
-                  try {
-                    await apiFetch(`/transactions/${editingId}/`, { method: "DELETE"})
-                    const list = await fetchTransactions({ month, type, category })
-                    setTransactions(list)
-                    onClose()
-                    setEditingId(null)
-                  } catch (err){
-                    setErrorMsg(err.data ? JSON.stringify(err.data) : (err.message || "Delete failed"))
-                  }
-                }}
-                >
+                onClick={openDelete}
+              >
                 Delete
               </Button>
             ): null}
-            <Button colorScheme="blue" onClick={async () => {
+            <Button colorScheme="blue" isLoading={saving} isDisabled={saving} 
+              onClick={async () => {
               if (!validateForm()) return
+              setSaving(true)
+              setErrorMsg("")
 
-              if (editingId) {
-                const payload = {
-                  date: form.date,
-                  type: form.type,
-                  category_id: Number(form.category),
-                  description: form.description.trim(),
-                  amount: Number(form.amount),
-                }
-
-                await apiFetch("/transactions/" + editingId + "/", {
-                  method: "PATCH",
-                  body: payload,
-                })
-
-                const list = await fetchTransactions({ month, type, category })
-                setTransactions(list)
-              } else {
-                const payload = {
-                  date: form.date,
-                  type: form.type,
-                  category_id: Number(form.category),
-                  description: form.description.trim(),
-                  amount: Number(form.amount),
+              try {
+                if (editingId) {
+                  const payload = {
+                    date: form.date,
+                    type: form.type,
+                    category_id: Number(form.category),
+                    description: form.description.trim(),
+                    amount: Number(form.amount),
                   }
 
-                try {
-                  await apiFetch("/transactions/", {
-                    method: "POST",
+                  await apiFetch("/transactions/" + editingId + "/", {
+                    method: "PATCH",
                     body: payload,
                   })
-                } catch (err) {
-                  console.log("POST status:", err.status)
-                  console.log("POST data:", err.data)
-                  setErrorMsg(err.data ? JSON.stringify(err.data) : (err.message || "Create failed"))
-                  return
+                  await reloadTransactions()
+
+                  toast({
+                    title: "Updated",
+                    description: "Transaction updated successfully.",
+                    status: "success",
+                    duration: 2000,
+                    isClosable: true,
+                  })
+                } else {
+                  const payload = {
+                    date: form.date,
+                    type: form.type,
+                    category_id: Number(form.category),
+                    description: form.description.trim(),
+                    amount: Number(form.amount),
+                    }
+
+                  await apiFetch("/transactions/", {method: "POST", body: payload})
+                  await reloadTransactions()
+
+                  toast({
+                    title: "Created",
+                    description: "Transaction created successfully.",
+                    status: "success",
+                    duration: 2000,
+                    isClosable: true,
+                  })
                 }
-
-
-                const list = await fetchTransactions({ month, type, category })
-                setTransactions(list)
+                setForm({
+                  date: "",
+                  type: "expense",
+                  category: "",
+                  description: "",
+                  amount: "",
+                })
+                setEditingId(null)
+                setFieldErrors({})
+                onClose()
+              } catch (err) {
+                setErrorMsg(err.data ? JSON.stringify(err.data) : (err.message || "Save failed"))
+              } finally {
+                setSaving(false)
               }
-
-              setForm({
-                date: "",
-                type: "expense",
-                category: "",
-                description: "",
-                amount: "",
-              })
-              setEditingId(null)
-              setFieldErrors({})
-              onClose()
             }}>
               Save</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      <AlertDialog
+        isOpen={isDeleteOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={closeDelete}
+        isCentered
+      >
+        <AlertDialogOverlay />
+        <AlertDialogContent>
+          <AlertDialogHeader fontSize="lg" fontWeight="bold">
+            Delete Transaction
+          </AlertDialogHeader>
+
+          <AlertDialogBody>
+            Are you sure? This action cannot be undone.
+          </AlertDialogBody>
+
+          <AlertDialogFooter>
+            <Button ref={cancelRef} onClick={closeDelete}>Cancel</Button>
+            <Button
+              colorScheme="red"
+              ml={3}
+              onClick={async () => {
+                setDeleting(true)
+                setErrorMsg("")
+                try {
+                  await apiFetch(`/transactions/${editingId}/`, { method: "DELETE"})
+                  await reloadTransactions()
+
+                  toast({
+                    title: "Deleted",
+                    description: "Transaction deleted successfully.",
+                    status: "success",
+                    duration: 2000,
+                    isClosable: true,
+                  })
+
+                  closeDelete()
+                  onClose()
+                  setEditingId(null)
+                } catch (err) {
+                  setErrorMsg(err.data ? JSON.stringify(err.data) : (err.message || "Delete failed"))
+                  closeDelete()
+                } finally {
+                  setDeleting(false)
+                }
+              }}
+              >
+              Delete
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Box>
   )
 }
