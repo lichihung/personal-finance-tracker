@@ -1,11 +1,10 @@
-import { Box, Heading, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Badge, Text, Select, HStack, Button } from "@chakra-ui/react"
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, ModalCloseButton, useDisclosure } from "@chakra-ui/react"
-import { FormControl, FormLabel, Input, NumberInput, NumberInputField, RadioGroup, Radio, Stack } from "@chakra-ui/react"
+import { Box, Heading, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Badge, Text, Select, HStack, Button, useDisclosure, Input} from "@chakra-ui/react"
 import { Spinner, Center, Alert, AlertIcon, AlertTitle, AlertDescription, useToast, AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay } from "@chakra-ui/react"
 import { useEffect, useMemo, useState, useRef } from "react"
 import { FiFileText } from "react-icons/fi"
-import FormField from "../components/ui/FormField"
-import { apiFetch } from "../api/clientFetch"
+import TransactionFormModal from "../components/transactions/TransactionFormModal"
+import { getTransactions, createTransaction, updateTransaction, deleteTransaction } from "../api/transactionService"
+import { getCategories } from "../api/categoryService"
 
 
 // Badge UI for transaction type
@@ -49,12 +48,72 @@ export default function Transactions() {
   const [sort, setSort] = useState("date_desc")
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 
+  const handleSave = async () => {
+    if (!validateForm()) return
+    setSaving(true)
+    setErrorMsg("")
+
+    try {
+      if (editingId) {
+        const payload = {
+          date: form.date,
+          type: form.type,
+          category_id: Number(form.category),
+          description: form.description.trim(),
+          amount: Number(form.amount),
+        }
+
+        await updateTransaction(editingId, payload)
+        await reloadTransactions()
+
+        toast({
+          title: "Updated",
+          description: "Transaction updated successfully.",
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+        })
+      } else {
+        const payload = {
+          date: form.date,
+          type: form.type,
+          category_id: Number(form.category),
+          description: form.description.trim(),
+          amount: Number(form.amount),
+          }
+
+        await createTransaction(payload)
+        await reloadTransactions()
+
+        toast({
+          title: "Created",
+          description: "Transaction created successfully.",
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+        })
+      }
+      setForm({
+        date: "",
+        type: "expense",
+        category: "",
+        description: "",
+        amount: "",
+      })
+      setEditingId(null)
+      setFieldErrors({})
+      onClose()
+    } catch (err) {
+      setErrorMsg(err.data ? JSON.stringify(err.data) : (err.message || "Save failed"))
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const loadCategories = async () => {
     try {
-      const cats = await apiFetch("/categories/")
-      if (Array.isArray(cats)) setCategories(cats)
-      else if (cats && Array.isArray(cats.results)) setCategories(cats.results)
-      else setCategories([])
+      const cats = await getCategories()
+      setCategories(cats)
     } catch (err) {
 
     }
@@ -70,26 +129,9 @@ export default function Transactions() {
     window.addEventListener("focus", onFocus)
     return () => window.removeEventListener("focus", onFocus)
   }, [])
-
-  const fetchTransactions = async (params = {}) => {
-    const qs = new URLSearchParams()
-
-    if (params.month) qs.set("month", params.month)
-    if (params.type) qs.set("type", params.type)
-    if (params.category) qs.set("category", params.category)
-    if (params.q) qs.set("q", params.q)
-    if (params.sort) qs.set("sort", params.sort)
-
-    const url = qs.toString() ? `/transactions/?${qs.toString()}` : "/transactions/"
-    const data = await apiFetch(url)
-
-    if (Array.isArray(data)) return data
-    if (data && Array.isArray(data.results)) return data.results
-    return []
-  }
   
   const reloadTransactions = async () => {
-    const list = await fetchTransactions({ month, type, category, q, sort})
+    const list = await getTransactions({ month, type, category, q, sort})
     setTransactions(list)
   }
 
@@ -303,144 +345,18 @@ export default function Transactions() {
       )
     ) : null}
 
-      <Modal isOpen={isOpen} onClose={onClose} isCentered>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>
-            {editingId ? "Edit Transaction" : "Add Transaction"}
-          </ModalHeader>
-          <ModalCloseButton />
-
-          <ModalBody>
-            <Stack spacing={4}>
-              <FormField label="Date" error={fieldErrors.date}>
-                <Input 
-                 type="date"
-                 value={form.date}
-                 onChange={(e) => updateForm("date", e.target.value)}
-                />
-              </FormField>
-
-              <FormField label="Type" error={fieldErrors.type}>
-                <RadioGroup value={form.type} onChange={(v) => updateForm("type", v)}>
-                  <Stack direction="row">
-                    <Radio value="expense">Expense</Radio>
-                    <Radio value="income">Income</Radio>
-                  </Stack>
-                </RadioGroup>
-              </FormField>
-
-              <FormField label="Category" error={fieldErrors.category}>
-                <Select
-                  placeholder="Select category"
-                  value={form.category}
-                  onChange={(e) => updateForm("category", e.target.value)}>
-                    {categories.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                </Select>
-              </FormField>
-
-              <FormControl>
-                <FormLabel>Description</FormLabel>
-                <Input
-                 placeholder="Optional"
-                 value={form.description}
-                 onChange={(e) => updateForm("description", e.target.value)}
-                />
-              </FormControl>
-
-              <FormField label="Amount" error={fieldErrors.amount}>
-                <NumberInput value={form.amount} onChange={(v) => updateForm("amount", v)}>
-                  <NumberInputField />
-                </NumberInput>
-              </FormField>
-            </Stack>
-          </ModalBody>
-
-          <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={onClose}>Cancel</Button>
-            { editingId ? (
-              <Button
-                colorScheme="red"
-                variant="ghost"
-                mr={3}
-                onClick={openDelete}
-              >
-                Delete
-              </Button>
-            ): null}
-            <Button colorScheme="blue" isLoading={saving} isDisabled={saving} 
-              onClick={async () => {
-              if (!validateForm()) return
-              setSaving(true)
-              setErrorMsg("")
-
-              try {
-                if (editingId) {
-                  const payload = {
-                    date: form.date,
-                    type: form.type,
-                    category_id: Number(form.category),
-                    description: form.description.trim(),
-                    amount: Number(form.amount),
-                  }
-
-                  await apiFetch("/transactions/" + editingId + "/", {
-                    method: "PATCH",
-                    body: payload,
-                  })
-                  await reloadTransactions()
-
-                  toast({
-                    title: "Updated",
-                    description: "Transaction updated successfully.",
-                    status: "success",
-                    duration: 2000,
-                    isClosable: true,
-                  })
-                } else {
-                  const payload = {
-                    date: form.date,
-                    type: form.type,
-                    category_id: Number(form.category),
-                    description: form.description.trim(),
-                    amount: Number(form.amount),
-                    }
-
-                  await apiFetch("/transactions/", {method: "POST", body: payload})
-                  await reloadTransactions()
-
-                  toast({
-                    title: "Created",
-                    description: "Transaction created successfully.",
-                    status: "success",
-                    duration: 2000,
-                    isClosable: true,
-                  })
-                }
-                setForm({
-                  date: "",
-                  type: "expense",
-                  category: "",
-                  description: "",
-                  amount: "",
-                })
-                setEditingId(null)
-                setFieldErrors({})
-                onClose()
-              } catch (err) {
-                setErrorMsg(err.data ? JSON.stringify(err.data) : (err.message || "Save failed"))
-              } finally {
-                setSaving(false)
-              }
-            }}>
-              Save</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <TransactionFormModal
+        isOpen={isOpen}
+        onClose={onClose}
+        editingId={editingId}
+        form={form}
+        updateForm={updateForm}
+        fieldErrors={fieldErrors}
+        categories={categories}
+        saving={saving}
+        onSave={handleSave}
+        onDelete={openDelete}
+       />
 
       <AlertDialog
         isOpen={isDeleteOpen}
@@ -463,11 +379,13 @@ export default function Transactions() {
             <Button
               colorScheme="red"
               ml={3}
+              isLoading={deleting}
+              isDisabled={deleting}
               onClick={async () => {
                 setDeleting(true)
                 setErrorMsg("")
                 try {
-                  await apiFetch(`/transactions/${editingId}/`, { method: "DELETE"})
+                  await deleteTransaction(editingId)
                   await reloadTransactions()
 
                   toast({
