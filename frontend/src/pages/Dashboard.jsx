@@ -1,7 +1,7 @@
-import { Heading, Text, Box , Stat, StatLabel, StatNumber, SimpleGrid} from "@chakra-ui/react"
+import { Heading, Text, Box , Stat, StatLabel, StatNumber, SimpleGrid, HStack, Button} from "@chakra-ui/react"
 import { useEffect, useState } from "react"
 import { apiFetch } from "../api/clientFetch"
-import { PieChart, Pie, Tooltip, Legend, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Cell } from "recharts"
+import { PieChart, Pie, Tooltip, Legend, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Cell, BarChart, Bar } from "recharts"
 
 function getCurrentMonth() {
   const d = new Date()
@@ -14,6 +14,7 @@ export default function Dashboard() {
   const [transactions, setTransactions] = useState([])
   const [loading, setLoading] = useState(true)
   const [errorMsg, setErrorMsg] = useState("")
+  const [chartType, setChartType] = useState("bar")
 
   useEffect(() => {
     const load = async () => {
@@ -145,7 +146,7 @@ export default function Dashboard() {
                       <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]}/>
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip formatter={(value, name) => [money(value), name]}/>
                   <Legend layout="vertical" align="right" verticalAlign="middle"/>
                 </PieChart>
               </ResponsiveContainer>
@@ -153,27 +154,52 @@ export default function Dashboard() {
           </Box>
 
           <Box bg="white" p={6} borderRadius="lg" boxShadow="sm" mt={6} height="320px">
-            <Heading size="md" mb={4}>Daily Expense Trend</Heading>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+              <Heading size="md">Daily Expense Trend</Heading>
+              <HStack>
+                <Button size="sm" variant={chartType === "bar" ? "solid" : "outline"} onClick={() => setChartType("bar")}>Bar</Button>
+                <Button size="sm" variant={chartType === "line" ? "solid" : "outline"} onClick={() => setChartType("line")}>Line</Button>
+              </HStack>
+            </Box>
+
 
             {dailyExpenseData.length === 0 ? (
               <Text color="gray.500">No expense data this month.</Text>
             ) : (
               <ResponsiveContainer width="100%" height={260}>
-                <LineChart data={dailyExpenseData}>
-                  <CartesianGrid strokeDasharray="3 3"/>
-                  <XAxis
-                   dataKey="date"
-                   tickFormatter={shortDate}
-                   interval="preserveStartEnd"
-                   minTickGap={20}
-                   />
-                  <YAxis tickFormatter={moneyShort}/>
-                  <Tooltip 
-                    labelFormatter={(label) => `Date: ${shortDate(label)}`}
-                    formatter={(value) => [money(value), "Expense"]}
+                {chartType === "bar" ? (
+                  <BarChart data={dailyExpenseData}>
+                    <CartesianGrid strokeDasharray="3 3"/>
+                    <XAxis
+                      dataKey="date"
+                      tickFormatter={shortDate}
+                      interval="preserveStartEnd"
+                      minTickGap={20}
                     />
-                  <Line type="linear" dataKey="expense" />
-                </LineChart>
+                    <YAxis tickFormatter={moneyShort}/>
+                    <Tooltip 
+                      labelFormatter={(label) => `Date: ${shortDate(label)}`}
+                      formatter={(value) => [money(value), "Expense"]}
+                      />
+                    <Bar dataKey="expense" />
+                  </BarChart>
+                ) : (
+                  <LineChart data={dailyExpenseData}>
+                    <CartesianGrid strokeDasharray="3 3"/>
+                    <XAxis
+                      dataKey="date"
+                      tickFormatter={shortDate}
+                      interval="preserveStartEnd"
+                      minTickGap={20}
+                    />
+                    <YAxis tickFormatter={moneyShort}/>
+                    <Tooltip 
+                      labelFormatter={(label) => `Date: ${shortDate(label)}`}
+                      formatter={(value) => [money(value), "Expense"]}
+                      />
+                    <Line type="linear" dataKey="expense" />
+                  </LineChart>
+                )}
               </ResponsiveContainer>
             )}
           </Box>

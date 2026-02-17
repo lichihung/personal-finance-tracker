@@ -10,6 +10,7 @@ from .models import Category, Transaction
 from .serializers import CategorySerializer, TransactionSerializer, RegisterSerializer
 from datetime import date
 from django.utils.dateparse import parse_date
+from django.db import IntegrityError
 
 # Create your views here.
 class CategoryViewSet(ModelViewSet):
@@ -20,6 +21,17 @@ class CategoryViewSet(ModelViewSet):
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        try:
+            self.perform_destroy(instance)
+        except IntegrityError:
+            return Response(
+                {"detail": "Category is used by transactions."},
+                status = status.HTTP_409_CONFLICT,
+            )
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class TransactionViewSet(ModelViewSet):
     serializer_class = TransactionSerializer

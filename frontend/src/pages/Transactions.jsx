@@ -47,7 +47,31 @@ export default function Transactions() {
   const [q, setQ] = useState("")
   const [sort, setSort] = useState("date_desc")
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+  const [allMonths, setAllMonths] = useState([])
 
+  const upsertMonthOption = (dateStr) => {
+    if (!dateStr || typeof dateStr !== "string") return
+    const ym = dateStr.slice(0, 7)
+
+    setAllMonths((prev) => {
+      if(prev.includes(ym)) return prev
+      return [ym, ...prev].sort().reverse()
+    })
+  }
+
+  const removeMonthIfEmpty = (ym) => {
+    if (!ym) return
+
+    const remaining = new Set()
+    for (const t of transactions) {
+      if (t?.data) remaining.add(t.date.slice(0, 7))
+    }
+    
+    if (!remaining.has(ym)) {
+      setAllMonths((prev) => prev.filter((m) => m !== ym))
+      setMonth((prev) => (prev === ym ? "" : prev))
+    }
+  }
   const handleSave = async () => {
     if (!validateForm()) return
     setSaving(true)
@@ -64,6 +88,7 @@ export default function Transactions() {
         }
 
         await updateTransaction(editingId, payload)
+        upsertMonthOption(form.date)
         await reloadTransactions()
 
         toast({
@@ -83,6 +108,7 @@ export default function Transactions() {
           }
 
         await createTransaction(payload)
+        upsertMonthOption(form.date)
         await reloadTransactions()
 
         toast({
@@ -150,14 +176,21 @@ export default function Transactions() {
     run()
   }, [month, type, category, q, sort])
 
-  // Build Month options from current transactions (auto updates after add)
-  const monthOptions = useMemo(() => {
-    const set = new Set()
-    for (const t of transactions) {
-      if (t && typeof t.date === "string") set.add(t.date.slice(0, 7))
+  useEffect(() => {
+    const loadMonthOptions = async () => {
+      try {
+        const list = await getTransactions({ type, category, q, sort})
+        const set = new Set()
+        for (const t of list) {
+          if (t?.date) set.add(t.date.slice(0,7))
+        }
+        setAllMonths(Array.from(set).sort().reverse())
+      } catch (err) {
+
+      }
     }
-    return Array.from(set).sort().reverse()
-  }, [transactions])
+    loadMonthOptions()
+  }, [])
 
   // Generic form updater (updates one field at a time)
   const updateForm = (field, value) => {
@@ -200,7 +233,7 @@ export default function Transactions() {
       <HStack spacing={4} mb={6} align="flex-end">
         <HStack spacing={4}>
           <Select placeholder="All Months" maxW="200px" value={month} onChange={(e) => setMonth(e.target.value)}>
-            {monthOptions.map((m) => (
+            {allMonths.map((m) => (
               <option key={m} value={m}>{m}</option>
             ))}
           </Select>
@@ -385,8 +418,10 @@ export default function Transactions() {
                 setDeleting(true)
                 setErrorMsg("")
                 try {
+                  const deletedYm = transactions.find((t) => t.id === editingId)?.date?.slice(0, 7)
                   await deleteTransaction(editingId)
                   await reloadTransactions()
+                  removeMonthIfEmpty(deletedYm)
 
                   toast({
                     title: "Deleted",

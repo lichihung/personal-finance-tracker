@@ -5,17 +5,14 @@ import { useNavigate} from "react-router-dom"
 
 import AuthCard from "../components/auth/AuthCard"
 import FormField from "../components/ui/FormField"
-import { login } from "../api/authFetch"
+import { login, register as registerUser } from "../api/authFetch"
 import { isAuthed } from "../api/clientFetch"
-
-function isValidEmail(value){
-  return value.includes("@") || "Please enter a valid email."
-}
 
 export default function Login() {
   const navigate = useNavigate()
   const [mode, setMode] = useState("login")
   const [showPw, setShowPw] = useState(true)
+  const [showConfirmPw, setShowConfirmPw] = useState(false)
 
   const title = useMemo(
     () => (mode === "login" ? "Welcome back" : "Create account"), [mode]
@@ -42,10 +39,17 @@ export default function Login() {
 
   const onSubmit = async (values) => {
     try {
-      await login(values.username, values.password)
-      navigate("/dashboard", {replace: true})
+      if (mode === "login") {
+        await login(values.username, values.password)
+        navigate("/dashboard", {replace: true})
+      } else {
+        await registerUser(values.username, values.password)
+        await login(values.username, values.password)
+        navigate("/dashboard", {replace: true})
+      }
     } catch (err) {
       console.error(err)
+      alert(err.message || "Failed")
     }
   }
 
@@ -79,13 +83,21 @@ export default function Login() {
 
               {mode === "register" ? (
                 <FormField label="Confirm Password" error={errors.confirmPassword?.message}>
-                  <Input
-                    placeholder="Re-enter password"
-                    type={showPw ? "password" : "text"}
-                    {...register("confirmPassword", {
-                      required: "Please confrim your password.", 
-                      validate: (v) => v === password || "Password do not match",})}
-                  />
+                  <InputGroup>
+                    <Input
+                      placeholder="Re-enter password"
+                      type={showConfirmPw ? "text" : "password"}
+                      {...register("confirmPassword", {
+                        required: "Please confrim your password.", 
+                        validate: (v) => v === password || "Password do not match",})}
+                    />
+                    <InputRightElement width="4.5em">
+                      <Button h="1.75rem" size="sm" variant="ghost" onClick={()=> setShowConfirmPw((v) => (!v))}>
+                        {showConfirmPw ? "Show" : "Hide"}
+                      </Button>
+                    </InputRightElement>
+                  </InputGroup>
+
                 </FormField>
               ) : null}
 

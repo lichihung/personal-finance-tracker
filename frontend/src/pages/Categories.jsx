@@ -96,7 +96,7 @@ export default function Categories() {
         else if (fresh && Array.isArray(fresh.results)) setCategories(fresh.results)
         else setCategories([])
 
-        toast({ title: "Category added.", status: "success" })
+        toast({ title: "Category added.", status: "success", duration: 2500, isClosable: true })
       } catch (err) {
         toast({ title: err.message || "Created failed", status: "error"})
         return
@@ -106,6 +106,11 @@ export default function Categories() {
     setEditing(null)
   }
 
+  const getErrMsg = (err) => {
+    if (err?.data?.detail) return err.data.detail
+    if (err?.data?.name?.[0]) return err.data.name[0]
+    return err?.message || "Delete failed"
+  }
   const confirmDelete = async () => {
     if (!categoryToDelete) return
 
@@ -116,9 +121,13 @@ export default function Categories() {
 
       setCategories((prev) => prev.filter((c) => c.id !== categoryToDelete.id))
       setDeleteId(null)
-      toast({ title: "Category deleted.", status: "success"})
+      toast({ title: "Category deleted", status: "success", duration: 2500, isClosable: true })
     } catch (err) {
-      toast({ title: err.data ? JSON.stringify(err.data) : (err.message || "Delete failed"), status: "error"})
+      if (err.status === 409) {
+        toast({ title: "Can't delete", description: err.data.detail, status: "error", duration: 3000, isClosable: true })
+        return
+      }
+      toast({ title: "Delete failed", description: getErrMsg(err), status: "error", duration: 2500, isClosable: true })
     }
   }
 
