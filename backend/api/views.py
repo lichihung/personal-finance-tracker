@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
@@ -83,6 +83,26 @@ class TransactionViewSet(ModelViewSet):
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+    @action(detail=False, methods=["get"], url_path="months")
+    def months(self, request):
+        qs = self.get_queryset()
+
+        tx_type = self.request.query_params.get("type")
+        category_id = self.request.query_params.get("category")
+        q = self.request.query_params.get("q")
+
+        if tx_type in ("income", "expense"):
+            qs = qs.filter(type=tx_type)
+
+        if category_id and category_id.isdigit():
+            qs = qs.filter(category_id=int(category_id))
+
+        if q:
+            qs = qs.filter(description__icontains = q)
+
+        months = sorted({d.strftime("%Y-%m") for d in qs.values_list("date", flat=True)}, reverse=True)
+        return Response({"results": months})
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]

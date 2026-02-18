@@ -4,7 +4,7 @@ from .models import Category, Transaction
 # Register your models here.
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_disply = ("id", "name", "user", "created_at")
+    list_display = ("id", "name", "user", "created_at")
     search_fields = ("name", "user__username")
     list_filter = ("created_at",)
 

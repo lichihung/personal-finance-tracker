@@ -1,16 +1,17 @@
-import { Box, Heading, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Badge, Text, Select, HStack, Button, useDisclosure, Input} from "@chakra-ui/react"
+import { Box, Heading, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Badge, Text, Select, HStack, Button, useDisclosure, Input, Flex, Wrap, WrapItem } from "@chakra-ui/react"
 import { Spinner, Center, Alert, AlertIcon, AlertTitle, AlertDescription, useToast, AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay } from "@chakra-ui/react"
-import { useEffect, useMemo, useState, useRef } from "react"
+import { useEffect, useState, useRef, useCallback } from "react"
 import { FiFileText } from "react-icons/fi"
+import { FiChevronRight, FiChevronLeft, FiPlus } from "react-icons/fi"
 import TransactionFormModal from "../components/transactions/TransactionFormModal"
-import { getTransactions, createTransaction, updateTransaction, deleteTransaction } from "../api/transactionService"
+import { getTransactions, createTransaction, updateTransaction, deleteTransaction, getTransactionMonths } from "../api/transactionService"
 import { getCategories } from "../api/categoryService"
 
 
 // Badge UI for transaction type
 const typeBadge = (type) => {
-  if (type === "income") return <Badge colorScheme="green">Income</Badge>
-  return <Badge colorScheme="red">Expense</Badge>
+  if (type === "income") return <Badge variant="dark">Income</Badge>
+  return <Badge variant="light">Expense</Badge>
 }
 
 const getCategoryName = (t) => {
@@ -42,6 +43,10 @@ export default function Transactions() {
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [transactions, setTransactions] = useState([])
+  const [page, setPage] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
+  const [next, setNext] = useState(null)
+  const [previous, setPrevious] = useState(null)
   const [editingId, setEditingId] = useState(null)
   const [categories, setCategories] = useState([])
   const [q, setQ] = useState("")
@@ -49,48 +54,109 @@ export default function Transactions() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
   const [allMonths, setAllMonths] = useState([])
 
-  const upsertMonthOption = (dateStr) => {
-    if (!dateStr || typeof dateStr !== "string") return
-    const ym = dateStr.slice(0, 7)
-
-    setAllMonths((prev) => {
-      if(prev.includes(ym)) return prev
-      return [ym, ...prev].sort().reverse()
-    })
+    // Generic form updater (updates one field at a time)
+  const updateForm = (field, value) => {
+    setForm((prev) => ({...prev, [field]: value}))
+  }
+  
+  // Basic client-side validation (required fields + amount > 0)
+  const validateForm = () => {
+    const e = {}
+    if (!form.date) e.date = "Date is required"
+    if (!form.type) e.type = "Type is required"
+    if (!form.category) e.category = "Category is required"
+    if (!form.amount || Number(form.amount) <= 0) e.amount = "Amount must be greater than 0"
+    setFieldErrors(e)
+    return Object.keys(e).length === 0
   }
 
-  const removeMonthIfEmpty = (ym) => {
-    if (!ym) return
+  const loadCategories = async () => {
+    try {
+      const cats = await getCategories()
+      setCategories(cats)
+    } catch (err) {
 
-    const remaining = new Set()
-    for (const t of transactions) {
-      if (t?.data) remaining.add(t.date.slice(0, 7))
-    }
-    
-    if (!remaining.has(ym)) {
-      setAllMonths((prev) => prev.filter((m) => m !== ym))
-      setMonth((prev) => (prev === ym ? "" : prev))
     }
   }
+
+  const loadMonths = useCallback(async () => {
+    try {
+      const months = await getTransactionMonths({ type, category, q })
+      setAllMonths(months)
+    } catch {
+      // ignore
+    }
+  }, [type, category, q])
+
+  const reloadTransactions = useCallback(async () => {
+    const data = await getTransactions({ month, type, category, q, sort, page })
+    setTransactions(data.results)
+    setTotalCount(data.count)
+    setNext(data.next)
+    setPrevious(data.previous)
+  }, [month, type, category, q, sort, page])
+
+  // initial load
+  useEffect(() => {
+    loadCategories()
+  }, [])
+
+  useEffect(() => {
+    const onFocus = () => loadCategories()
+    window.addEventListener("focus", onFocus)
+    return () => window.removeEventListener("focus", onFocus)
+  }, [])
+
+  // when filters (except page) change, reset page
+  useEffect(() => {
+    setPage(1)
+    setNext(null)
+    setPrevious(null)
+  }, [month, type, category, q, sort])
+
+  // fetch transactions
+  useEffect(() => {
+    const run = async () => {
+      setLoading(true)
+      setErrorMsg("")
+      try {
+        await reloadTransactions()
+      } catch (err) {
+        setErrorMsg(err.message || "Failed to load transactions")
+      } finally {
+        setLoading(false)
+      }
+    }
+    run()
+  }, [reloadTransactions])
+
+  // fetch months list (depends on type/category/q)
+  useEffect(() => {
+    loadMonths()
+  }, [loadMonths])
+
+  // if selected month disappears, reset to "All"
+  useEffect(() => {
+    if (month && !allMonths.includes(month)) setMonth("")
+  }, [allMonths, month])
+
+
   const handleSave = async () => {
     if (!validateForm()) return
     setSaving(true)
     setErrorMsg("")
 
     try {
+      const payload = {
+        date: form.date,
+        type: form.type,
+        category_id: Number(form.category),
+        description: form.description.trim(),
+        amount: Number(form.amount),
+      }
+
       if (editingId) {
-        const payload = {
-          date: form.date,
-          type: form.type,
-          category_id: Number(form.category),
-          description: form.description.trim(),
-          amount: Number(form.amount),
-        }
-
         await updateTransaction(editingId, payload)
-        upsertMonthOption(form.date)
-        await reloadTransactions()
-
         toast({
           title: "Updated",
           description: "Transaction updated successfully.",
@@ -99,18 +165,7 @@ export default function Transactions() {
           isClosable: true,
         })
       } else {
-        const payload = {
-          date: form.date,
-          type: form.type,
-          category_id: Number(form.category),
-          description: form.description.trim(),
-          amount: Number(form.amount),
-          }
-
         await createTransaction(payload)
-        upsertMonthOption(form.date)
-        await reloadTransactions()
-
         toast({
           title: "Created",
           description: "Transaction created successfully.",
@@ -119,6 +174,11 @@ export default function Transactions() {
           isClosable: true,
         })
       }
+
+      // refresh UI
+      await loadMonths()
+      await reloadTransactions()
+
       setForm({
         date: "",
         type: "expense",
@@ -136,134 +196,94 @@ export default function Transactions() {
     }
   }
 
-  const loadCategories = async () => {
-    try {
-      const cats = await getCategories()
-      setCategories(cats)
-    } catch (err) {
-
-    }
-  }
-  useEffect(() => {
-    loadCategories()
-  }, [])
-
-  useEffect(() => {
-    const onFocus = () => {
-      loadCategories()
-    }
-    window.addEventListener("focus", onFocus)
-    return () => window.removeEventListener("focus", onFocus)
-  }, [])
-  
-  const reloadTransactions = async () => {
-    const list = await getTransactions({ month, type, category, q, sort})
-    setTransactions(list)
-  }
-
-  useEffect(() => {
-    const run = async () => {
-      setLoading(true)
-      setErrorMsg("")
-      try {
-        await reloadTransactions()
-      } catch(err) {
-        setErrorMsg(err.message || "Failed to load transactions")
-      } finally {
-        setLoading(false)
-      }
-    }
-    run()
-  }, [month, type, category, q, sort])
-
-  useEffect(() => {
-    const loadMonthOptions = async () => {
-      try {
-        const list = await getTransactions({ type, category, q, sort})
-        const set = new Set()
-        for (const t of list) {
-          if (t?.date) set.add(t.date.slice(0,7))
-        }
-        setAllMonths(Array.from(set).sort().reverse())
-      } catch (err) {
-
-      }
-    }
-    loadMonthOptions()
-  }, [])
-
-  // Generic form updater (updates one field at a time)
-  const updateForm = (field, value) => {
-    setForm((prev) => ({...prev, [field]: value}))
-  }
-  
-  // Basic client-side validation (required fields + amount > 0)
-  const validateForm = () => {
-    const e = {}
-    if (!form.date) e.date = "Date is required"
-    if (!form.type) e.type = "Type is required"
-    if (!form.category) e.category = "Category is required"
-    if (!form.amount || Number(form.amount) <= 0) e.amount = "Amount must be greater than 0"
-    setFieldErrors(e)
-    return Object.keys(e).length === 0
-  }
-
   const openDelete = () => setIsDeleteOpen(true)
   const closeDelete = () => setIsDeleteOpen(false)
 
   return (
 
-    <Box>
-      <HStack justify="space-between" mb={6}>
-        <Heading size="lg">Transactions</Heading>
-        <Button colorScheme="blue" onClick={() => {
-          setEditingId(null)
-          setForm({
-            date: "",
-            type: "expense",
-            category: "",
-            description: "",
-            amount: "",
-          })
-          setFieldErrors({})
-          onOpen()
-        }}>Add Transaction</Button>
-      </HStack>
+    <Box w="full" px={{ base: 6, md: 16 }} >
+        <Text
+          fontSize={{ base: "42px", md: "80px" }}
+          fontWeight="400"
+          letterSpacing="2px"
+          textTransform="uppercase"
+          mb={12}
+          mt={8}
+          textAlign="center"
+          color="brand.900"
+          fontFamily="Imbue, serif"
+        >
+          Transactions
+        </Text>
 
-      <HStack spacing={4} mb={6} align="flex-end">
-        <HStack spacing={4}>
-          <Select placeholder="All Months" maxW="200px" value={month} onChange={(e) => setMonth(e.target.value)}>
-            {allMonths.map((m) => (
-              <option key={m} value={m}>{m}</option>
-            ))}
-          </Select>
-          <Select placeholder="All Categories" maxW="200px" value={category} onChange={(e) => setCategory(e.target.value)}>
-            {categories.map((c) => (
-              <option key={c.id} value={String(c.id)}>{c.name}</option>
-            ))}
-          </Select>
-          <Select placeholder="All Types" maxW="200px" value={type} onChange={(e) => setType(e.target.value)}>
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
-          </Select>
-          <Select maxW="220px" value={sort} onChange={(e) => setSort(e.target.value)}>
-            <option value="date_desc">Date: New → Old </option>
-            <option value="date_asc">Date: Old → New </option>
-            <option value="amount_desc">Amount: High → Low </option>
-            <option value="amount_asc">Amount: Low → High </option>
-          </Select>
-          <Input placeholder="Search" maxW="260px" value={q} onChange={(e) => setQ(e.target.value)} />
-        </HStack>
-        <Button variant="outline" size="md" minW="96px" onClick={() => {
-          setMonth("") 
-          setCategory("") 
-          setType("")
-          setQ("")
-          setSort("date_desc")}}>
-          Reset
-        </Button>
-      </HStack>
+        <Box mb={16} >
+          <Flex align="center" justify="space-between" mb={4}>
+            <Wrap spacing={4} align="center">
+                <WrapItem>
+                  <Select placeholder="All Months" maxW="200px" size="sm" variant="pillDark" value={month} onChange={(e) => {
+                    setMonth(e.target.value)
+                    setPage(1)}}>
+                    {allMonths.map((m) => (
+                      <option key={m} value={m}>{m}</option>
+                    ))}
+                  </Select>
+                </WrapItem>
+                <WrapItem>
+                  <Select placeholder="All Categories" maxW="200px" size="sm" variant="pillDark" value={category} onChange={(e) => {
+                    setCategory(e.target.value)
+                    setPage(1)}}>
+                    {categories.map((c) => (
+                      <option key={c.id} value={String(c.id)}>{c.name}</option>
+                    ))}
+                  </Select>
+                </WrapItem>
+                <WrapItem>
+                  <Select placeholder="All Types" maxW="200px" size="sm" variant="pillDark" value={type} onChange={(e) => {
+                    setType(e.target.value)
+                    setPage(1)}}>
+                    <option value="income">Income</option>
+                    <option value="expense">Expense</option>
+                  </Select>
+                </WrapItem>
+                <WrapItem>
+                  <Select maxW="220px" size="sm" variant="pillDark" value={sort} onChange={(e) => {
+                    setSort(e.target.value)
+                    setPage(1)}}>
+                    <option value="date_desc">Date: New → Old </option>
+                    <option value="date_asc">Date: Old → New </option>
+                    <option value="amount_desc">Amount: High → Low </option>
+                    <option value="amount_asc">Amount: Low → High </option>
+                  </Select>
+                </WrapItem>
+                <WrapItem>
+                  <Input placeholder="Search" maxW="260px" size="sm" variant="outline" value={q} onChange={(e) => {
+                    setQ(e.target.value)
+                    setPage(1)}} />
+                </WrapItem>
+                <WrapItem>
+                  <Button variant="brandOutline" size="sm" minW="96px" onClick={() => {
+                    setMonth("") 
+                    setCategory("") 
+                    setType("")
+                    setQ("")
+                    setSort("date_desc")}}>
+                    Reset
+                  </Button>
+                </WrapItem>
+            </Wrap>
 
+            <Button variant="brandOutline" size="sm" onClick={() => { 
+              setEditingId(null) 
+              setForm({ date: "", type: "expense", category: "", description: "", amount: "", }) 
+              setFieldErrors({}) 
+              onOpen() }}
+              leftIcon={<FiPlus />}
+              >
+              Add Transaction
+              </Button>
+          </Flex>
+        </Box>
+  
     {loading ? (
       <Center py={16}>
         <HStack spacing={3}>
@@ -289,6 +309,10 @@ export default function Transactions() {
             try {
               await reloadTransactions()
             } catch (err) {
+              if (String(err?.message || "").includes("Invalid page")) {
+                setPage(1)
+                return
+              }
               setErrorMsg(err.message || "Failed to load transactions")
             } finally {
               setLoading(false)
@@ -302,13 +326,13 @@ export default function Transactions() {
 
     {!loading && !errorMsg ? (
       transactions.length === 0 ? (
-        <Box bg="white" borderRadius="12px" p={10} textAlign="center" boxShadow="sm">
-          <Box w="72px" h="72px" mx="auto" mb={5} borderRadius="20px" bg="blue.50" display="flex" alignItems="center" justifyContent="center">
-            <FiFileText size={32} color="#3182CE" />
+        <Box bg="cream.50" borderRadius="12px" p={10} textAlign="center">
+          <Box w="60px" h="60px" mb={5} mx="auto" borderRadius="20px" bg="#36403b07" display="flex" alignItems="center" justifyContent="center">
+            <FiFileText size={28} />
           </Box>
-          <Text fontSize="lg" fontWeight="semibold" mb={2}>No transactions found.</Text>
-          <Text color="gray.500">Try adjusting your filters or add a new transaction</Text>
-          <Button mt={6} colorScheme="blue" onClick={() => {
+          <Text fontSize="lg" fontWeight="semibold" mb={2} color="ink.900">No transactions found</Text>
+          <Text color="brand.700">Try adjusting your filters or add a new transaction</Text>
+          <Button mt={6} mb={6} leftIcon={<FiPlus />} fontSize="sm" onClick={() => {
             setEditingId(null)
             setForm({
               date: "",
@@ -324,8 +348,8 @@ export default function Transactions() {
           </Button>
         </Box>
       ) : (
-        <TableContainer bg="white" borderRadius="12px" p={4} boxShadow="sm">
-          <Table variant="simple">
+        <TableContainer bg="transparent" w="full">
+          <Table variant="simple" w="full">
             <Thead>
               <Tr>
                 <Th>Date</Th>
@@ -341,7 +365,7 @@ export default function Transactions() {
                 <Tr
                  key={t.id}
                  cursor="pointer"
-                 _hover={{ bg: "gray.50"}}
+                 _hover={{ bg: "#36403b07"}}
                  onClick={() => {
                   setEditingId(t.id)
 
@@ -377,6 +401,22 @@ export default function Transactions() {
         </TableContainer>
       )
     ) : null}
+
+    {!loading && !errorMsg && totalCount > 0 ? (
+      <HStack justify="space-between" mt={20} mb={10}>
+        <Text fontSize="md" color="ink.700">Total: {totalCount}</Text>
+        <HStack>
+          <Button variant="outline" onClick={() => setPage((p) => Math.max(1, p-1))} isDisabled={!previous} leftIcon={<FiChevronLeft />}>
+            Prev
+          </Button>
+          <Text fontSize="md">{page}</Text>
+          <Button variant="outline" onClick={() => setPage((p) => p + 1)} isDisabled={!next} rightIcon={<FiChevronRight />}>
+            Next
+          </Button>
+        </HStack>
+      </HStack>
+    ) : null }
+
 
       <TransactionFormModal
         isOpen={isOpen}
@@ -418,10 +458,11 @@ export default function Transactions() {
                 setDeleting(true)
                 setErrorMsg("")
                 try {
-                  const deletedYm = transactions.find((t) => t.id === editingId)?.date?.slice(0, 7)
                   await deleteTransaction(editingId)
+
+                   // refresh UI
+                  await loadMonths()
                   await reloadTransactions()
-                  removeMonthIfEmpty(deletedYm)
 
                   toast({
                     title: "Deleted",

@@ -1,46 +1,74 @@
-import {Box, Flex, VStack, Link, Text, Button} from '@chakra-ui/react'
-import {NavLink, Outlet, useNavigate} from "react-router-dom"
-import {signOut} from "../auth/auth"
+import { Box, Flex, HStack, Link, Text, Button } from "@chakra-ui/react"
+import { NavLink, Outlet, useNavigate } from "react-router-dom"
+import { signOut } from "../auth/auth"
 
-const navStyle = ({isActive})=>({
-    textDecoration: "none",
-    padding: "8px 12px",
-    borderRadius: "6px",
-    background: isActive ? "#2D3748" : "transparent",
-    color: "white",
+const navLinkStyle = ({ isActive }) => ({
+  textDecoration: "none",
+  padding: "10px 10px",
+  fontWeight: 400,
+  color: "white",
+  borderBottom: isActive ? "1px solid white" : "1px solid transparent",
 })
 
-export default function AppLayout(){
-
-    const navigate = useNavigate()
-    const handleLogout = () =>{
-        signOut()
-        navigate("/login", { replace: true })
+export default function AppLayout() {
+  const navigate = useNavigate()
+  const handleLogout = () => {
+    signOut()
+    navigate("/login", { replace: true })
+  }
+  const scrollToTop = () => {
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+    })
     }
 
-    return (
-        <Flex minH="100vh">
-            {/* Sidebar */}
-            <Box w="240px" bg='gray.800' color='white' p={4}>
-                <Text fontSize="lg" fontWeight="bold" mb={6}>
-                    Finance Tracker
-                </Text>
-                <VStack align='stretch' spacing={3}>
-                    <Link as={NavLink} to="/dashboard" style={navStyle}>Dashboard</Link>
-                    <Link as={NavLink} to="/transactions" style={navStyle}>Transactions</Link>
-                    <Link as={NavLink} to="/categories" style={navStyle}>Categories</Link>
-                </VStack>
-                {/* Logout */}
-                <Box mt="auto" pt={6}>
-                    <Button size="sm" w="full" onClick={handleLogout}>
-                        Logout
-                    </Button>
-                </Box>
-            </Box>
-            {/* Main content */}
-            <Box flex="1" p={8} bg='gray.50'>
-                <Outlet />
-            </Box>
-        </Flex>
-    )
+  return (
+    <Flex minH="100vh" direction="column" bg="cream.50">
+      {/* Topbar */}
+      <Box bg="brand.900" color="white" w="full">
+        <Box px={{ base: 6, md: 16 }} py={{ base: 4, md: 5 }}>
+          <Flex align="center" justify="space-between">
+            <Text fontFamily="Imbue, serif" fontWeight="400" letterSpacing="2px" fontSize="24px">
+              FINANCE TRACKER
+            </Text>
+
+            <HStack spacing={8} fontSize="14px">
+              <Link as={NavLink} to="/dashboard" style={navLinkStyle}>Dashboard</Link>
+              <Link as={NavLink} to="/transactions" style={navLinkStyle}>Transactions</Link>
+              <Link as={NavLink} to="/categories" style={navLinkStyle}>Categories</Link>
+
+              <Button
+                variant="outline"
+                _hover={{ bg: "brand.700" , borderColor: "brand.700"}}
+                onClick={handleLogout}
+              >
+                LOGOUT
+              </Button>
+            </HStack>
+          </Flex>
+        </Box>
+      </Box>
+
+      {/* Main content */}
+      <Box flex="1" w="full">
+        <Box px={{ base: 6, md: 16 }} py={8}>
+          <Outlet />
+        </Box>
+      </Box>
+
+      {/* Footer */}
+      <Box bg="brand.900" color="white" w="full" borderTop="1px solid" borderColor="rgba(255,255,255,0.12)">
+        <Box px={{ base: 6, md: 16 }} py={6}>
+          <Flex align="center" justify="space-between">
+            <Text fontFamily="Imbue, serif" fontWeight="400" letterSpacing="2px" fontSize="24px">
+              FINANCE TRACKER
+            </Text>
+            <Text opacity={0.85} fontSize="16px" cursor="pointer" _hover={{ opacity: 1 }} onClick={scrollToTop}>Back to Top</Text>
+            <Text opacity={0.85} fontSize="12px">Copyright © Li-Chi Hung</Text>
+          </Flex>
+        </Box>
+      </Box>
+    </Flex>
+  )
 }

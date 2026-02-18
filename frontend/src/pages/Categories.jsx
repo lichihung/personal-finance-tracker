@@ -133,11 +133,22 @@ export default function Categories() {
 
   return (
     <Box>
-      <HStack justify="space-between" mb={6}>
-        <Heading size="lg">Categories</Heading>
+      <Text
+        fontSize={{ base: "42px", md: "80px" }}
+        fontWeight="400"
+        letterSpacing="2px"
+        textTransform="uppercase"
+        mb={12}
+        mt={8}
+        textAlign="center"
+        color="brand.900"
+        fontFamily="Imbue, serif"
+      >
+        Categories
+      </Text>
+        
         <Button colorScheme="teal" onClick={openAdd}>+ Add Category</Button>
-      </HStack>
-
+        
       {loading ? <Text>Loading...</Text> : null}
       {errorMsg ? <Text color="red.500">{errorMsg}</Text> : null}
       {!loading && !errorMsg ? (
