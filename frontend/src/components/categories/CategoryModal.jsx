@@ -32,7 +32,7 @@ export default function CategoryModal({
     return (
         <Modal isOpen={isOpen} onClose={onClose} isCentered>
             <ModalOverlay/>
-            <ModalContent>
+            <ModalContent  borderRadius="xl" p={4} boxShadow="soft">
                 <ModalHeader>{isEdit ? "Edit Category" : "Add Category"}</ModalHeader>
                 <ModalCloseButton/>
 
@@ -52,7 +52,7 @@ export default function CategoryModal({
                 </ModalBody>
 
                 <ModalFooter>
-                    <Button variant="ghost" mr={3} onClick={onClose}>Cancel</Button>
+                    <Button variant="brandOutline" fontWeight="600" mr={3} onClick={onClose}>Cancel</Button>
                     <Button
                      colorScheme="teal"
                      type="submit"

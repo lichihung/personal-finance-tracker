@@ -1,4 +1,4 @@
-import { Heading, Text, Box , Stat, StatLabel, StatNumber, SimpleGrid, HStack, Button} from "@chakra-ui/react"
+import { Heading, Text, Box , Stat, StatLabel, StatNumber, SimpleGrid, HStack, Button, Select} from "@chakra-ui/react"
 import { useEffect, useState } from "react"
 import { apiFetch } from "../api/clientFetch"
 import { PieChart, Pie, Tooltip, Legend, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Cell, BarChart, Bar } from "recharts"
@@ -15,14 +15,15 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [errorMsg, setErrorMsg] = useState("")
   const [chartType, setChartType] = useState("bar")
+  const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth())
+  const [allMonths, setAllMonths] = useState([])
 
   useEffect(() => {
     const load = async () => {
       setLoading(true)
       setErrorMsg("")
       try {
-        const month = getCurrentMonth()
-        const data = await apiFetch(`/transactions/?month=${month}`)
+        const data = await apiFetch(`/transactions/?month=${selectedMonth}`)
         if (Array.isArray(data)) setTransactions(data)
         else if (data && Array.isArray(data.results)) setTransactions(data.results)
         else setTransactions([])
@@ -33,6 +34,22 @@ export default function Dashboard() {
       }
     }
     load()
+  }, [selectedMonth])
+
+  useEffect(() => {
+    const loadMonths = async () => {
+      try {
+        const data = await apiFetch("/transactions/months/")
+        if (data && Array.isArray(data.results)) {
+          setAllMonths(data.results)
+        } else {
+          setAllMonths([])
+        }
+      } catch (err) {
+        setAllMonths([])
+      }
+    }
+    loadMonths()
   }, [])
 
   const totalIncome = transactions
@@ -70,7 +87,7 @@ export default function Dashboard() {
   })()
 
   const dailyExpenseData = (() => {
-    const month = getCurrentMonth()
+    const month = selectedMonth
     const map = new Map()
 
     for (const t of transactions) {
@@ -82,8 +99,15 @@ export default function Dashboard() {
 
     const [yyyy, mm] = month.split("-").map(Number)
     const start = new Date(yyyy, mm - 1, 1)
-    const today = new Date()
-    const end = new Date(yyyy, mm - 1, today.getDate())
+    const currentMonth = getCurrentMonth()
+    let end
+
+    if (month === currentMonth) {
+      const today = new Date()
+      end = new Date(yyyy, mm - 1, today.getDate())
+    } else {
+      end = new Date(yyyy, mm, 0)
+    }
 
     const out = []
     for (let d = new Date (start); d <= end; d.setDate(d.getDate() + 1)) {
@@ -102,107 +126,250 @@ export default function Dashboard() {
     return `${mm}/${dd}`
   }
 
-  const PIE_COLORS= ["#8ecae6", "#219ebc", "#023047", "#ffb703", "#fb8500", "#FFF9EC"]
+  const PIE_COLORS= [
+    "#003d20",
+    "#2f6b54",
+    "#5f8f77",
+    "#89a899",
+    "#bdd2c8",
+    "#e6f1ed",
+  ]
+
+  const CustomLegend = ({ payload }) => {
+    const sorted = [...payload].sort(
+      (a, b) => PIE_COLORS.indexOf(a.color) - PIE_COLORS.indexOf(b.color)
+    )
+
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-start",
+          flexWrap: "wrap",
+          gap: "18px 20px",
+          marginTop: "14px",
+        }}
+      >
+        {sorted.map((entry, idx) => (
+          <div key={idx} style={{ display: "flex", alignItems: "center" }}>
+            <span
+              style={{
+                width: 14,
+                height: 14,
+                borderRadius: 4,
+                background: entry.color,
+                display: "inline-block",
+                marginRight: 8,
+              }}
+            />
+            <span style={{ color: "var(--chakra-colors-brand-900)", fontSize: 14 }}>{entry.value}</span>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  const renderPieLabel = (props) => {
+    const {
+      cx, cy, midAngle, outerRadius, percent, stroke, fill,
+    } = props
+
+    const RAD = Math.PI / 180
+    const cos = Math.cos(-midAngle * RAD)
+    const sin = Math.sin(-midAngle * RAD)
+
+    const lineOffset = 5
+    const labelOffset = 20
+
+    const x1 = cx + (outerRadius + lineOffset) * cos
+    const y1 = cy + (outerRadius + lineOffset) * sin
+    const x2 = cx + (outerRadius + labelOffset) * cos
+    const y2 = cy + (outerRadius + labelOffset) * sin
+
+    const textAnchor = cos >= 0 ? "start" : "end"
+
+    return (
+      <g>
+        <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={fill} strokeWidth={1.5} />
+        <text
+          x={x2}
+          y={y2}
+          dx={cos >= 0 ? 4 : -4}
+          textAnchor={textAnchor}
+          dominantBaseline="middle"
+          fill="var(--chakra-colors-brand-900)"
+          style={{ fontSize: 14 }}
+        >
+          {`${Math.round(percent * 100)}%`}
+        </text>
+      </g>
+    )
+  }
+
+  const tooltipStyle = {
+    contentStyle: {
+      background: "#1b1b1bcc",
+      border: "none",
+      borderRadius: "4px",
+      padding: "4px 14px",
+    },
+    itemStyle: { color: "white", fontSize: "15px" },
+    labelStyle: { color: "white", fontSize: "15px", marginBottom: 1 },
+  }
+
   return (
-    <Box>
-      <Heading size="lg" mb={6}>Dashboard</Heading>
+    <Box w="full" px={{ base: 6, md: 16 }}>
+      <Text
+        fontSize={{ base: "42px", md: "80px" }}
+        fontWeight="400"
+        letterSpacing="2px"
+        textTransform="uppercase"
+        mb={12}
+        mt={8}
+        textAlign="center"
+        color="brand.900"
+        fontFamily="Imbue, serif"
+      >
+        Dashboard
+      </Text>
 
       {loading && <Text>Loading...</Text>}
       {errorMsg && <Text color="red.500">{errorMsg}</Text>}
 
       {!loading && !errorMsg && (
         <>
-          <SimpleGrid columns={{ base: 1, md: 3}} spacing={6}>
-            <Stat bg="white" p={6} borderRadius="lg" boxShadow="sm">
-              <StatLabel>This Month Income</StatLabel>
-              <StatNumber color="green.500">{money(totalIncome)}</StatNumber>
-            </Stat>
-            <Stat bg="white" p={6} borderRadius="lg" boxShadow="sm">
-              <StatLabel>This Month Expense</StatLabel>
-              <StatNumber color="red.500">{money(totalExpense)}</StatNumber>
-            </Stat>
-            <Stat bg="white" p={6} borderRadius="lg" boxShadow="sm">
-              <StatLabel>This Month Net</StatLabel>
-              <StatNumber color={net >=0 ? "green.500" : "red.500"}>{money(net)}</StatNumber>
-            </Stat>
-          </SimpleGrid>
+          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8} mt={8} mb={10}>
 
-          <Box bg="white" p={6} borderRadius="lg" boxShadow="sm" mt={6} height="380px">
-            <Heading size="md" mb={4}>Expense by Category</Heading>
-
-            {pieData.length === 0 ? (
-              <Text color="gray.500">No expense data this month.</Text>
-            ) : (
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                   data = {pieData}
-                   dataKey = "value"
-                   nameKey = "name"
-                   outerRadius = {110}
-                   label = {({percent}) => `${(percent * 100).toFixed(0)}%`}
-                  >
-                    {pieData.map((_, i) => (
-                      <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]}/>
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value, name) => [money(value), name]}/>
-                  <Legend layout="vertical" align="right" verticalAlign="middle"/>
-                </PieChart>
-              </ResponsiveContainer>
-            )}
-          </Box>
-
-          <Box bg="white" p={6} borderRadius="lg" boxShadow="sm" mt={6} height="320px">
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
-              <Heading size="md">Daily Expense Trend</Heading>
-              <HStack>
-                <Button size="sm" variant={chartType === "bar" ? "solid" : "outline"} onClick={() => setChartType("bar")}>Bar</Button>
-                <Button size="sm" variant={chartType === "line" ? "solid" : "outline"} onClick={() => setChartType("line")}>Line</Button>
-              </HStack>
+            <Box bg="linear-gradient(135deg, #003d20, #5f8f77)" p={8} borderRadius="8px" color="white">
+              <Stat>
+                <StatLabel fontSize="18px" mb={2}>This Month Income</StatLabel>
+                <StatNumber fontSize="24px">{money(totalIncome)}</StatNumber>
+              </Stat>
             </Box>
 
+            <Box bg="linear-gradient(135deg, #89a899, #d7e6de)" p={8} borderRadius="8px" color="white">
+              <Stat>
+                <StatLabel fontSize="18px" mb={2}>This Month Expense</StatLabel>
+                <StatNumber fontSize="24px">{money(totalExpense)}</StatNumber>
+              </Stat>
+            </Box>
 
-            {dailyExpenseData.length === 0 ? (
-              <Text color="gray.500">No expense data this month.</Text>
-            ) : (
-              <ResponsiveContainer width="100%" height={260}>
-                {chartType === "bar" ? (
-                  <BarChart data={dailyExpenseData}>
-                    <CartesianGrid strokeDasharray="3 3"/>
-                    <XAxis
-                      dataKey="date"
-                      tickFormatter={shortDate}
-                      interval="preserveStartEnd"
-                      minTickGap={20}
+            <Box bg="linear-gradient(135deg, #c9a24d, #f8e6c8)" p={8} borderRadius="8px" color="white" >
+              <Stat>
+                <StatLabel fontSize="18px" mb={2}>This Month Net</StatLabel>
+                <StatNumber fontSize="24px" color={net >= 0 ? "white" : "red.200"}>
+                  {money(net)}
+                </StatNumber>
+              </Stat>
+            </Box>
+
+          </SimpleGrid>
+
+          <HStack justify="flex-start" mb={8}>
+            <Select maxW="180px"  size="sm" variant="outline" value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}>
+              {allMonths.map((month) => (
+                <option key={month} value={month}>{month}</option>
+              ))}
+            </Select>
+          </HStack>
+
+          <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={10} mb={8} alignItems="start">
+            <Box bg="transparent" p={0} w="full" display="flex" flexDirection="column" alignItems="flex-start" textAlign="left">
+              <Heading fontSize="26px" mb={6}>Expense by Category</Heading>
+
+              {pieData.length === 0 ? (
+                <Text color="gray.500">No expense data this month.</Text>
+              ) : (
+                <ResponsiveContainer width="100%" height={360}>
+                  <PieChart>
+                    <Pie
+                    data = {pieData}
+                    dataKey = "value"
+                    nameKey = "name"
+                    outerRadius = {120}
+                    cx="38%"
+                    cy="46%"
+                    labelLine={false}
+                    label = {renderPieLabel}
+                    >
+                      {pieData.map((_, i) => (
+                        <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]}/>
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value, name) => [`${name}  ${money(value)}`]}
+                      contentStyle={{
+                        background: "#1b1b1bcc",
+                        border: "none",
+                        borderRadius: "4px",
+                        padding: "4px 14px",
+                      }}
+                      itemStyle={{
+                        color: "white",
+                        fontSize: "15px",
+                      }}
+                      labelStyle={{ display: "none" }}
                     />
-                    <YAxis tickFormatter={moneyShort}/>
-                    <Tooltip 
-                      labelFormatter={(label) => `Date: ${shortDate(label)}`}
-                      formatter={(value) => [money(value), "Expense"]}
+                    <Legend verticalAlign="bottom" align="center" content={<CustomLegend />} />
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
+            </Box>
+
+            <Box bg="transparent" p={0} height="340px">
+              <Heading fontSize="26px" mb={12}>Daily Expense Trend</Heading>
+
+              {dailyExpenseData.length === 0 ? (
+                <Text color="gray.500">No expense data this month.</Text>
+              ) : (
+                <ResponsiveContainer width="100%" height={290}>
+                  {chartType === "bar" ? (
+                    <BarChart data={dailyExpenseData}>
+                      <CartesianGrid strokeDasharray="3 3"/>
+                      <XAxis
+                        dataKey="date"
+                        tickFormatter={shortDate}
+                        interval="preserveStartEnd"
+                        minTickGap={20}
+                        tick={{ fontSize: 14, fill: "var(--chakra-colors-brand-900)"}}
                       />
-                    <Bar dataKey="expense" />
-                  </BarChart>
-                ) : (
-                  <LineChart data={dailyExpenseData}>
-                    <CartesianGrid strokeDasharray="3 3"/>
-                    <XAxis
-                      dataKey="date"
-                      tickFormatter={shortDate}
-                      interval="preserveStartEnd"
-                      minTickGap={20}
-                    />
-                    <YAxis tickFormatter={moneyShort}/>
-                    <Tooltip 
-                      labelFormatter={(label) => `Date: ${shortDate(label)}`}
-                      formatter={(value) => [money(value), "Expense"]}
+                      <YAxis tickFormatter={moneyShort} tick={{ fontSize: 14, fill: "var(--chakra-colors-brand-900)"}}/>
+                      <Tooltip
+                        cursor={{ fill: "#36403b07" }} 
+                        {...tooltipStyle}
+                        labelFormatter={(label) => `Date: ${shortDate(label)}`}
+                        formatter={(value) => [money(value), "Expense"]}
                       />
-                    <Line type="linear" dataKey="expense" />
-                  </LineChart>
-                )}
-              </ResponsiveContainer>
-            )}
-          </Box>
+                      <Bar dataKey="expense" fill="var(--chakra-colors-brand-800)" radius={[4, 4, 0, 0]}/>
+                    </BarChart>
+                  ) : (
+                    <LineChart data={dailyExpenseData}>
+                      <CartesianGrid strokeDasharray="3 3"/>
+                      <XAxis
+                        dataKey="date"
+                        tickFormatter={shortDate}
+                        interval="preserveStartEnd"
+                        minTickGap={20}
+                        tick={{ fontSize: 14, fill: "var(--chakra-colors-brand-900)"}}
+                      />
+                      <YAxis tickFormatter={moneyShort} tick={{ fontSize: 14, fill: "var(--chakra-colors-brand-900)"}}/>
+                      <Tooltip
+                        {...tooltipStyle}
+                        labelFormatter={(label) => `Date: ${shortDate(label)}`}
+                        formatter={(value) => [money(value), "Expense"]}
+                      />
+                      <Line type="linear" dataKey="expense" stroke="var(--chakra-colors-accent-500)"/>
+                    </LineChart>
+                  )}
+                </ResponsiveContainer>
+              )}
+
+              <HStack mt={3} justify="flex-end">
+                <Button size="sm" variant={chartType === "bar" ? "brandOutline" : "outline"} onClick={() => setChartType("bar")}>Bar</Button>
+                <Button size="sm" variant={chartType === "line" ? "brandOutline" : "outline"} onClick={() => setChartType("line")}>Line</Button>
+              </HStack>
+            </Box>
+          </SimpleGrid>
         </>
       )}
     </Box>

@@ -140,7 +140,7 @@ export default function Transactions() {
     if (month && !allMonths.includes(month)) setMonth("")
   }, [allMonths, month])
 
-
+  
   const handleSave = async () => {
     if (!validateForm()) return
     setSaving(true)
@@ -220,7 +220,7 @@ export default function Transactions() {
           <Flex align="center" justify="space-between" mb={4}>
             <Wrap spacing={4} align="center">
                 <WrapItem>
-                  <Select placeholder="All Months" maxW="200px" size="sm" variant="pillDark" value={month} onChange={(e) => {
+                  <Select placeholder="All Months" maxW="240px" size="sm" variant="pillDark" value={month} onChange={(e) => {
                     setMonth(e.target.value)
                     setPage(1)}}>
                     {allMonths.map((m) => (
@@ -229,7 +229,7 @@ export default function Transactions() {
                   </Select>
                 </WrapItem>
                 <WrapItem>
-                  <Select placeholder="All Categories" maxW="200px" size="sm" variant="pillDark" value={category} onChange={(e) => {
+                  <Select placeholder="All Categories" maxW="240px" size="sm" variant="pillDark" value={category} onChange={(e) => {
                     setCategory(e.target.value)
                     setPage(1)}}>
                     {categories.map((c) => (
@@ -238,7 +238,7 @@ export default function Transactions() {
                   </Select>
                 </WrapItem>
                 <WrapItem>
-                  <Select placeholder="All Types" maxW="200px" size="sm" variant="pillDark" value={type} onChange={(e) => {
+                  <Select placeholder="All Types" maxW="240px" size="sm" variant="pillDark" value={type} onChange={(e) => {
                     setType(e.target.value)
                     setPage(1)}}>
                     <option value="income">Income</option>
@@ -246,7 +246,7 @@ export default function Transactions() {
                   </Select>
                 </WrapItem>
                 <WrapItem>
-                  <Select maxW="220px" size="sm" variant="pillDark" value={sort} onChange={(e) => {
+                  <Select maxW="240px" size="sm" variant="pillDark" value={sort} onChange={(e) => {
                     setSort(e.target.value)
                     setPage(1)}}>
                     <option value="date_desc">Date: New → Old </option>
@@ -256,7 +256,7 @@ export default function Transactions() {
                   </Select>
                 </WrapItem>
                 <WrapItem>
-                  <Input placeholder="Search" maxW="260px" size="sm" variant="outline" value={q} onChange={(e) => {
+                  <Input placeholder="Search" maxW="280px" size="sm" variant="outline" value={q} onChange={(e) => {
                     setQ(e.target.value)
                     setPage(1)}} />
                 </WrapItem>

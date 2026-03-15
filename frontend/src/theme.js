@@ -61,17 +61,14 @@ const theme = extendTheme({
           color: "white",
           fontWeight: 400,
           px: "16px",
-          py: "16px",
+          py: "10px",
           _hover: { bg: "brand.800" , borderColor: "brand.900",},
           _active: { bg: "brand.700" ,   borderColor: "brand.900",},
         },
         outline: {
-          fontWeight: 600,
-          color: "white",
+          fontWeight: 400,
+          color: "brand.800",
           borderColor: "cream.50",
-          px: "16px",
-          py: "16px",
-          fontSize: "12px",
           _hover: { color: "brand.900", borderColor: "cream.50", bg: "transparent" },
           _focus: {outline: "none", bg: "transparent"},
         },
@@ -86,6 +83,7 @@ const theme = extendTheme({
           fontWeight: 300,
           px: "16px",
           py: "16px",
+          h: "34px",
           _hover: { bg: "brand.900", color: "white", borderColor: "brand.900",},
           _active: { bg: "brand.800", color: "white", borderColor: "brand.900",},
           _focus: {bg: "transparent", color: "brand.900", borderColor: "brand.900", outline: "none"},
@@ -93,36 +91,49 @@ const theme = extendTheme({
       },
     },
     Select: {
-      variants: {
-        outline: {
-          field: {
-            borderRadius: "full",
-            borderColor: "line.200",
-            bg: "cream.50",
-            _hover: { borderColor: "brand.800" },
-            _focus: { borderColor: "brand.900", boxShadow: "0 0 0 1px #003d20" },
-          },
-        },
+        variants: {
+            outline: {
+            field: {
+                borderRadius: "full",
+                borderColor: "brand.900",
+                bg: "transparent",
+                color: "brand.900",
+                px: "20px",
+                fontWeight: 300,
+                h: "34px",
+                _hover: { borderColor: "brand.700" },
+                _focus: {borderColor: "brand.900", bg: "transparent", color: "brand.900"},
+                option: {
+                color: "black",
+                },
+            },
+            icon: {
+                color: "brand.900",
+            },
+            },
+
         pillDark: {
-          field: {
-            borderRadius: "full",
-            bg: "brand.900",
-            color: "white",
-            fontWeight: 300,
-            px: "16px",
-            px: "16px",
-            borderColor: "brand.900",
-            borderWidth: "1px",
-            _hover: { bg: "brand.800" },
-            _focus: { bg: "brand.900", boxShadow: "0 0 0 2px rgba(255,255,255,0.22)" },
-            "option": { color: "black" },
-          },
-            icon: { color: "white" },
+            field: {
+                borderRadius: "full",
+                bg: "brand.900",
+                color: "white",
+                fontWeight: 300,
+                px: "18px",
+                h: "34px",
+                borderColor: "brand.900",
+                borderWidth: "1px",
+                _hover: { bg: "brand.800" },
+                _focus: {bg: "brand.900", boxShadow: "0 0 0 2px rgba(255,255,255,0.22)"},
+                option: { color: "black" },
+            },
+            icon: {
+                color: "white",
+            },
+            },
         },
-      },
-      defaultProps: {
-        variant: "outline",
-      },
+        defaultProps: {
+            variant: "outline",
+        },
     },
     Input: {
       variants: {
@@ -134,7 +145,7 @@ const theme = extendTheme({
             bg: "transparent",
             fontWeight: 300,
             px: "16px",
-            py: "16px",
+            h: "34px",
             _hover: { borderColor: "brand.700",},
             _active: { borderColor: "brand.700",},
             _focus: { bg: "transparent", borderColor: "brand.700", boxShadow: "0 0 0 1px var(--chakra-colors-brand-700)",},
@@ -151,6 +162,27 @@ const theme = extendTheme({
             _placeholder: { color: "white" },
             _hover: { bg: "brand.800" },
             _focus: { bg: "brand.900", boxShadow: "0 0 0 2px rgba(255,255,255,0.22)" },
+          },
+        },
+      },
+      defaultProps: {
+        variant: "outline",
+      },
+    },
+    NumberInput: {
+      variants: {
+        outline: {
+          field: {
+            borderRadius: "full",
+            borderColor: "brand.900",
+            color: "brand.900",
+            bg: "transparent",
+            fontWeight: 300,
+            px: "16px",
+            h: "34px",
+            _hover: { borderColor: "brand.700",},
+            _active: { borderColor: "brand.700",},
+            _focus: { bg: "transparent", borderColor: "brand.700", boxShadow: "0 0 0 1px var(--chakra-colors-brand-700)",},
           },
         },
       },

@@ -29,21 +29,24 @@ export default function AppLayout() {
       <Box bg="brand.900" color="white" w="full">
         <Box px={{ base: 6, md: 16 }} py={{ base: 4, md: 5 }}>
           <Flex align="center" justify="space-between">
-            <Text fontFamily="Imbue, serif" fontWeight="400" letterSpacing="2px" fontSize="24px">
-              FINANCE TRACKER
-            </Text>
+            <Link as={NavLink} to="/dashboard" _hover={{ textDecoration: "none", color: "white" }}>
+               <Text fontFamily="Imbue, serif" fontWeight="400" letterSpacing="2px" fontSize="24px">FINANCE TRACKER</Text>
+            </Link>
 
-            <HStack spacing={8} fontSize="14px">
+
+            <HStack spacing={4} fontSize="14px">
               <Link as={NavLink} to="/dashboard" style={navLinkStyle}>Dashboard</Link>
               <Link as={NavLink} to="/transactions" style={navLinkStyle}>Transactions</Link>
               <Link as={NavLink} to="/categories" style={navLinkStyle}>Categories</Link>
 
               <Button
-                variant="outline"
-                _hover={{ bg: "brand.700" , borderColor: "brand.700"}}
+                size="sm" 
+                borderColor="white" 
+                color="white" 
+                _hover={{ bg: "white", color: "brand.900", borderColor: "white", }}
                 onClick={handleLogout}
               >
-                LOGOUT
+                Logout
               </Button>
             </HStack>
           </Flex>
@@ -61,9 +64,9 @@ export default function AppLayout() {
       <Box bg="brand.900" color="white" w="full" borderTop="1px solid" borderColor="rgba(255,255,255,0.12)">
         <Box px={{ base: 6, md: 16 }} py={6}>
           <Flex align="center" justify="space-between">
-            <Text fontFamily="Imbue, serif" fontWeight="400" letterSpacing="2px" fontSize="24px">
-              FINANCE TRACKER
-            </Text>
+            <Link as={NavLink} to="/dashboard" _hover={{ textDecoration: "none", color: "white" }}>
+               <Text fontFamily="Imbue, serif" fontWeight="400" letterSpacing="2px" fontSize="24px">FINANCE TRACKER</Text>
+            </Link>
             <Text opacity={0.85} fontSize="16px" cursor="pointer" _hover={{ opacity: 1 }} onClick={scrollToTop}>Back to Top</Text>
             <Text opacity={0.85} fontSize="12px">Copyright © Li-Chi Hung</Text>
           </Flex>

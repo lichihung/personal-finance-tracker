@@ -14,7 +14,7 @@ export default function TransactionFormModal(props) {
     return (
         <Modal isOpen={isOpen} onClose={onClose} isCentered>
             <ModalOverlay />
-            <ModalContent>
+            <ModalContent borderRadius="xl" p={4} boxShadow="soft">
                 <ModalHeader>
                 {editingId ? "Edit Transaction" : "Add Transaction"}
                 </ModalHeader>

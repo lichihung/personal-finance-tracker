@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState} from "react"
-import { Box, Button, Heading, HStack, IconButton, Table, Tbody, Td, Th, Thead, Tr, Text, useToast} from "@chakra-ui/react"
+import { Box, Button, Heading, HStack, IconButton, Table, Tbody, Td, Th, Thead, Tr, Text, useToast, Flex} from "@chakra-ui/react"
 import { EditIcon, DeleteIcon } from "@chakra-ui/icons"
+import { FiChevronRight, FiChevronLeft, FiPlus } from "react-icons/fi"
 import ConfirmDialog from "../components/ui/ConfirmDialog"
 import CategoryModal from "../components/categories/CategoryModal"
 import { apiFetch } from "../api/clientFetch"
@@ -132,13 +133,13 @@ export default function Categories() {
   }
 
   return (
-    <Box>
+    <Box w="full" px={{ base: 6, md: 16 }} >
       <Text
         fontSize={{ base: "42px", md: "80px" }}
         fontWeight="400"
         letterSpacing="2px"
         textTransform="uppercase"
-        mb={12}
+        mb={8}
         mt={8}
         textAlign="center"
         color="brand.900"
@@ -147,8 +148,10 @@ export default function Categories() {
         Categories
       </Text>
         
-        <Button colorScheme="teal" onClick={openAdd}>+ Add Category</Button>
-        
+      <Flex justify="flex-start" mb={12}>
+        <Button variant="brandOutline" size="sm" onClick={openAdd} leftIcon={<FiPlus />}>Add Category</Button>
+      </Flex>
+
       {loading ? <Text>Loading...</Text> : null}
       {errorMsg ? <Text color="red.500">{errorMsg}</Text> : null}
       {!loading && !errorMsg ? (
@@ -157,22 +160,22 @@ export default function Categories() {
           <Text color="gray.600">No categories yet. Add your first one.</Text>
         </Box>
       ) : (
-        <Box bg="white" borderRadius="lg" boxShadow="sm" overflow="hidden">
-          <Table variant="simple">
+        <Box bg="transparent" w="full" overflow="hidden" mb={20}>
+          <Table variant="simple" w="full">
             <Thead>
               <Tr>
-                <Th>Category Name</Th>
                 <Th>Created At</Th>
-                <Th textAlign="right">Actions</Th>
+                <Th>Category</Th>
+                <Th>Actions</Th>
               </Tr>
             </Thead>
             <Tbody>
               {categories.map((c) => (
                 <Tr key={c.id}>
-                  <Td>{c.name}</Td>
                   <Td>{c.created_at ? c.created_at.slice(0,10) : null}</Td>
-                  <Td textAlign="right">
-                    <HStack justify="flex-end">
+                  <Td>{c.name}</Td>
+                  <Td>
+                    <HStack>
                       <IconButton aria-label="Edit category" icon={<EditIcon/>} size="sm" onClick={() => openEdit(c.id)}/>
                       <IconButton aria-label="Delete category" icon={<DeleteIcon/>} size="sm" onClick={() => setDeleteId(c.id)}/>
                     </HStack>
