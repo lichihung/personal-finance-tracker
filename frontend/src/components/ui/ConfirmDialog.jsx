@@ -22,7 +22,7 @@ export default function ConfirmDialog({
                     <AlertDialogBody>{message}</AlertDialogBody>
 
                     <AlertDialogFooter>
-                        <Button variant="brandOutline" fontWeight="600" ref={cancelRef} onClick={onClose}>Cancel</Button>
+                        <Button variant="ghost" fontWeight="600" ref={cancelRef} onClick={onClose}>Cancel</Button>
                         <Button variant="solid" onClick={onConfirm} ml={3}>{confirmText}</Button>
                     </AlertDialogFooter>
                 </AlertDialogContent>

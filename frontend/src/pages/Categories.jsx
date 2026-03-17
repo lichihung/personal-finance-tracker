@@ -1,11 +1,16 @@
 import { useEffect, useMemo, useState} from "react"
-import { Box, Button, Heading, HStack, IconButton, Table, Tbody, Td, Th, Thead, Tr, Text, useToast, Flex} from "@chakra-ui/react"
+import { Box, Button, Heading, HStack, IconButton, Table, Tbody, Td, Th, Thead, Tr, Text, useToast, Flex, TableContainer} from "@chakra-ui/react"
 import { EditIcon, DeleteIcon } from "@chakra-ui/icons"
 import { FiChevronRight, FiChevronLeft, FiPlus } from "react-icons/fi"
 import ConfirmDialog from "../components/ui/ConfirmDialog"
 import CategoryModal from "../components/categories/CategoryModal"
 import { apiFetch } from "../api/clientFetch"
 
+const formatShortDate = (dateString) => {
+  if (!dateString) return ""
+  const [, month, day] = String(dateString).slice(0, 10).split("-")
+  return `${month}-${day}`
+}
 
 export default function Categories() {
   const toast = useToast()
@@ -133,7 +138,7 @@ export default function Categories() {
   }
 
   return (
-    <Box w="full" px={{ base: 6, md: 16 }} >
+    <Box w="full" px={{ base: 2, md: 16 }} >
       <Text
         fontSize={{ base: "42px", md: "80px" }}
         fontWeight="400"
@@ -144,12 +149,13 @@ export default function Categories() {
         textAlign="center"
         color="brand.900"
         fontFamily="Imbue, serif"
+        display={{ base: "none", md: "block"}}
       >
         Categories
       </Text>
         
-      <Flex justify="flex-start" mb={12}>
-        <Button variant="brandOutline" size="sm" onClick={openAdd} leftIcon={<FiPlus />}>Add Category</Button>
+      <Flex justify={{base: "center", md:"flex-start"}} mb={{ base: 10, md: 12 }}>
+        <Button variant="brandOutline" w={{ base: "full", md: "220px" }} size="sm" onClick={openAdd} leftIcon={<FiPlus />}>Add Category</Button>
       </Flex>
 
       {loading ? <Text>Loading...</Text> : null}
@@ -160,7 +166,9 @@ export default function Categories() {
           <Text color="gray.600">No categories yet. Add your first one.</Text>
         </Box>
       ) : (
-        <Box bg="transparent" w="full" overflow="hidden" mb={20}>
+      <>
+      {/* Desktop table */}
+        <TableContainer bg="transparent" w="full" display={{ base: "none", md: "block" }} mb={20}>
           <Table variant="simple" w="full">
             <Thead>
               <Tr>
@@ -172,19 +180,75 @@ export default function Categories() {
             <Tbody>
               {categories.map((c) => (
                 <Tr key={c.id}>
-                  <Td>{c.created_at ? c.created_at.slice(0,10) : null}</Td>
-                  <Td>{c.name}</Td>
+                  <Td>{c.created_at ? c.created_at.slice(0, 10) : ""}</Td>
                   <Td>
-                    <HStack>
-                      <IconButton aria-label="Edit category" icon={<EditIcon/>} size="sm" onClick={() => openEdit(c.id)}/>
-                      <IconButton aria-label="Delete category" icon={<DeleteIcon/>} size="sm" onClick={() => setDeleteId(c.id)}/>
+                    <Text noOfLines={1}>{c.name}</Text>
+                  </Td>
+                  <Td>
+                    <HStack spacing={2}>
+                      <IconButton
+                        aria-label="Edit category"
+                        icon={<EditIcon />}
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => openEdit(c.id)}
+                      />
+                      <IconButton
+                        aria-label="Delete category"
+                        icon={<DeleteIcon />}
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setDeleteId(c.id)}
+                      />
                     </HStack>
                   </Td>
                 </Tr>
               ))}
             </Tbody>
           </Table>
-        </Box>
+        </TableContainer>
+
+        {/* Mobile table */}
+        <TableContainer bg="transparent" w="full" display={{ base: "block", md: "none" }} mb={20}>
+          <Table variant="simple" w="full" sx={{ tableLayout: "fixed" }}>
+            <Thead>
+              <Tr>
+                <Th w="28%" fontSize="12px">Date</Th>
+                <Th w="42%" fontSize="12px">Category</Th>
+                <Th w="30%" fontSize="12px" isNumeric>Actions</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {categories.map((c) => (
+                <Tr key={c.id}>
+                  <Td>{formatShortDate(c.created_at)}</Td>
+                  <Td>
+                    <Text noOfLines={1}>{c.name}</Text>
+                  </Td>
+                  <Td isNumeric>
+                    <HStack spacing={1} justify="flex-end">
+                      <IconButton
+                        aria-label="Edit category"
+                        icon={<EditIcon />}
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => openEdit(c.id)}
+                      />
+                      <IconButton
+                        aria-label="Delete category"
+                        icon={<DeleteIcon />}
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setDeleteId(c.id)}
+                      />
+                    </HStack>
+                  </Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </TableContainer>
+      </>
       )): null}
 
       <CategoryModal

@@ -15,6 +15,7 @@ const theme = extendTheme({
       900: "#003d20",
       800: "#0F4A38",
       700: "#89a899",
+      600: "#bdd2c8",
     },
     cream: {
       50: "#faf7ef",
@@ -70,11 +71,11 @@ const theme = extendTheme({
           color: "brand.800",
           borderColor: "cream.50",
           _hover: { color: "brand.900", borderColor: "cream.50", bg: "transparent" },
-          _focus: {outline: "none", bg: "transparent"},
+          _focus: {outline: "none", bg: "brand.700"},
         },
         ghost: {
           color: "brand.900",
-          _hover: { bg: "cream.100" },
+          _hover: { bg: "transparent", borderColor: "brand.900" },
         },
         brandOutline: {
           borderColor: "brand.900",

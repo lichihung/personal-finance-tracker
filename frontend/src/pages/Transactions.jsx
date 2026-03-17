@@ -21,6 +21,12 @@ const getCategoryName = (t) => {
   return ""
 }
 
+const formatShortDate = (dateString) => {
+  if (!dateString) return ""
+  const [, month, day] = String(dateString).split("-")
+  return `${month}-${day}`
+}
+
 export default function Transactions() {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const toast = useToast()
@@ -201,7 +207,7 @@ export default function Transactions() {
 
   return (
 
-    <Box w="full" px={{ base: 6, md: 16 }} >
+    <Box w="full" px={{ base: 2, md: 16 }}>
         <Text
           fontSize={{ base: "42px", md: "80px" }}
           fontWeight="400"
@@ -212,15 +218,16 @@ export default function Transactions() {
           textAlign="center"
           color="brand.900"
           fontFamily="Imbue, serif"
+          display={{ base: "none", md: "block"}}
         >
           Transactions
         </Text>
 
-        <Box mb={16} >
-          <Flex align="center" justify="space-between" mb={4}>
-            <Wrap spacing={4} align="center">
-                <WrapItem>
-                  <Select placeholder="All Months" maxW="240px" size="sm" variant="pillDark" value={month} onChange={(e) => {
+        <Box mb={{ base: 10, md: 16 }}>
+          <Flex align={{ base: "stretch", md: "flex-end" }} direction={{ base: "column", md: "row" }} justify="space-between" mb={4} gap={{ base: 2, md: 2 }}>
+            <Wrap spacing={{ base: 2, md: 4 }} align="center" w={{ base: "full", md: "auto" }}>
+                <WrapItem w={{ base: "calc(50% - 8px)", md: "auto" }}>
+                  <Select placeholder="All Months" w={{ base: "full", md: "240px" }} size="sm" variant="pillDark" value={month} onChange={(e) => {
                     setMonth(e.target.value)
                     setPage(1)}}>
                     {allMonths.map((m) => (
@@ -228,25 +235,25 @@ export default function Transactions() {
                     ))}
                   </Select>
                 </WrapItem>
-                <WrapItem>
-                  <Select placeholder="All Categories" maxW="240px" size="sm" variant="pillDark" value={category} onChange={(e) => {
+                <WrapItem w={{ base: "calc(50% - 8px)", md: "auto" }}>
+                  <Select placeholder="All Categories" w={{ base: "full", md: "240px" }} size="sm" variant="pillDark" value={category} onChange={(e) => {
                     setCategory(e.target.value)
                     setPage(1)}}>
                     {categories.map((c) => (
                       <option key={c.id} value={String(c.id)}>{c.name}</option>
                     ))}
                   </Select>
-                </WrapItem>
-                <WrapItem>
-                  <Select placeholder="All Types" maxW="240px" size="sm" variant="pillDark" value={type} onChange={(e) => {
+                </WrapItem >
+                <WrapItem w={{ base: "calc(50% - 8px)", md: "auto" }}>
+                  <Select placeholder="All Types" w={{ base: "full", md: "240px" }} size="sm" variant="pillDark" value={type} onChange={(e) => {
                     setType(e.target.value)
                     setPage(1)}}>
                     <option value="income">Income</option>
                     <option value="expense">Expense</option>
                   </Select>
                 </WrapItem>
-                <WrapItem>
-                  <Select maxW="240px" size="sm" variant="pillDark" value={sort} onChange={(e) => {
+                <WrapItem w={{ base: "calc(50% - 8px)", md: "auto" }}>
+                  <Select w={{ base: "full", md: "240px" }} size="sm" variant="pillDark" value={sort} onChange={(e) => {
                     setSort(e.target.value)
                     setPage(1)}}>
                     <option value="date_desc">Date: New → Old </option>
@@ -255,13 +262,13 @@ export default function Transactions() {
                     <option value="amount_asc">Amount: Low → High </option>
                   </Select>
                 </WrapItem>
-                <WrapItem>
-                  <Input placeholder="Search" maxW="280px" size="sm" variant="outline" value={q} onChange={(e) => {
+                <WrapItem w={{ base: "full", md: "auto" }}>
+                  <Input placeholder="Search" w={{ base: "full", md: "240px" }} size="sm" variant="outline" _placeholder={{ textAlign: "center" }} value={q} onChange={(e) => {
                     setQ(e.target.value)
                     setPage(1)}} />
                 </WrapItem>
-                <WrapItem>
-                  <Button variant="brandOutline" size="sm" minW="96px" onClick={() => {
+                <WrapItem w={{ base: "full", md: "auto" }}>
+                  <Button variant="brandOutline" size="sm" w={{ base: "full", md: "96px" }} onClick={() => {
                     setMonth("") 
                     setCategory("") 
                     setType("")
@@ -272,7 +279,7 @@ export default function Transactions() {
                 </WrapItem>
             </Wrap>
 
-            <Button variant="brandOutline" size="sm" onClick={() => { 
+            <Button w={{ base: "full", md: "220px"}} variant="brandOutline" size="sm" onClick={() => { 
               setEditingId(null) 
               setForm({ date: "", type: "expense", category: "", description: "", amount: "", }) 
               setFieldErrors({}) 
@@ -348,7 +355,8 @@ export default function Transactions() {
           </Button>
         </Box>
       ) : (
-        <TableContainer bg="transparent" w="full">
+      <>
+        <TableContainer bg="transparent" w="full" display={{ base: "none", md: "block" }}>
           <Table variant="simple" w="full">
             <Thead>
               <Tr>
@@ -399,12 +407,61 @@ export default function Transactions() {
             </Tbody>
           </Table>
         </TableContainer>
+
+        <TableContainer bg="transparent" w="full" display={{ base: "block", md: "none" }}>
+          <Table variant="simple" w="full" sx={{ tableLayout: "fixed" }}>
+            <Thead>
+              <Tr>
+                <Th w="28%" fontSize="12px">Date</Th>
+                <Th w="45%" fontSize="12px">Description</Th>
+                <Th w="27%" fontSize="12px" isNumeric>Amount</Th>
+              </Tr>
+            </Thead>
+
+            <Tbody>
+              {transactions.map((t) => (
+                <Tr
+                  key={t.id}
+                  cursor="pointer"
+                  _hover={{ bg: "#36403b07" }}
+                  onClick={() => {
+                    setEditingId(t.id)
+
+                    let categoryValue = ""
+                    if (t.category && typeof t.category === "object" && t.category.id != null) {
+                      categoryValue = String(t.category.id)
+                    } else if (t.category != null) {
+                      categoryValue = String(t.category)
+                    }
+
+                    setForm({
+                      date: t.date,
+                      type: t.type,
+                      category: categoryValue,
+                      description: t.description,
+                      amount: t.amount,
+                    })
+                    setFieldErrors({})
+                    onOpen()
+                  }}
+                >
+                  <Td>{formatShortDate(t.date)}</Td>
+                  <Td>
+                    <Text noOfLines={1}>{t.description}</Text>
+                  </Td>
+                  <Td isNumeric fontWeight="600">{t.amount}</Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </TableContainer>
+      </>
       )
     ) : null}
 
     {!loading && !errorMsg && totalCount > 0 ? (
       <HStack justify="space-between" mt={20} mb={10}>
-        <Text fontSize="md" color="ink.700">Total: {totalCount}</Text>
+        <Text fontSize="md" color="ink.700" ml={6}>Total: {totalCount}</Text>
         <HStack>
           <Button variant="outline" onClick={() => setPage((p) => Math.max(1, p-1))} isDisabled={!previous} leftIcon={<FiChevronLeft />}>
             Prev
@@ -448,7 +505,7 @@ export default function Transactions() {
           </AlertDialogBody>
 
           <AlertDialogFooter>
-            <Button ref={cancelRef} onClick={closeDelete}>Cancel</Button>
+            <Button variant="ghost" ref={cancelRef} onClick={closeDelete}>Cancel</Button>
             <Button
               colorScheme="red"
               ml={3}

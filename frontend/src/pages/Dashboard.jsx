@@ -1,4 +1,5 @@
-import { Heading, Text, Box , Stat, StatLabel, StatNumber, SimpleGrid, HStack, Button, Select} from "@chakra-ui/react"
+import { Heading, Text, Box , Stat, StatLabel, StatNumber, SimpleGrid, HStack, Button, Select, useBreakpointValue, Menu, MenuButton, MenuList, MenuItem} from "@chakra-ui/react"
+import { ChevronDownIcon } from "@chakra-ui/icons"
 import { useEffect, useState } from "react"
 import { apiFetch } from "../api/clientFetch"
 import { PieChart, Pie, Tooltip, Legend, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Cell, BarChart, Bar } from "recharts"
@@ -17,6 +18,10 @@ export default function Dashboard() {
   const [chartType, setChartType] = useState("bar")
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth())
   const [allMonths, setAllMonths] = useState([])
+
+  const pieCx = useBreakpointValue({ base: "50%", md: "38%" })
+  const pieCy = useBreakpointValue({ base: "50%", md: "46%" })
+  const yAxisWidth = useBreakpointValue({ base: 40, md: 50 })
 
   useEffect(() => {
     const load = async () => {
@@ -141,14 +146,12 @@ export default function Dashboard() {
     )
 
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-start",
-          flexWrap: "wrap",
-          gap: "18px 20px",
-          marginTop: "14px",
-        }}
+      <Box
+        display="flex"
+        justifyContent={{ base: "center", md: "flex-start" }}
+        flexWrap="wrap"
+        gap="18px 20px"
+        mt={{base: "24px", md: "14px"}}
       >
         {sorted.map((entry, idx) => (
           <div key={idx} style={{ display: "flex", alignItems: "center" }}>
@@ -165,7 +168,7 @@ export default function Dashboard() {
             <span style={{ color: "var(--chakra-colors-brand-900)", fontSize: 14 }}>{entry.value}</span>
           </div>
         ))}
-      </div>
+      </Box>
     )
   }
 
@@ -218,7 +221,7 @@ export default function Dashboard() {
   }
 
   return (
-    <Box w="full" px={{ base: 6, md: 16 }}>
+    <Box w="full" maxW="1200px" mx="auto" px={{ base: 2, md: 16 }}>
       <Text
         fontSize={{ base: "42px", md: "80px" }}
         fontWeight="400"
@@ -229,6 +232,7 @@ export default function Dashboard() {
         textAlign="center"
         color="brand.900"
         fontFamily="Imbue, serif"
+        display={{ base: "none", md: "block" }}
       >
         Dashboard
       </Text>
@@ -238,7 +242,23 @@ export default function Dashboard() {
 
       {!loading && !errorMsg && (
         <>
-          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8} mt={8} mb={10}>
+        <HStack display={{ base: "block", md: "none" }} mb={8} w="full">
+            <Box w="180px">
+              <Select
+                w="full"
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+              >
+                {allMonths.map((month) => (
+                  <option key={month} value={month}>
+                    {month}
+                  </option>
+                ))}
+              </Select>
+            </Box>
+          </HStack>
+
+          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{base: 4, md: 8}} mt={{base: 4, md: 8}} mb={10}>
 
             <Box bg="linear-gradient(135deg, #003d20, #5f8f77)" p={8} borderRadius="8px" color="white">
               <Stat>
@@ -265,17 +285,25 @@ export default function Dashboard() {
 
           </SimpleGrid>
 
-          <HStack justify="flex-start" mb={8}>
-            <Select maxW="180px"  size="sm" variant="outline" value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}>
-              {allMonths.map((month) => (
-                <option key={month} value={month}>{month}</option>
-              ))}
-            </Select>
+          <HStack display={{ base: "none", md: "block" }} justify="flex-start" mb={8} w="full">
+            <Box w="180px">
+              <Select
+                w="full"
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+              >
+                {allMonths.map((month) => (
+                  <option key={month} value={month}>
+                    {month}
+                  </option>
+                ))}
+              </Select>
+            </Box>
           </HStack>
 
           <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={10} mb={8} alignItems="start">
-            <Box bg="transparent" p={0} w="full" display="flex" flexDirection="column" alignItems="flex-start" textAlign="left">
-              <Heading fontSize="26px" mb={6}>Expense by Category</Heading>
+            <Box bg="transparent" p={0} w="full" display="flex" flexDirection="column" alignItems={{ base: "center", md: "flex-start" }} textAlign={{ base: "center", md: "left" }}>
+              <Heading fontSize="26px" mb={6} textAlign={{ base: "center", md: "left" }}>Expense by Category</Heading>
 
               {pieData.length === 0 ? (
                 <Text color="gray.500">No expense data this month.</Text>
@@ -287,8 +315,8 @@ export default function Dashboard() {
                     dataKey = "value"
                     nameKey = "name"
                     outerRadius = {120}
-                    cx="38%"
-                    cy="46%"
+                    cx={pieCx}
+                    cy={pieCy}
                     labelLine={false}
                     label = {renderPieLabel}
                     >
@@ -316,13 +344,14 @@ export default function Dashboard() {
               )}
             </Box>
 
-            <Box bg="transparent" p={0} height="340px">
-              <Heading fontSize="26px" mb={12}>Daily Expense Trend</Heading>
+            <Box bg="transparent" p={0} w="full" display="flex" flexDirection="column" alignItems={{ base: "center", md: "stretch" }}>
+              <Heading fontSize="26px" mb={{ base: 8, md: 12 }}>Daily Expense Trend</Heading>
 
               {dailyExpenseData.length === 0 ? (
                 <Text color="gray.500">No expense data this month.</Text>
               ) : (
-                <ResponsiveContainer width="100%" height={290}>
+              <Box w="full" h={{ base: "300px", md: "290px" }}>
+                <ResponsiveContainer width="100%" height="100%">
                   {chartType === "bar" ? (
                     <BarChart data={dailyExpenseData}>
                       <CartesianGrid strokeDasharray="3 3"/>
@@ -333,7 +362,7 @@ export default function Dashboard() {
                         minTickGap={20}
                         tick={{ fontSize: 14, fill: "var(--chakra-colors-brand-900)"}}
                       />
-                      <YAxis tickFormatter={moneyShort} tick={{ fontSize: 14, fill: "var(--chakra-colors-brand-900)"}}/>
+                      <YAxis width={yAxisWidth} tickFormatter={moneyShort} tick={{ fontSize: 14, fill: "var(--chakra-colors-brand-900)"}}/>
                       <Tooltip
                         cursor={{ fill: "#36403b07" }} 
                         {...tooltipStyle}
@@ -352,7 +381,7 @@ export default function Dashboard() {
                         minTickGap={20}
                         tick={{ fontSize: 14, fill: "var(--chakra-colors-brand-900)"}}
                       />
-                      <YAxis tickFormatter={moneyShort} tick={{ fontSize: 14, fill: "var(--chakra-colors-brand-900)"}}/>
+                      <YAxis width={yAxisWidth} tickFormatter={moneyShort} tick={{ fontSize: 14, fill: "var(--chakra-colors-brand-900)"}}/>
                       <Tooltip
                         {...tooltipStyle}
                         labelFormatter={(label) => `Date: ${shortDate(label)}`}
@@ -362,9 +391,10 @@ export default function Dashboard() {
                     </LineChart>
                   )}
                 </ResponsiveContainer>
+              </Box>
               )}
 
-              <HStack mt={3} justify="flex-end">
+              <HStack mt={3} justify={{ base: "center", md: "flex-end" }} w="full">
                 <Button size="sm" variant={chartType === "bar" ? "brandOutline" : "outline"} onClick={() => setChartType("bar")}>Bar</Button>
                 <Button size="sm" variant={chartType === "line" ? "brandOutline" : "outline"} onClick={() => setChartType("line")}>Line</Button>
               </HStack>

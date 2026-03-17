@@ -52,7 +52,7 @@ export default function CategoryModal({
                 </ModalBody>
 
                 <ModalFooter>
-                    <Button variant="brandOutline" fontWeight="600" mr={3} onClick={onClose}>Cancel</Button>
+                    <Button variant="ghost" fontWeight="600" mr={3} onClick={onClose}>Cancel</Button>
                     <Button
                      colorScheme="teal"
                      type="submit"
