@@ -15,10 +15,7 @@ A full-stack personal finance web app to track income and expenses, built with R
 
 Live Demo: https://lichihung-finance-tracker.netlify.app/
 
-Backend API: 
-https://personal-finance-tracker-edzo.onrender.com/api/
-https://personal-finance-tracker-edzo.onrender.com/api/transactions/
-https://personal-finance-tracker-edzo.onrender.com/api/categories/
+Backend API: https://personal-finance-tracker-edzo.onrender.com/api/
 
 
 ## Tech Stack
@@ -48,4 +45,4 @@ Deployment
 ![Transactions](screenshots/transactions.png)
 
 ### Categories
-![Categories] (screenshots/categories.png)
+![Categories](screenshots/categories.png)
