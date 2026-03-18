@@ -224,7 +224,7 @@ export default function Transactions() {
         </Text>
 
         <Box mb={{ base: 10, md: 16 }}>
-          <Flex align={{ base: "stretch", md: "flex-end" }} direction={{ base: "column", md: "row" }} justify="space-between" mb={4} gap={{ base: 2, md: 2 }}>
+          <Flex align={{ base: "stretch", md: "flex-start" }} direction={{ base: "column", md: "row" }} justify="space-between" mb={4} gap={{ base: 2, md: 2 }}>
             <Wrap spacing={{ base: 2, md: 4 }} align="center" w={{ base: "full", md: "auto" }}>
                 <WrapItem w={{ base: "calc(50% - 8px)", md: "auto" }}>
                   <Select placeholder="All Months" w={{ base: "full", md: "240px" }} size="sm" variant="pillDark" value={month} onChange={(e) => {
