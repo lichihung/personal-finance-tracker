@@ -38,3 +38,14 @@ Backend
 Deployment
 - Frontend: Netlify
 - Backend: Render
+
+## Screenshots
+
+### Dashboard
+![Dashboard](screenshots/dashboard.png)
+
+### Transactions
+![Transactions](screenshots/transactions.png)
+
+### Categories
+![Categories] (screenshots/categories.png)
