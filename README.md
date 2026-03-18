@@ -2,6 +2,14 @@
 
 A full-stack personal finance web app to track income and expenses, built with React and Django REST API.
 
+## Project Overview
+
+Personal Finance Tracker is a full-stack web application for managing personal income and expenses.
+
+Users can securely log in, record transactions, categorize expenses, and visualize financial activity through charts and summaries. The application is built with a React frontend and a Django REST API backend, with JWT-based authentication.
+
+The project demonstrates full-stack development including API design, authentication, responsive UI, and deployment.
+
 ## Features
 
 - User authentication (JWT login / register)
@@ -62,10 +70,13 @@ python manage.py runserver
 
 ### Frontend
 
+```bash
 cd frontend
 npm install
 npm run dev
+```
 
 ### Environment Variables
-
+```bash
 VITE_API_BASE_URL=http://127.0.0.1:8000/api
+```
