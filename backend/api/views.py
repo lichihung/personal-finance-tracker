@@ -11,10 +11,12 @@ from .serializers import CategorySerializer, TransactionSerializer, RegisterSeri
 from datetime import date
 from django.utils.dateparse import parse_date
 from django.db import IntegrityError
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 # Create your views here.
 class CategoryViewSet(ModelViewSet):
     serializer_class = CategorySerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return Category.objects.filter(user=self.request.user)
@@ -35,6 +37,7 @@ class CategoryViewSet(ModelViewSet):
 
 class TransactionViewSet(ModelViewSet):
     serializer_class = TransactionSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         qs = Transaction.objects.select_related("category").filter(user=self.request.user)
