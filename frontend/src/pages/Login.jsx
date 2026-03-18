@@ -74,8 +74,8 @@ export default function Login() {
                       type={showPw ? "password" : "text"}
                       {...register("password", {required: "Password is required.", minLength: {value: 8, message:"Password must be at least 8 characters."},})}
                     />
-                    <InputRightElement width="4.5em">
-                      <Button h="1.75rem" size="sm" variant="ghost" onClick={()=> setShowPw((v) => (!v))}>
+                    <InputRightElement width="4.5em" top="50%" transform="translateY(-50%)">
+                      <Button size="sm" variant="simple" onClick={()=> setShowPw((v) => (!v))}>
                         {showPw ? "Show" : "Hide"}
                       </Button>
                     </InputRightElement>
@@ -92,9 +92,9 @@ export default function Login() {
                           required: "Please confrim your password.", 
                           validate: (v) => v === password || "Password do not match",})}
                       />
-                      <InputRightElement width="4.5em">
-                        <Button h="1.75rem" size="sm" variant="ghost" onClick={()=> setShowConfirmPw((v) => (!v))}>
-                          {showConfirmPw ? "Show" : "Hide"}
+                      <InputRightElement width="4.5em" top="50%" transform="translateY(-50%)">
+                        <Button size="sm" variant="simple" onClick={()=> setShowConfirmPw((v) => (!v))}>
+                          {showConfirmPw ? "Hide" : "Show"}
                         </Button>
                       </InputRightElement>
                     </InputGroup>

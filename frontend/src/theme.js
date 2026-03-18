@@ -77,6 +77,10 @@ const theme = extendTheme({
           color: "brand.900",
           _hover: { bg: "transparent", borderColor: "brand.900" },
         },
+        simple: {
+          color: "brand.900",
+          _hover: { bg: "transparent", borderColor: "transparent" },
+        },
         brandOutline: {
           borderColor: "brand.900",
           color: "brand.900",
