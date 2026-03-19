@@ -25,6 +25,9 @@ Live Demo: https://lichihung-finance-tracker.netlify.app/
 
 Backend API: https://personal-finance-tracker-edzo.onrender.com/api/
 
+### Demo Account
+Username: demo  
+Password: demo1234
 
 ## Tech Stack
 
