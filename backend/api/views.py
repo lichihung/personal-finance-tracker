@@ -83,15 +83,6 @@ class TransactionViewSet(ModelViewSet):
             qs = qs.filter(description__icontains=q)
 
         return qs
-    
-    def create(self, request, *args, **kwargs):
-        try:
-            return super().create(request, *args, **kwargs)
-        except Exception as e:
-            return Response(
-                {"detail": str(e), "type": e.__class__.__name__},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
         
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
