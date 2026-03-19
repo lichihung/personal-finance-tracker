@@ -22,6 +22,10 @@ export default function Dashboard() {
   const pieCx = useBreakpointValue({ base: "50%", md: "38%" })
   const pieCy = useBreakpointValue({ base: "50%", md: "46%" })
   const yAxisWidth = useBreakpointValue({ base: 40, md: 50 })
+  const pieOuterRadius = useBreakpointValue({ base: 110, md: 120 })
+  const pieLineOffset = useBreakpointValue({ base: 3, md: 5 })
+  const pieLabelOffset = useBreakpointValue({ base: 10, md: 20 })
+  const pieLabelFontSize = useBreakpointValue({ base: 14, md: 14 })
 
   useEffect(() => {
     const load = async () => {
@@ -173,16 +177,16 @@ export default function Dashboard() {
   }
 
   const renderPieLabel = (props) => {
-    const {
-      cx, cy, midAngle, outerRadius, percent, stroke, fill,
-    } = props
+    const { cx, cy, midAngle, outerRadius, percent, fill } = props
+
+    if (percent < 0.01) return null
 
     const RAD = Math.PI / 180
     const cos = Math.cos(-midAngle * RAD)
     const sin = Math.sin(-midAngle * RAD)
 
-    const lineOffset = 5
-    const labelOffset = 20
+    const lineOffset = pieLineOffset
+    const labelOffset = pieLabelOffset
 
     const x1 = cx + (outerRadius + lineOffset) * cos
     const y1 = cy + (outerRadius + lineOffset) * sin
@@ -201,7 +205,7 @@ export default function Dashboard() {
           textAnchor={textAnchor}
           dominantBaseline="middle"
           fill="var(--chakra-colors-brand-900)"
-          style={{ fontSize: 14 }}
+          style={{ fontSize: pieLabelFontSize }}
         >
           {`${Math.round(percent * 100)}%`}
         </text>
@@ -315,7 +319,7 @@ export default function Dashboard() {
                     data = {pieData}
                     dataKey = "value"
                     nameKey = "name"
-                    outerRadius = {120}
+                    outerRadius={pieOuterRadius}
                     cx={pieCx}
                     cy={pieCy}
                     labelLine={false}

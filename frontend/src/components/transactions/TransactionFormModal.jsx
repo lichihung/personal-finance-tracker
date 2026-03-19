@@ -3,7 +3,7 @@ import {
   ModalBody, ModalFooter, ModalCloseButton,
   FormControl, FormLabel, Input, NumberInput,
   NumberInputField, RadioGroup, Radio, Stack,
-  Button, Select
+  Button, Select, Text, Link
 } from "@chakra-ui/react"
 
 import FormField from "../ui/FormField"
@@ -40,16 +40,22 @@ export default function TransactionFormModal(props) {
                     </FormField>
     
                     <FormField label="Category" error={fieldErrors.category}>
-                    <Select
-                        placeholder="Select category"
-                        value={form.category}
-                        onChange={(e) => updateForm("category", e.target.value)}>
-                        {categories.map((c) => (
-                            <option key={c.id} value={c.id}>
-                            {c.name}
-                            </option>
-                        ))}
-                    </Select>
+                        <>
+                            <Select
+                                placeholder="Select category"
+                                value={form.category}
+                                onChange={(e) => updateForm("category", e.target.value)}>
+                                {categories.map((c) => (
+                                    <option key={c.id} value={c.id}>
+                                    {c.name}
+                                    </option>
+                                ))}
+                            </Select>
+                            <Text mt={2} fontSize="sm" color="gray.600">
+                                Can't find a category?{" "}
+                                <Link href="/categories" color="brand.700" _hover={{color: "brand.800"}}>Create Category</Link>
+                            </Text>
+                        </>
                     </FormField>
     
                     <FormControl>

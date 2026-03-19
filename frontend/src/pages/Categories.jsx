@@ -69,7 +69,12 @@ export default function Categories() {
     )
 
     if (exists) {
-      toast({title: "Category already exists.", status: "error"})
+      toast({
+        title: "Category already exists.",
+        status: "error",
+        duration: 2500,
+        isClosable: true,
+      })
       return
     }
 
@@ -87,7 +92,12 @@ export default function Categories() {
 
         toast({ title: "Category updated.", status: "success"})
       } catch (err) {
-        toast({ title: err.message || "Update failed", status: "error"})
+        toast({
+          title: err?.data?.name?.[0] || err.message || "Update failed",
+          status: "error",
+          duration: 2500,
+          isClosable: true,
+        })
         return
       }
     } else {
@@ -104,7 +114,12 @@ export default function Categories() {
 
         toast({ title: "Category added.", status: "success", duration: 2500, isClosable: true })
       } catch (err) {
-        toast({ title: err.message || "Created failed", status: "error"})
+        toast({
+          title: err?.data?.name?.[0] || err.message || "Create failed",
+          status: "error",
+          duration: 2500,
+          isClosable: true,
+        })
         return
       }
     }

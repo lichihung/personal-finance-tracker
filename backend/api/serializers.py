@@ -7,7 +7,26 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = ["id", "name", "created_at"]
         read_only_fields = ["id", "created_at"]
+        
+    def validate_name(self, value):
+        request = self.context["request"]
+        normalized = value.strip()
 
+        if not normalized:
+            raise serializers.ValidationError("Category name is required.")
+
+        qs = Category.objects.filter(
+            user=request.user,
+            name__iexact=normalized,
+        )
+
+        if self.instance:
+            qs = qs.exclude(id=self.instance.id)
+
+        if qs.exists():
+            raise serializers.ValidationError("Category already exists.")
+
+        return normalized
 
 class TransactionSerializer(serializers.ModelSerializer):
     category_id = serializers.PrimaryKeyRelatedField(

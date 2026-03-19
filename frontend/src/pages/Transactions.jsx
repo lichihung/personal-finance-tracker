@@ -6,6 +6,7 @@ import { FiChevronRight, FiChevronLeft, FiPlus } from "react-icons/fi"
 import TransactionFormModal from "../components/transactions/TransactionFormModal"
 import { getTransactions, createTransaction, updateTransaction, deleteTransaction, getTransactionMonths } from "../api/transactionService"
 import { getCategories } from "../api/categoryService"
+import { useNavigate } from "react-router-dom"
 
 
 // Badge UI for transaction type
@@ -31,6 +32,7 @@ export default function Transactions() {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const toast = useToast()
   const cancelRef = useRef()
+  const navigate = useNavigate()
 
   // Filter states
   const [month, setMonth] = useState("")
@@ -486,6 +488,10 @@ export default function Transactions() {
         saving={saving}
         onSave={handleSave}
         onDelete={openDelete}
+        onGoToCategories={() => {
+          onClose()
+          navigate("/categories")
+        }}
        />
 
       <AlertDialog
