@@ -16,9 +16,10 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [errorMsg, setErrorMsg] = useState("")
   const [chartType, setChartType] = useState("bar")
-  const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth())
+  const [selectedMonth, setSelectedMonth] = useState("")
   const [allMonths, setAllMonths] = useState([])
 
+  const activeMonth = selectedMonth || getCurrentMonth()
   const pieCx = useBreakpointValue({ base: "50%", md: "38%" })
   const pieCy = useBreakpointValue({ base: "50%", md: "46%" })
   const yAxisWidth = useBreakpointValue({ base: 40, md: 50 })
@@ -32,7 +33,7 @@ export default function Dashboard() {
       setLoading(true)
       setErrorMsg("")
       try {
-        const data = await apiFetch(`/transactions/?month=${selectedMonth}`)
+        const data = await apiFetch(`/transactions/?month=${activeMonth}`)
         if (Array.isArray(data)) setTransactions(data)
         else if (data && Array.isArray(data.results)) setTransactions(data.results)
         else setTransactions([])
@@ -96,7 +97,7 @@ export default function Dashboard() {
   })()
 
   const dailyExpenseData = (() => {
-    const month = selectedMonth
+    const month = activeMonth
     const map = new Map()
 
     for (const t of transactions) {
@@ -129,6 +130,8 @@ export default function Dashboard() {
 
     return out
   })()
+
+  const hasDailyExpenseData = dailyExpenseData.some((item) => item.expense > 0)
 
   const shortDate = (s) => {
     const [, mm, dd] = String(s).split("-")
@@ -282,7 +285,7 @@ export default function Dashboard() {
             <Box bg="linear-gradient(135deg, #c9a24d, #f8e6c8)" p={8} borderRadius="8px" color="white" >
               <Stat>
                 <StatLabel fontSize="18px" mb={2}>This Month Net</StatLabel>
-                <StatNumber fontSize="24px" color={net >= 0 ? "white" : "red.200"}>
+                <StatNumber fontSize="24px" color={net >= 0 ? "white" : "ink.900"}>
                   {money(net)}
                 </StatNumber>
               </Stat>
@@ -351,12 +354,12 @@ export default function Dashboard() {
             </Box>
 
             <Box bg="transparent" p={0} w="full" display="flex" flexDirection="column" alignItems={{ base: "center", md: "stretch" }}>
-              <Heading fontSize="26px" mb={{ base: 8, md: 12 }}>Daily Expense Trend</Heading>
+              <Heading fontSize="26px" mb={6}>Daily Expense Trend</Heading>
 
-              {dailyExpenseData.length === 0 ? (
+              {!hasDailyExpenseData ? (
                 <Text color="gray.500">No expense data this month.</Text>
               ) : (
-              <Box w="full" h={{ base: "300px", md: "290px" }}>
+              <Box w="full" h={{ base: "300px", md: "290px" }} mt={4}>
                 <ResponsiveContainer width="100%" height="100%">
                   {chartType === "bar" ? (
                     <BarChart data={dailyExpenseData}>
