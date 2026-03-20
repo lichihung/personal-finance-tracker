@@ -23,12 +23,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ymsqwr+k(v#+zrs%4@rsbx917%ql#@*)qcp_8@hbt=1984_5(^'
+SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "personal-finance-tracker-edzo.onrender.com",
+]
 
 
 # Application definition
@@ -124,8 +128,9 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://lichihung-finance-tracker.netlify.app",
 ]
 
 REST_FRAMEWORK = {
@@ -146,5 +151,3 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
 }
-
-CORS_ALLOW_ALL_ORIGINS = True
