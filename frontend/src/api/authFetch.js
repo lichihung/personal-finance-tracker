@@ -11,7 +11,7 @@ export const login = async(username, password) => {
     const data = await res.json()
 
     if(!res.ok) {
-        throw new Error(data?.detail || "Invalid credentials")
+        throw new Error("Invalid username or password.")
     }
 
     localStorage.setItem("access", data.access)
@@ -29,7 +29,7 @@ export const register = async(username, password) => {
     const data = await res.json()
 
     if(!res.ok) {
-        const msg = data?.detail || data?.username?.[0] || data?.password?.[0] || "Registration failed"
+        const msg = data?.detail || data?.username?.[0] || data?.password?.[0] || "Unable to create account. Please try again"
         throw new Error(msg)
     }
 

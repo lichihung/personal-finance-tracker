@@ -13,6 +13,7 @@ export default function Login() {
   const [mode, setMode] = useState("login")
   const [showPw, setShowPw] = useState(true)
   const [showConfirmPw, setShowConfirmPw] = useState(false)
+  const [submitError, setSubmitError] = useState("")
 
   const title = useMemo(
     () => (mode === "login" ? "Welcome back" : "Create account"), [mode]
@@ -38,6 +39,7 @@ export default function Login() {
   const password = watch("password")
 
   const onSubmit = async (values) => {
+    setSubmitError("")
     try {
       if (mode === "login") {
         await login(values.username, values.password)
@@ -49,7 +51,7 @@ export default function Login() {
       }
     } catch (err) {
       console.error(err)
-      alert(err.message || "Failed")
+      setSubmitError(err.message || "Failed")
     }
   }
 
@@ -57,7 +59,7 @@ export default function Login() {
     <Box minH="100vh" bg="cream.50">
       <Container maxW="container.sm" py={16}>
         <Box display="flex" justifyContent="center">
-          <AuthCard title={title} subtitle={subtitle} >
+          <AuthCard title={title} subtitle={subtitle}>
             <Box as="form" onSubmit={handleSubmit(onSubmit)} >
               <VStack spacing={4} align="stretch">
                 <FormField label="Username" error={errors.username?.message}>
@@ -100,6 +102,12 @@ export default function Login() {
                     </InputGroup>
 
                   </FormField>
+                ) : null}
+
+                {submitError ? (
+                  <Text color="red.500" fontSize="sm" textAlign="left">
+                    {submitError}
+                  </Text>
                 ) : null}
 
                 <Button

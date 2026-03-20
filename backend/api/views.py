@@ -1,17 +1,16 @@
-from django.shortcuts import render
-from rest_framework.decorators import api_view, action
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from .models import Category, Transaction
 from .serializers import CategorySerializer, TransactionSerializer, RegisterSerializer
-from datetime import date
-from django.utils.dateparse import parse_date
 from django.db import IntegrityError
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework_simplejwt.views import TokenObtainPairView
+from django_ratelimit.decorators import ratelimit
+from django.utils.decorators import method_decorator
 
 # Create your views here.
 class CategoryViewSet(ModelViewSet):
@@ -34,6 +33,7 @@ class CategoryViewSet(ModelViewSet):
                 status = status.HTTP_409_CONFLICT,
             )
         return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class TransactionViewSet(ModelViewSet):
     serializer_class = TransactionSerializer
@@ -107,6 +107,7 @@ class TransactionViewSet(ModelViewSet):
         months = sorted({d.strftime("%Y-%m") for d in qs.values_list("date", flat=True)}, reverse=True)
         return Response({"results": months})
 
+
 class RegisterView(APIView):
     permission_classes = [AllowAny]
 
@@ -115,3 +116,9 @@ class RegisterView(APIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         return Response({"username": user.username}, status=status.HTTP_201_CREATED)
+    
+
+@method_decorator(ratelimit(key="ip", rate="5/m", block=True), name="post")
+class RateLimitedTokenView(TokenObtainPairView):
+    print("RATE LIMIT VIEW HIT")
+    pass
