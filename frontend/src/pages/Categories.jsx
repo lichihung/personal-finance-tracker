@@ -170,7 +170,7 @@ export default function Categories() {
       </Text>
         
       <Flex justify={{base: "center", md:"flex-start"}} mb={{ base: 10, md: 12 }}>
-        <Button variant="brandOutline" w={{ base: "full", md: "220px" }} size="sm" onClick={openAdd} leftIcon={<FiPlus />}>Add Category</Button>
+        <Button variant="brandOutline" w={{ base: "full", md: "200px" }} size="sm" onClick={openAdd} leftIcon={<FiPlus />}>Add Category</Button>
       </Flex>
 
       {loading ? <Text>Loading...</Text> : null}
@@ -182,7 +182,7 @@ export default function Categories() {
             <FiFileText size={28} />
           </Box>
           <Text fontSize="lg" fontWeight="semibold" mb={2} color="ink.900">No categories yet. Add your first one.</Text>
-          <Text color="brand.700">Add your first one.</Text>
+          <Text color="brand.700">Create categories to organize your transactions.</Text>
           <Button mt={6} mb={6} leftIcon={<FiPlus />} fontSize="sm" onClick={openAdd}>
             Add Category
           </Button>

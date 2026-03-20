@@ -1,5 +1,5 @@
-import { Heading, Text, Box , Stat, StatLabel, StatNumber, SimpleGrid, HStack, Button, Select, useBreakpointValue, Menu, MenuButton, MenuList, MenuItem} from "@chakra-ui/react"
-import { ChevronDownIcon } from "@chakra-ui/icons"
+import { Heading, Text, Box , Stat, StatLabel, StatNumber, SimpleGrid, HStack, Button, Select, useBreakpointValue, Center, Spinner, Alert, AlertIcon, AlertTitle, AlertDescription, Link} from "@chakra-ui/react"
+import { Link as RouterLink } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { apiFetch } from "../api/clientFetch"
 import { PieChart, Pie, Tooltip, Legend, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Cell, BarChart, Bar } from "recharts"
@@ -73,6 +73,7 @@ export default function Dashboard() {
   const money = (n) => new Intl.NumberFormat("en-CA", {style: "currency", currency: "CAD"}).format(n)
   const moneyShort = (n) => new Intl.NumberFormat("en-CA", {style: "currency", currency: "CAD", maximumFractionDigits: 0,}).format(n) 
   const net = totalIncome - totalExpense
+  const hasAnyTransactions = transactions.length > 0
 
   const pieData = (() => {
     const map = new Map()
@@ -244,12 +245,32 @@ export default function Dashboard() {
         Dashboard
       </Text>
 
-      {loading && <Text>Loading...</Text>}
-      {errorMsg && <Text color="red.500">{errorMsg}</Text>}
+      {loading && (
+        <Center py={16}>
+          <HStack spacing={3}>
+            <Spinner />
+            <Text color="gray.500">Loading dashboard...</Text>
+          </HStack>
+        </Center>
+      )}
+      {errorMsg && (
+        <Alert status="error" borderRadius="12px" mb={6}>
+          <AlertIcon />
+          <Box flex="1">
+            <AlertTitle>Failed to load dashboard</AlertTitle>
+            <AlertDescription>{errorMsg}</AlertDescription>
+          </Box>
+          <Button size="sm" onClick={() => {
+              setSelectedMonth("")
+            }}>
+            Retry
+          </Button>
+        </Alert>
+      )}
 
       {!loading && !errorMsg && (
         <>
-        <HStack display={{ base: "block", md: "none" }} mb={8} w="full">
+        <HStack display={{ base: "flex", md: "none" }} justify="center" mb={8} w="full">
             <Box w="180px">
               <Select
                 w="full"
@@ -267,18 +288,17 @@ export default function Dashboard() {
           </HStack>
 
           <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{base: 4, md: 8}} mt={{base: 4, md: 8}} mb={10}>
-
             <Box bg="linear-gradient(135deg, #003d20, #5f8f77)" p={8} borderRadius="8px" color="white">
               <Stat>
                 <StatLabel fontSize="18px" mb={2}>This Month Income</StatLabel>
-                <StatNumber fontSize="24px">{money(totalIncome)}</StatNumber>
+                <StatNumber fontSize="24px">{hasAnyTransactions ? money(totalIncome) : "-"}</StatNumber>
               </Stat>
             </Box>
 
             <Box bg="linear-gradient(135deg, #89a899, #d7e6de)" p={8} borderRadius="8px" color="white">
               <Stat>
                 <StatLabel fontSize="18px" mb={2}>This Month Expense</StatLabel>
-                <StatNumber fontSize="24px">{money(totalExpense)}</StatNumber>
+                <StatNumber fontSize="24px">{hasAnyTransactions ? money(totalExpense) : "-"}</StatNumber>
               </Stat>
             </Box>
 
@@ -286,7 +306,7 @@ export default function Dashboard() {
               <Stat>
                 <StatLabel fontSize="18px" mb={2}>This Month Net</StatLabel>
                 <StatNumber fontSize="24px" color={net >= 0 ? "white" : "ink.900"}>
-                  {money(net)}
+                  {hasAnyTransactions ? money(net) : "-"}
                 </StatNumber>
               </Stat>
             </Box>
@@ -315,7 +335,12 @@ export default function Dashboard() {
               <Heading fontSize="26px" mb={6} textAlign={{ base: "center", md: "left" }}>Expense by Category</Heading>
 
               {pieData.length === 0 ? (
-                <Text color="gray.500">No expense data this month.</Text>
+                  <Box textAlign={{ base: "center", md: "left" }}>
+                    <Text fontSize="md" fontWeight="400" mb={6} color="ink.900">
+                      You don't have any expenses this month.
+                    </Text>
+                    <Button as={RouterLink} to="/categories" fontSize="sm" _hover={{color:"white"}}>Go to Categories</Button>
+                  </Box>
               ) : (
                 <ResponsiveContainer width="100%" height={360}>
                   <PieChart>
@@ -357,56 +382,65 @@ export default function Dashboard() {
               <Heading fontSize="26px" mb={6}>Daily Expense Trend</Heading>
 
               {!hasDailyExpenseData ? (
-                <Text color="gray.500">No expense data this month.</Text>
+                  <Box textAlign={{ base: "center", md: "left" }}>
+                    <Text fontSize="md" fontWeight="400" mb={6} color="ink.900">
+                     You don't have any expenses this month.
+                    </Text>
+                    <Button as={RouterLink} to="/transactions" fontSize="sm" _hover={{color:"white"}}>Add Transaction</Button>
+                  </Box>
               ) : (
-              <Box w="full" h={{ base: "300px", md: "290px" }} mt={4}>
-                <ResponsiveContainer width="100%" height="100%">
-                  {chartType === "bar" ? (
-                    <BarChart data={dailyExpenseData}>
-                      <CartesianGrid strokeDasharray="3 3"/>
-                      <XAxis
-                        dataKey="date"
-                        tickFormatter={shortDate}
-                        interval="preserveStartEnd"
-                        minTickGap={20}
-                        tick={{ fontSize: 14, fill: "var(--chakra-colors-brand-900)"}}
-                      />
-                      <YAxis width={yAxisWidth} tickFormatter={moneyShort} tick={{ fontSize: 14, fill: "var(--chakra-colors-brand-900)"}}/>
-                      <Tooltip
-                        cursor={{ fill: "#36403b07" }} 
-                        {...tooltipStyle}
-                        labelFormatter={(label) => `Date: ${shortDate(label)}`}
-                        formatter={(value) => [money(value), "Expense"]}
-                      />
-                      <Bar dataKey="expense" fill="var(--chakra-colors-brand-800)" radius={[4, 4, 0, 0]}/>
-                    </BarChart>
-                  ) : (
-                    <LineChart data={dailyExpenseData}>
-                      <CartesianGrid strokeDasharray="3 3"/>
-                      <XAxis
-                        dataKey="date"
-                        tickFormatter={shortDate}
-                        interval="preserveStartEnd"
-                        minTickGap={20}
-                        tick={{ fontSize: 14, fill: "var(--chakra-colors-brand-900)"}}
-                      />
-                      <YAxis width={yAxisWidth} tickFormatter={moneyShort} tick={{ fontSize: 14, fill: "var(--chakra-colors-brand-900)"}}/>
-                      <Tooltip
-                        {...tooltipStyle}
-                        labelFormatter={(label) => `Date: ${shortDate(label)}`}
-                        formatter={(value) => [money(value), "Expense"]}
-                      />
-                      <Line type="linear" dataKey="expense" stroke="var(--chakra-colors-accent-500)"/>
-                    </LineChart>
-                  )}
-                </ResponsiveContainer>
-              </Box>
+                <>
+                  <Box w="full" h={{ base: "300px", md: "290px" }} mt={4}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      {chartType === "bar" ? (
+                        <BarChart data={dailyExpenseData}>
+                          <CartesianGrid strokeDasharray="3 3"/>
+                          <XAxis
+                            dataKey="date"
+                            tickFormatter={shortDate}
+                            interval="preserveStartEnd"
+                            minTickGap={20}
+                            tick={{ fontSize: 14, fill: "var(--chakra-colors-brand-900)"}}
+                          />
+                          <YAxis width={yAxisWidth} tickFormatter={moneyShort} tick={{ fontSize: 14, fill: "var(--chakra-colors-brand-900)"}}/>
+                          <Tooltip
+                            cursor={{ fill: "#36403b07" }} 
+                            {...tooltipStyle}
+                            labelFormatter={(label) => `Date: ${shortDate(label)}`}
+                            formatter={(value) => [money(value), "Expense"]}
+                          />
+                          <Bar dataKey="expense" fill="var(--chakra-colors-brand-800)" radius={[4, 4, 0, 0]}/>
+                        </BarChart>
+                      ) : (
+                        <LineChart data={dailyExpenseData}>
+                          <CartesianGrid strokeDasharray="3 3"/>
+                          <XAxis
+                            dataKey="date"
+                            tickFormatter={shortDate}
+                            interval="preserveStartEnd"
+                            minTickGap={20}
+                            tick={{ fontSize: 14, fill: "var(--chakra-colors-brand-900)"}}
+                          />
+                          <YAxis width={yAxisWidth} tickFormatter={moneyShort} tick={{ fontSize: 14, fill: "var(--chakra-colors-brand-900)"}}/>
+                          <Tooltip
+                            {...tooltipStyle}
+                            labelFormatter={(label) => `Date: ${shortDate(label)}`}
+                            formatter={(value) => [money(value), "Expense"]}
+                          />
+                          <Line type="linear" dataKey="expense" stroke="var(--chakra-colors-accent-500)"/>
+                        </LineChart>
+                      )}
+                    </ResponsiveContainer>
+                  </Box>
+
+                  <HStack mt={3} justify={{ base: "center", md: "flex-end" }} w="full">
+                    <Button size="sm" variant={chartType === "bar" ? "brandOutline" : "outline"} onClick={() => setChartType("bar")}>Bar</Button>
+                    <Button size="sm" variant={chartType === "line" ? "brandOutline" : "outline"} onClick={() => setChartType("line")}>Line</Button>
+                  </HStack>
+                </>
               )}
 
-              <HStack mt={3} justify={{ base: "center", md: "flex-end" }} w="full">
-                <Button size="sm" variant={chartType === "bar" ? "brandOutline" : "outline"} onClick={() => setChartType("bar")}>Bar</Button>
-                <Button size="sm" variant={chartType === "line" ? "brandOutline" : "outline"} onClick={() => setChartType("line")}>Line</Button>
-              </HStack>
+
             </Box>
           </SimpleGrid>
         </>

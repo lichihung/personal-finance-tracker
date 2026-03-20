@@ -53,7 +53,7 @@ export default function TransactionFormModal(props) {
                             </Select>
                             <Text mt={2} fontSize="sm" color="gray.600">
                                 Can't find a category?{" "}
-                                <Link href="/categories" color="brand.700" _hover={{color: "brand.800"}}>Create Category</Link>
+                                <Link href="/categories" color="brand.700" _hover={{color: "brand.800", textDecoration: "underline"}}>Create Category</Link>
                             </Text>
                         </>
                     </FormField>

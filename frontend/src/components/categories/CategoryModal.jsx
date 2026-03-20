@@ -21,8 +21,10 @@ export default function CategoryModal({
     })
 
     useEffect(() => {
-        reset({ name: initialValue?.name || ""})
-    }, [initialValue, reset])
+        if (isOpen) {
+            reset({ name: initialValue?.name || "" })
+        }
+    }, [initialValue, isOpen, reset])
 
     const submit = async (values) => {
         await onSubmit(values.name)
