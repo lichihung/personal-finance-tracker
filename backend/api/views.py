@@ -118,7 +118,7 @@ class RegisterView(APIView):
         return Response({"username": user.username}, status=status.HTTP_201_CREATED)
     
 
-@method_decorator(ratelimit(key="ip", rate="5/m", block=True), name="post")
 class RateLimitedTokenView(TokenObtainPairView):
-    print("RATE LIMIT VIEW HIT")
-    pass
+    @method_decorator(ratelimit(key="ip", rate="5/m", method="POST", block=True))
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
