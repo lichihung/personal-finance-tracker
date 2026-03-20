@@ -228,7 +228,7 @@ export default function Transactions() {
         <Box mb={{ base: 10, md: 16 }}>
           <Flex align={{ base: "stretch", md: "flex-start" }} direction={{ base: "column", md: "row" }} justify="space-between" mb={4} gap={{ base: 2, md: 2 }}>
             <Wrap spacing={{ base: 2, md: 4 }} align="center" w={{ base: "full", md: "auto" }}>
-                <WrapItem w={{ base: "calc(50% - 8px)", md: "auto" }}>
+                <WrapItem w={{ base: "calc(50% - 4px)", md: "auto" }}>
                   <Select placeholder="All Months" w={{ base: "full", md: "240px" }} size="sm" variant="pillDark" value={month} onChange={(e) => {
                     setMonth(e.target.value)
                     setPage(1)}}>
@@ -237,7 +237,7 @@ export default function Transactions() {
                     ))}
                   </Select>
                 </WrapItem>
-                <WrapItem w={{ base: "calc(50% - 8px)", md: "auto" }}>
+                <WrapItem w={{ base: "calc(50% - 4px)", md: "auto" }}>
                   <Select placeholder="All Categories" w={{ base: "full", md: "240px" }} size="sm" variant="pillDark" value={category} onChange={(e) => {
                     setCategory(e.target.value)
                     setPage(1)}}>
@@ -246,7 +246,7 @@ export default function Transactions() {
                     ))}
                   </Select>
                 </WrapItem >
-                <WrapItem w={{ base: "calc(50% - 8px)", md: "auto" }}>
+                <WrapItem w={{ base: "calc(50% - 4px)", md: "auto" }}>
                   <Select placeholder="All Types" w={{ base: "full", md: "240px" }} size="sm" variant="pillDark" value={type} onChange={(e) => {
                     setType(e.target.value)
                     setPage(1)}}>
@@ -254,7 +254,7 @@ export default function Transactions() {
                     <option value="expense">Expense</option>
                   </Select>
                 </WrapItem>
-                <WrapItem w={{ base: "calc(50% - 8px)", md: "auto" }}>
+                <WrapItem w={{ base: "calc(50% - 4px)", md: "auto" }}>
                   <Select w={{ base: "full", md: "240px" }} size="sm" variant="pillDark" value={sort} onChange={(e) => {
                     setSort(e.target.value)
                     setPage(1)}}>

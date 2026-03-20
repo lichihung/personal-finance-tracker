@@ -12,6 +12,12 @@ export const clearTokens = () => {
   localStorage.removeItem(REFRESH_KEY)
 }
 
+const redirectToLogin = () => {
+  if (window.location.pathname !== "login") {
+    window.location.href = "/login"
+  }
+}
+
 let refreshInProgress = false
 let refreshQueue = [] // array of { resolve, reject }
 
@@ -200,6 +206,7 @@ export const apiFetch = async (path, options = {}) => {
       return handleResponse(res)
     } catch (err) {
       clearTokens()
+      redirectToLogin()
       throw err
     }
   }
@@ -216,6 +223,7 @@ export const apiFetch = async (path, options = {}) => {
   } catch (err) {
     clearTokens()
     rejectRefreshQueue(err)
+    redirectToLogin()
     throw err
   } finally {
     refreshInProgress = false

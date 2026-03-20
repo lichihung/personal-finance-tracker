@@ -46,6 +46,7 @@ export default function CategoryModal({
                                 required: "Category name is required.",
                                 maxLength: {value: 30, message: "Max 30 characters."}
                              })}
+                             autoComplete="off"
                             />
                         </FormField>
                     </VStack>

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState} from "react"
 import { Box, Button, Heading, HStack, IconButton, Table, Tbody, Td, Th, Thead, Tr, Text, useToast, Flex, TableContainer} from "@chakra-ui/react"
 import { EditIcon, DeleteIcon } from "@chakra-ui/icons"
-import { FiChevronRight, FiChevronLeft, FiPlus } from "react-icons/fi"
+import { FiChevronRight, FiChevronLeft, FiPlus, FiFileText } from "react-icons/fi"
 import ConfirmDialog from "../components/ui/ConfirmDialog"
 import CategoryModal from "../components/categories/CategoryModal"
 import { apiFetch } from "../api/clientFetch"
@@ -177,8 +177,15 @@ export default function Categories() {
       {errorMsg ? <Text color="red.500">{errorMsg}</Text> : null}
       {!loading && !errorMsg ? (
       categories.length === 0 ? (
-        <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
-          <Text color="gray.600">No categories yet. Add your first one.</Text>
+        <Box bg="cream.50" p={6} borderRadius="lg" textAlign="center">
+          <Box w="60px" h="60px" mb={5} mx="auto" borderRadius="20px" bg="#36403b07" display="flex" alignItems="center" justifyContent="center">
+            <FiFileText size={28} />
+          </Box>
+          <Text fontSize="lg" fontWeight="semibold" mb={2} color="ink.900">No categories yet. Add your first one.</Text>
+          <Text color="brand.700">Add your first one.</Text>
+          <Button mt={6} mb={6} leftIcon={<FiPlus />} fontSize="sm" onClick={openAdd}>
+            Add Category
+          </Button>
         </Box>
       ) : (
       <>

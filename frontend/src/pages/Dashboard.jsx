@@ -296,6 +296,7 @@ export default function Dashboard() {
                 w="full"
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
+                placeholder="Month"
               >
                 {allMonths.map((month) => (
                   <option key={month} value={month}>
