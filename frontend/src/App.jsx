@@ -6,6 +6,7 @@ import Transactions from "./pages/Transactions.jsx"
 import Categories from "./pages/Categories.jsx"
 import AppLayout from "./components/AppLayout.jsx"
 import ProtectedRoute from "./auth/ProtectedRoute.jsx"
+import PrivacyPolicy from "./pages/PrivacyPolicy.jsx"
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/categories" element={<Categories />} />
+            {/* <Route path="/privacy" element={<PrivacyPolicy />} /> */}
           </Route>
         </Route>
         

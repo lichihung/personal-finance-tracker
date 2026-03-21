@@ -32,6 +32,7 @@ export default function AppLayout() {
     if (location.pathname === "/dashboard") return "DASHBOARD"
     if (location.pathname === "/transactions") return "TRANSACTIONS"
     if (location.pathname === "/categories") return "CATEGORIES"
+    if (location.pathname === "/privacy") return "PRIVACY POLICY"
     return "FINANCE TRACKER"
   }
 
@@ -64,6 +65,7 @@ export default function AppLayout() {
               <Link as={NavLink} to="/dashboard" style={navLinkStyle}>Dashboard</Link>
               <Link as={NavLink} to="/transactions" style={navLinkStyle}>Transactions</Link>
               <Link as={NavLink} to="/categories" style={navLinkStyle}>Categories</Link>
+              <Link as={NavLink} to="/privacy" style={navLinkStyle}>Privacy Policy</Link>
 
               <Button
                 size="sm" 
@@ -106,6 +108,9 @@ export default function AppLayout() {
                 </Link>
                 <Link as={NavLink} to="/categories" onClick={onClose} _hover={{ textDecoration: "none" }}>
                     <Text fontSize="lg">Categories</Text>
+                </Link>
+                <Link as={NavLink} to="/privacy" onClick={onClose} _hover={{ textDecoration: "none" }}>
+                    <Text fontSize="lg">Privacy Policy</Text>
                 </Link>
                 <Button mt={4} variant="outline" borderColor="white" color="white" bg="transparent" _hover={{ bg: "white", color: "brand.900" }} 
                 onClick={() => {

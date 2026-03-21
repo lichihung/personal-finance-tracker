@@ -11,7 +11,7 @@ export const login = async(username, password) => {
     const data = await res.json()
 
     if (!res.ok) {
-        if (res.status === 429) {
+        if (res.status === 429 || res.status === 403) {
         throw new Error("Too many login attempts. Please try again in a minute.")
         }
         throw new Error("Invalid username or password.")
