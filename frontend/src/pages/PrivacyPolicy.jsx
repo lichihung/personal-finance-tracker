@@ -1,6 +1,19 @@
-import { Box, Container, Text, VStack } from "@chakra-ui/react"
+import { Box, Container, Text, VStack, Link, textDecoration } from "@chakra-ui/react"
+import { Link as RouterLink, useNavigate } from "react-router-dom"
 
 export default function PrivacyPolicy() {
+
+  const navigate = useNavigate()
+
+  const handleBack = () => {
+    const token = localStorage.getItem("access")
+
+    if (token) {
+      navigate("/dashboard")
+    } else {
+      navigate("/login")
+    }
+  }
   return (
     <Box minH="100vh" bg="cream.50">
       <Container maxW="container.md">
@@ -47,6 +60,11 @@ export default function PrivacyPolicy() {
           <Text>
             If you have questions about this policy, please contact the app
             owner through the project repository or portfolio contact page.
+          </Text>
+
+          <Text
+            cursor="pointer" color="teal.600" onClick={handleBack} _hover={{textDecoration: "underline"}}>
+            ←  Back
           </Text>
         </VStack>
       </Container>

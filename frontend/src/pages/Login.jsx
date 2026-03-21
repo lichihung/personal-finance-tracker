@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState} from "react"
 import { Box, Button, Container, FormControl, FormErrorMessage, FormLabel, Input, InputGroup, InputRightElement, Link, Text, VStack} from "@chakra-ui/react"
 import { useForm } from "react-hook-form"
-import { useNavigate} from "react-router-dom"
+import { useNavigate, Link as RouterLink} from "react-router-dom"
 
 import AuthCard from "../components/auth/AuthCard"
 import FormField from "../components/ui/FormField"
@@ -123,14 +123,21 @@ export default function Login() {
                   {mode === "login" ? (
                     <>
                     Don't have an account?{" "}
-                    <Link color="teal.600" onClick={() => setMode("register")}>Sign up</Link>
+                    <Link color="brand.800" _hover={{color: "brand.700", textDecoration: "underline"}} onClick={() => setMode("register")}>Sign up</Link>
                     </>
                   ) : (
                     <>
                     Already have an account?{" "}
-                    <Link color="teal.600" onClick={() => setMode("login")}>Sign in</Link>
+                    <Link color="brand.800" _hover={{color: "brand.700", textDecoration: "underline"}} onClick={() => setMode("login")}>Sign in</Link>
                     </>
                   )}
+                </Text>
+
+                <Text fontSize="xs" color="gray.500" textAlign="center" mt={4}>
+                  By using this app, you agree to our{" "}
+                  <Link as={RouterLink} to="/privacy" color="brand.800" _hover={{color: "brand.700", textDecoration: "underline"}}>
+                    Privacy Policy
+                  </Link>
                 </Text>
               </VStack>
             </Box>
