@@ -15,7 +15,7 @@ export default function PrivacyPolicy() {
     }
   }
   return (
-    <Box minH="100vh" bg="cream.50">
+    <Box minH="100vh" bg="cream.50" px={{ base: 2, md: 16 }}>
       <Container maxW="container.md">
         <VStack align="stretch" spacing={6}>
           <Text
@@ -28,7 +28,6 @@ export default function PrivacyPolicy() {
             textAlign="center"
             color="brand.900"
             fontFamily="Imbue, serif"
-            display={{ base: "none", md: "block" }}
           >
             Privacy Policy
           </Text>
@@ -62,8 +61,7 @@ export default function PrivacyPolicy() {
             owner through the project repository or portfolio contact page.
           </Text>
 
-          <Text
-            cursor="pointer" color="teal.600" onClick={handleBack} _hover={{textDecoration: "underline"}}>
+          <Text cursor="pointer" onClick={handleBack} color="brand.800" _hover={{color: "brand.700", textDecoration: "underline"}}>
             ←  Back
           </Text>
         </VStack>

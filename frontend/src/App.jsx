@@ -7,6 +7,7 @@ import Categories from "./pages/Categories.jsx"
 import AppLayout from "./components/AppLayout.jsx"
 import ProtectedRoute from "./auth/ProtectedRoute.jsx"
 import PrivacyPolicy from "./pages/PrivacyPolicy.jsx"
+import Terms from "./pages/Terms.jsx"
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<Terms />} />
 
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>

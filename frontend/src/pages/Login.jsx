@@ -137,6 +137,10 @@ export default function Login() {
                   By using this app, you agree to our{" "}
                   <Link as={RouterLink} to="/privacy" color="brand.800" _hover={{color: "brand.700", textDecoration: "underline"}}>
                     Privacy Policy
+                  </Link>{" "}
+                  and{" "}
+                  <Link as={RouterLink} to="/terms" color="brand.800" _hover={{color: "brand.700", textDecoration: "underline"}}>
+                    Terms of Use
                   </Link>
                 </Text>
               </VStack>
