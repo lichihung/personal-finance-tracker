@@ -8,7 +8,7 @@ from .models import Category, Transaction
 from .serializers import CategorySerializer, TransactionSerializer, RegisterSerializer
 from django.db import IntegrityError
 from rest_framework.permissions import AllowAny, IsAuthenticated
-# from rest_framework.throttling import AnonRateThrottle
+from rest_framework.throttling import AnonRateThrottle
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 # Create your views here.
@@ -117,8 +117,8 @@ class RegisterView(APIView):
         return Response({"username": user.username}, status=status.HTTP_201_CREATED)
     
 
-# class LoginRateThrottle(AnonRateThrottle):
-#     rate = "5/min"
+class LoginRateThrottle(AnonRateThrottle):
+    rate = "5/min"
 
-# class RateLimitedTokenView(TokenObtainPairView):
-#     throttle_classes = [LoginRateThrottle]
+class RateLimitedTokenView(TokenObtainPairView):
+    throttle_classes = [LoginRateThrottle]
