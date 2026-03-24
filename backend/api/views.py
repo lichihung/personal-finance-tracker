@@ -130,14 +130,16 @@ class ForgotPasswordView(APIView):
 
     def post(self, request):
         email = request.data.get("email", "").strip().lower()
+        print("forgot-password email:", email)
 
         if not email:
             return Response(
                 {"email": ["Email is required."]},
-                status = status.HTTP_400_BAD_REQUEST,
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         user = User.objects.filter(email__iexact=email).first()
+        print("found user:", user)
 
         if user:
             uid = urlsafe_base64_encode(force_bytes(user.pk))
@@ -148,14 +150,35 @@ class ForgotPasswordView(APIView):
                 f"?uid={uid}&token={token}"
             )
 
+            print("reset link:", reset_link)
+            print("EMAIL_HOST_USER:", settings.EMAIL_HOST_USER)
+            print("DEFAULT_FROM_EMAIL:", settings.DEFAULT_FROM_EMAIL)
+
+            try:
+                send_mail(
+                    subject="Reset your Finance Tracker password",
+                    message=(
+                        "We received a request to reset your password.\n\n"
+                        f"Use this link to reset it:\n{reset_link}\n\n"
+                        "If you did not request this, you can ignore this email."
+                    ),
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[user.email],
+                    fail_silently=False,
+                )
+                print("email sent successfully")
+
+            except Exception as e:
+                print("EMAIL ERROR:", str(e))
+
+            # 👉 無論寄信成功與否，都回成功（避免 API 爆掉）
             return Response(
                 {
-                    "detail": "Reset link generated successfully.",
-                    "reset_link": reset_link,
+                    "detail": "If an account with that email exists, a password reset link has been sent."
                 },
                 status=status.HTTP_200_OK,
             )
-        
+
         return Response(
             {
                 "detail": "If an account with that email exists, a password reset link has been sent."
