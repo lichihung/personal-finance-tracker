@@ -148,18 +148,14 @@ class ForgotPasswordView(APIView):
                 f"?uid={uid}&token={token}"
             )
 
-            send_mail(
-                subject="Reset your Finance Tracker password",
-                message=(
-                    "We received a request to reset your password.\n\n"
-                    f"Use this link to reset it:\n{reset_link}\n\n"
-                    "If you did not request this, you can ignore this email."
-                ),
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[user.email],
-                fail_silently=False,
+            return Response(
+                {
+                    "detail": "Reset link generated successfully.",
+                    "reset_link": reset_link,
+                },
+                status=status.HTTP_200_OK,
             )
-
+        
         return Response(
             {
                 "detail": "If an account with that email exists, a password reset link has been sent."
