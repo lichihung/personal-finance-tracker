@@ -160,7 +160,7 @@ export default function ResetPassword() {
                 ) : null}
 
                 <Button
-                  mt={2}
+                  mt={4}
                   colorScheme="teal"
                   type="submit"
                   isLoading={isSubmitting}
@@ -171,12 +171,7 @@ export default function ResetPassword() {
 
                 <Text fontSize="sm" color="gray.600" textAlign="center">
                   Back to{" "}
-                  <Link
-                    as={RouterLink}
-                    to="/login"
-                    color="brand.800"
-                    _hover={{ color: "brand.700", textDecoration: "underline" }}
-                  >
+                  <Link as={RouterLink} to="/login" color="brand.700" textDecoration="underline" _hover={{ color: "brand.800", textDecoration: "underline" }}>
                     Login
                   </Link>
                 </Text>

@@ -100,6 +100,20 @@ export default function Login() {
                   </InputGroup>
                 </FormField>
 
+                {mode === "login" ? (
+                  <Text fontSize="sm" textAlign="right">
+                    <Link
+                      as={RouterLink}
+                      to="/forgot-password"
+                      color="brand.700"
+                      textDecoration="underline"
+                      _hover={{ color: "brand.800", textDecoration: "underline" }}
+                    >
+                      Forgot password?
+                    </Link>
+                  </Text>
+                ) : null}
+
                 {mode === "register" ? (
                   <FormField label="Confirm Password" error={errors.confirmPassword?.message}>
                     <InputGroup>
@@ -127,7 +141,7 @@ export default function Login() {
                 ) : null}
 
                 <Button
-                  mt={2}
+                  mt={4}
                   colorScheme="teal"
                   type="submit"
                   isLoading={isSubmitting}
@@ -139,23 +153,23 @@ export default function Login() {
                   {mode === "login" ? (
                     <>
                     Don't have an account?{" "}
-                    <Link color="brand.800" _hover={{color: "brand.700", textDecoration: "underline"}} onClick={() => setMode("register")}>Sign up</Link>
+                    <Link color="brand.700" textDecoration="underline" _hover={{color: "brand.800", textDecoration: "underline"}} onClick={() => setMode("register")}>Sign up</Link>
                     </>
                   ) : (
                     <>
                     Already have an account?{" "}
-                    <Link color="brand.800" _hover={{color: "brand.700", textDecoration: "underline"}} onClick={() => setMode("login")}>Sign in</Link>
+                    <Link color="brand.700" textDecoration="underline" _hover={{color: "brand.800", textDecoration: "underline"}} onClick={() => setMode("login")}>Sign in</Link>
                     </>
                   )}
                 </Text>
 
                 <Text fontSize="xs" color="gray.500" textAlign="center" mt={0}>
                   By using this app, you agree to our{" "}
-                  <Link as={RouterLink} to="/privacy" color="brand.800" _hover={{color: "brand.700", textDecoration: "underline"}}>
+                  <Link as={RouterLink} to="/privacy" color="brand.800" textDecoration="underline" _hover={{color: "brand.700", textDecoration: "underline"}}>
                     Privacy Policy
                   </Link>{" "}
                   and{" "}
-                  <Link as={RouterLink} to="/terms" color="brand.800" _hover={{color: "brand.700", textDecoration: "underline"}}>
+                  <Link as={RouterLink} to="/terms" color="brand.800" textDecoration="underline" _hover={{color: "brand.700", textDecoration: "underline"}}>
                     Terms of Use
                   </Link>
                 </Text>

@@ -8,8 +8,9 @@ export default function AuthCard({ title, subtitle, children}) {
         bg="white"
         p={10}
         borderRadius="lg"
+        textAlign="center"
         boxShadow="md">
-            <Heading size="lg">{title}</Heading>
+            <Heading fontSize="26px">{title}</Heading>
 
             {subtitle ? (
                 <Text mt={2} color="gray.600">
