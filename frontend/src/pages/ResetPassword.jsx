@@ -1,6 +1,19 @@
 import { useState } from "react"
-import { Box, Button, Container, Input, Text, VStack } from "@chakra-ui/react"
-import { useNavigate, useSearchParams } from "react-router-dom"
+import {
+  Box,
+  Button,
+  Container,
+  Input,
+  InputGroup,
+  InputRightElement,
+  Link,
+  Text,
+  VStack,
+} from "@chakra-ui/react"
+import { useNavigate, useSearchParams, Link as RouterLink } from "react-router-dom"
+
+import AuthCard from "../components/auth/AuthCard"
+import FormField from "../components/ui/FormField"
 
 const BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api"
@@ -14,32 +27,34 @@ export default function ResetPassword() {
 
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
-  const [error, setError] = useState("")
-  const [success, setSuccess] = useState("")
-  const [loading, setLoading] = useState(false)
+  const [showPw, setShowPw] = useState(true)
+  const [showConfirmPw, setShowConfirmPw] = useState(false)
+  const [submitError, setSubmitError] = useState("")
+  const [successMessage, setSuccessMessage] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setError("")
-    setSuccess("")
+    setSubmitError("")
+    setSuccessMessage("")
 
     if (!uid || !token) {
-      setError("Invalid reset link.")
+      setSubmitError("Invalid reset link.")
       return
     }
 
     if (password.length < 8) {
-      setError("Password must be at least 8 characters.")
+      setSubmitError("Password must be at least 8 characters.")
       return
     }
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match.")
+      setSubmitError("Passwords do not match.")
       return
     }
 
     try {
-      setLoading(true)
+      setIsSubmitting(true)
 
       const res = await fetch(`${BASE_URL}/auth/reset-password/`, {
         method: "POST",
@@ -61,93 +76,114 @@ export default function ResetPassword() {
         )
       }
 
-      setSuccess("Password reset successfully. Redirecting to login...")
+      setSuccessMessage("Password reset successfully. Redirecting to login...")
 
       setTimeout(() => {
         navigate("/login", { replace: true })
       }, 1500)
     } catch (err) {
-      setError(err.message || "Unable to reset password.")
+      console.error(err)
+      setSubmitError(err.message || "Unable to reset password.")
     } finally {
-      setLoading(false)
+      setIsSubmitting(false)
     }
   }
 
   return (
-    <Box minH="100vh" bg="cream.50" py={8}>
-      <Container maxW="container.sm">
-        <VStack
-          as="form"
-          onSubmit={handleSubmit}
-          align="stretch"
-          spacing={5}
-          bg="white"
-          p={8}
-          borderRadius="lg"
-          boxShadow="md"
-        >
-          <Text
-            fontSize={{ base: "32px", md: "56px" }}
-            fontWeight="400"
-            letterSpacing="2px"
-            textTransform="uppercase"
-            textAlign="center"
-            color="brand.900"
-            fontFamily="Imbue, serif"
+    <Box minH="100vh" bg="cream.50">
+      <Container maxW="container.sm" py={16}>
+        <Box display="flex" justifyContent="center">
+          <AuthCard
+            title="Reset password"
+            subtitle="Enter your new password below"
           >
-            Reset Password
-          </Text>
+            <Box as="form" onSubmit={handleSubmit}>
+              <VStack spacing={4} align="stretch">
+                <FormField label="New Password">
+                  <InputGroup>
+                    <Input
+                      placeholder="Minimum 8 characters"
+                      type={showPw ? "password" : "text"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <InputRightElement
+                      width="4.5em"
+                      top="50%"
+                      transform="translateY(-50%)"
+                    >
+                      <Button
+                        size="sm"
+                        variant="simple"
+                        onClick={() => setShowPw((v) => !v)}
+                      >
+                        {showPw ? "Show" : "Hide"}
+                      </Button>
+                    </InputRightElement>
+                  </InputGroup>
+                </FormField>
 
-          <Text color="gray.600" textAlign="center">
-            Enter your new password below.
-          </Text>
+                <FormField label="Confirm Password">
+                  <InputGroup>
+                    <Input
+                      placeholder="Re-enter password"
+                      type={showConfirmPw ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                    <InputRightElement
+                      width="4.5em"
+                      top="50%"
+                      transform="translateY(-50%)"
+                    >
+                      <Button
+                        size="sm"
+                        variant="simple"
+                        onClick={() => setShowConfirmPw((v) => !v)}
+                      >
+                        {showConfirmPw ? "Hide" : "Show"}
+                      </Button>
+                    </InputRightElement>
+                  </InputGroup>
+                </FormField>
 
-          <Box>
-            <Text mb={2}>New Password</Text>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Minimum 8 characters"
-            />
-          </Box>
+                {submitError ? (
+                  <Text color="red.500" fontSize="sm" textAlign="left">
+                    {submitError}
+                  </Text>
+                ) : null}
 
-          <Box>
-            <Text mb={2}>Confirm New Password</Text>
-            <Input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Re-enter your password"
-            />
-          </Box>
+                {successMessage ? (
+                  <Text color="green.600" fontSize="sm" textAlign="left">
+                    {successMessage}
+                  </Text>
+                ) : null}
 
-          {error ? (
-            <Text color="red.500" fontSize="sm">
-              {error}
-            </Text>
-          ) : null}
+                <Button
+                  mt={2}
+                  colorScheme="teal"
+                  type="submit"
+                  isLoading={isSubmitting}
+                  w="full"
+                >
+                  Reset Password
+                </Button>
 
-          {success ? (
-            <Text color="green.600" fontSize="sm">
-              {success}
-            </Text>
-          ) : null}
-
-          <Button
-            type="submit"
-            bg="brand.900"
-            color="white"
-            _hover={{ opacity: 0.9 }}
-            isLoading={loading}
-          >
-            Reset Password
-          </Button>
-
-          <Button variant="ghost" onClick={() => navigate("/login")}>
-            Back to Login
-          </Button>
-        </VStack>
+                <Text fontSize="sm" color="gray.600" textAlign="center">
+                  Back to{" "}
+                  <Link
+                    as={RouterLink}
+                    to="/login"
+                    color="brand.800"
+                    _hover={{ color: "brand.700", textDecoration: "underline" }}
+                  >
+                    Login
+                  </Link>
+                </Text>
+              </VStack>
+            </Box>
+          </AuthCard>
+        </Box>
       </Container>
     </Box>
   )

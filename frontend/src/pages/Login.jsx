@@ -149,7 +149,7 @@ export default function Login() {
                   )}
                 </Text>
 
-                <Text fontSize="xs" color="gray.500" textAlign="center" mt={4}>
+                <Text fontSize="xs" color="gray.500" textAlign="center" mt={0}>
                   By using this app, you agree to our{" "}
                   <Link as={RouterLink} to="/privacy" color="brand.800" _hover={{color: "brand.700", textDecoration: "underline"}}>
                     Privacy Policy
