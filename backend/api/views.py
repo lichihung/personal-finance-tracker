@@ -10,6 +10,14 @@ from django.db import IntegrityError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.throttling import AnonRateThrottle
 from rest_framework_simplejwt.views import TokenObtainPairView
+from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
+from django.core.mail import send_mail
+from django.conf import settings
+
+User = get_user_model()
 
 # Create your views here.
 class CategoryViewSet(ModelViewSet):
@@ -117,6 +125,48 @@ class RegisterView(APIView):
         return Response({"username": user.username}, status=status.HTTP_201_CREATED)
     
 
+class ForgotPasswordView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get("email", "").strip().lower()
+
+        if not email:
+            return Response(
+                {"email": ["Email is required."]},
+                status = status.HTTP_400_BAD_REQUEST,
+            )
+
+        user = User.objects.filter(email__iexact=email).first()
+
+        if user:
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
+
+            reset_link = (
+                f"{settings.FRONTEND_URL}/reset-password/"
+                f"?uid={uid}&token={token}"
+            )
+
+            send_mail(
+                subject="Reset your Finance Tracker password",
+                message=(
+                    "We received a request to reset your password.\n\n"
+                    f"Use this link to reset it:\n{reset_link}\n\n"
+                    "If you did not request this, you can ignore this email."
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+
+        return Response(
+            {
+                "detail": "If an account with that email exists, a password reset link has been sent."
+            },
+            status=status.HTTP_200_OK,
+        )
+    
 class LoginRateThrottle(AnonRateThrottle):
     rate = "5/min"
 
