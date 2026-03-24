@@ -130,7 +130,6 @@ class ForgotPasswordView(APIView):
 
     def post(self, request):
         email = request.data.get("email", "").strip().lower()
-        print("forgot-password email:", email)
 
         if not email:
             return Response(
@@ -139,7 +138,6 @@ class ForgotPasswordView(APIView):
             )
 
         user = User.objects.filter(email__iexact=email).first()
-        print("found user:", user)
 
         if user:
             uid = urlsafe_base64_encode(force_bytes(user.pk))
@@ -149,10 +147,6 @@ class ForgotPasswordView(APIView):
                 f"{settings.FRONTEND_URL}/reset-password/"
                 f"?uid={uid}&token={token}"
             )
-
-            print("reset link:", reset_link)
-            print("EMAIL_HOST_USER:", settings.EMAIL_HOST_USER)
-            print("DEFAULT_FROM_EMAIL:", settings.DEFAULT_FROM_EMAIL)
 
             try:
                 send_mail(
@@ -166,18 +160,8 @@ class ForgotPasswordView(APIView):
                     recipient_list=[user.email],
                     fail_silently=False,
                 )
-                print("email sent successfully")
-
             except Exception as e:
                 print("EMAIL ERROR:", str(e))
-
-            # 👉 無論寄信成功與否，都回成功（避免 API 爆掉）
-            return Response(
-                {
-                    "detail": "If an account with that email exists, a password reset link has been sent."
-                },
-                status=status.HTTP_200_OK,
-            )
 
         return Response(
             {
@@ -185,6 +169,7 @@ class ForgotPasswordView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+    
     
 class LoginRateThrottle(AnonRateThrottle):
     rate = "5/min"
