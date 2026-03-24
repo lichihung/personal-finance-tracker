@@ -8,6 +8,7 @@ import AppLayout from "./components/AppLayout.jsx"
 import ProtectedRoute from "./auth/ProtectedRoute.jsx"
 import PrivacyPolicy from "./pages/PrivacyPolicy.jsx"
 import Terms from "./pages/Terms.jsx"
+import ResetPassword from "./pages/ResetPassword.jsx"
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<Terms />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
