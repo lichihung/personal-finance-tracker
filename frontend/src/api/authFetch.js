@@ -32,7 +32,7 @@ export const register = async(username, password) => {
     const data = await res.json()
 
     if(!res.ok) {
-        const msg = data?.detail || data?.username?.[0] || data?.password?.[0] || "Unable to create account. Please try again"
+        const msg = data?.detail || data?.email?.[0] || data?.username?.[0] || data?.password?.[0] || "Unable to create account. Please try again"
         throw new Error(msg)
     }
 

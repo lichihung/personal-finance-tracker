@@ -34,7 +34,7 @@ export default function Login() {
     watch,
     formState: {errors, isSubmitting},
   } = useForm({
-    defaultValues: {username: "", password: "", confirmPassword: ""},
+    defaultValues: {username: "", email: "", password: "", confirmPassword: ""},
   })
   const password = watch("password")
 
@@ -45,7 +45,7 @@ export default function Login() {
         await login(values.username, values.password)
         navigate("/dashboard", {replace: true})
       } else {
-        await registerUser(values.username, values.password)
+        await registerUser(values.username, values.email, values.password)
         await login(values.username, values.password)
         navigate("/dashboard", {replace: true})
       }
@@ -68,6 +68,22 @@ export default function Login() {
                     {...register("username", {required: "Username is required."})}
                   />
                 </FormField>
+
+                {mode === "register" ? (
+                  <FormField label="Email" error={errors.email?.message}>
+                    <Input
+                      type="email"
+                      placeholder="email@example.com"
+                      {...register("email", {
+                        required: "Email is required.",
+                        pattern: {
+                          value: /^\S+@\S+\.\S+$/,
+                          message: "Enter a valid email address.",
+                        },
+                      })}
+                    />
+                  </FormField>
+                ) : null}
 
                 <FormField label="Password" error={errors.password?.message}>
                   <InputGroup>

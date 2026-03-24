@@ -7,7 +7,7 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = ["id", "name", "created_at"]
         read_only_fields = ["id", "created_at"]
-        
+
     def validate_name(self, value):
         request = self.context["request"]
         normalized = value.strip()
@@ -60,14 +60,23 @@ class TransactionSerializer(serializers.ModelSerializer):
 User = get_user_model()
 
 class RegisterSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=True)
     password = serializers.CharField(write_only=True, min_length=8)
 
     class Meta:
         model = User
-        fields = ["username", "password"]
+        fields = ["username", "email", "password"]
 
+    def validate_email(self, value):
+        normalized = value.strip().lower()
+    
+        if User.objects.filter(email__iexact=normalized).exists():
+            raise serializers.ValidationError("This email is already in use.")
+        return normalized
+    
     def create(self, validated_data):
         return User.objects.create_user(
             username=validated_data["username"],
+            email=validated_data["email"],
             password=validated_data["password"],
         )
