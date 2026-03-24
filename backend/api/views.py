@@ -16,6 +16,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.core.mail import send_mail
 from django.conf import settings
+from .serializers import ResetPasswordSerializer
 
 User = get_user_model()
 
@@ -167,6 +168,20 @@ class ForgotPasswordView(APIView):
             {
                 "detail": "If an account with that email exists, a password reset link has been sent."
             },
+            status=status.HTTP_200_OK,
+        )
+    
+
+class ResetPasswordView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = ResetPasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            {"detail": "Password has been reset successfully."},
             status=status.HTTP_200_OK,
         )
     
