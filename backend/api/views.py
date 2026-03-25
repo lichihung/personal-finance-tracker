@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from .models import Category, Transaction
-from .serializers import CategorySerializer, TransactionSerializer, RegisterSerializer
+from .serializers import CategorySerializer, TransactionSerializer, RegisterSerializer, ResetPasswordSerializer
 from django.db import IntegrityError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.throttling import AnonRateThrottle
@@ -16,9 +16,12 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.core.mail import send_mail
 from django.conf import settings
-from .serializers import ResetPasswordSerializer
 
 User = get_user_model()
+
+def block_demo_writes(request):
+    if request.user.is_authenticated and request.user.username == "demo":
+        raise ValidationError({"detail": ["Demo account is read-only."]})
 
 # Create your views here.
 class CategoryViewSet(ModelViewSet):
@@ -29,9 +32,15 @@ class CategoryViewSet(ModelViewSet):
         return Category.objects.filter(user=self.request.user)
     
     def perform_create(self, serializer):
+        block_demo_writes(self.request)
         serializer.save(user=self.request.user)
 
+    def perform_update(self, serializer):
+        block_demo_writes(self.request)
+        serializer.save()
+
     def destroy(self, request, *args, **kwargs):
+        block_demo_writes(request)
         instance = self.get_object()
         try:
             self.perform_destroy(instance)
@@ -93,7 +102,12 @@ class TransactionViewSet(ModelViewSet):
         return qs
         
     def perform_create(self, serializer):
+        block_demo_writes(self.request)
         serializer.save(user=self.request.user)
+    
+    def perform_update(self, serializer):
+        block_demo_writes(self.request)
+        serializer.save()
 
     @action(detail=False, methods=["get"], url_path="months")
     def months(self, request):
@@ -114,6 +128,10 @@ class TransactionViewSet(ModelViewSet):
 
         months = sorted({d.strftime("%Y-%m") for d in qs.values_list("date", flat=True)}, reverse=True)
         return Response({"results": months})
+    
+    def destroy(self, request, *args, **kwargs):
+        block_demo_writes(request)
+        return super().destroy(request, *args, **kwargs)
 
 
 class RegisterView(APIView):
@@ -185,7 +203,7 @@ class ResetPasswordView(APIView):
             status=status.HTTP_200_OK,
         )
     
-    
+
 class LoginRateThrottle(AnonRateThrottle):
     rate = "5/min"
 

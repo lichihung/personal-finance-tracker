@@ -38,3 +38,7 @@ export const register = async(username, email, password) => {
 
     return data
 }
+
+export const loginDemo = async () => {
+  return login("demo", "demo1234")
+}

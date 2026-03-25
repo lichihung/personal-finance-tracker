@@ -146,7 +146,7 @@ export default function Login() {
                   type="submit"
                   isLoading={isSubmitting}
                   w="full">
-                  {mode === "login" ? "Sign in" : "Create account"}
+                  {mode === "login" ? "Log in" : "Create account"}
                 </Button>
 
                 <Text fontSize="sm" color="gray.600" textAlign="center">
@@ -158,7 +158,7 @@ export default function Login() {
                   ) : (
                     <>
                     Already have an account?{" "}
-                    <Link color="brand.700" textDecoration="underline" _hover={{color: "brand.800", textDecoration: "underline"}} onClick={() => setMode("login")}>Sign in</Link>
+                    <Link color="brand.700" textDecoration="underline" _hover={{color: "brand.800", textDecoration: "underline"}} onClick={() => setMode("login")}>Log in</Link>
                     </>
                   )}
                 </Text>

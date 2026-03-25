@@ -10,6 +10,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy.jsx"
 import Terms from "./pages/Terms.jsx"
 import ResetPassword from "./pages/ResetPassword.jsx"
 import ForgotPassword from "./pages/ForgotPassword.jsx"
+import LandingPage from "./pages/LandingPage.jsx"
 
 export default function App() {
   return (
@@ -29,7 +30,7 @@ export default function App() {
           </Route>
         </Route>
             
-            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/" element={<LandingPage />} />
             <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
