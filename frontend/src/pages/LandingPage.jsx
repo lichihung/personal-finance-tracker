@@ -120,7 +120,7 @@ export default function LandingPage() {
                 </Button>
               </HStack>
 
-              <Text color="brand.700" fontSize={{ base: "16px", md: "16px" }} pt={2} textAlign={{ base: "center", md: "left" }}>
+              <Text color="brand.800" fontSize={{ base: "16px", md: "15px" }} pt={1} textAlign={{ base: "center", md: "left" }}>
                 No clutter. Just the essentials you need to manage your finances.
               </Text>
             </VStack>

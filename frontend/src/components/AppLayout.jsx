@@ -12,6 +12,8 @@ const navLinkStyle = ({ isActive }) => ({
   borderBottom: isActive ? "1px solid white" : "1px solid transparent",
 })
 
+const isDemo = localStorage.getItem("isDemo") === "true"
+
 export default function AppLayout() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -37,6 +39,18 @@ export default function AppLayout() {
 
   return (
     <Flex minH="100vh" direction="column" bg="cream.50">
+      {isDemo && (
+        <Box
+          bg="orange.200"
+          color="black"
+          textAlign="center"
+          py={2}
+          fontSize="sm"
+          fontWeight="500"
+        >
+          You are viewing a demo account. Changes are disabled.
+        </Box>
+      )}
       {/* Topbar */}
       <Box bg="brand.900" color="white" w="full">
         <Box px={{ base: 6, md: 16 }} py={{ base: 4, md: 5 }}>
