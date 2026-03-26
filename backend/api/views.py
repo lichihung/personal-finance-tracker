@@ -187,21 +187,16 @@ class ForgotPasswordView(APIView):
                 max-width:600px;
                 margin:0 auto;
                 background:#ffffff;
-                border-radius:8px;
+                border-radius:12px;
                 overflow:hidden;
                 box-shadow:0 10px 30px rgba(0,0,0,0.08);
             ">
                 
                 <div style="
                 background-color:#003d20;
-                color:#ffffff;
-                padding:20px 24px;
-                font-family:'Imbue', serif;
-                font-weight:400;
-                letter-spacing:2px;
-                font-size:24px;
+                height:72px;
+                border-radius:12px 12px 0 0;
                 ">
-                FINANCE TRACKER
                 </div>
 
                 <div style="padding:32px 28px; line-height:1.7; font-size:14px;">
@@ -225,9 +220,9 @@ class ForgotPasswordView(APIView):
                         background-color:#003d20;
                         color:#ffffff;
                         text-decoration:none;
-                        padding:14px 20px;
+                        padding:14px 18px;
                         border-radius:99px;
-                        font-weight:500;
+                        font-weight:600;
                     "
                     >
                     Reset Password
