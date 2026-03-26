@@ -158,7 +158,7 @@ export default function Dashboard() {
         display="flex"
         justifyContent={{ base: "center", md: "flex-start" }}
         flexWrap="wrap"
-        gap="18px 20px"
+        gap="18px 15px"
         mt={{base: "24px", md: "14px"}}
       >
         {sorted.map((entry, idx) => (
@@ -173,7 +173,7 @@ export default function Dashboard() {
                 marginRight: 8,
               }}
             />
-            <span style={{ color: "var(--chakra-colors-brand-900)", fontSize: 14 }}>{entry.value}</span>
+            <span style={{ color: "var(--chakra-colors-brand-900)", fontSize: 12 }}>{entry.value}</span>
           </div>
         ))}
       </Box>

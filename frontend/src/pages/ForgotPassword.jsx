@@ -85,6 +85,7 @@ export default function ForgotPassword() {
                   isLoading={loading}
                   w="full"
                   mt={4}
+                  mb={6}
                 >
                   Send reset link
                 </Button>

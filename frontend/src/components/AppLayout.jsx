@@ -12,15 +12,15 @@ const navLinkStyle = ({ isActive }) => ({
   borderBottom: isActive ? "1px solid white" : "1px solid transparent",
 })
 
-const isDemo = localStorage.getItem("isDemo") === "true"
-
 export default function AppLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const {isOpen, onOpen, onClose} = useDisclosure()
+  const isDemo = localStorage.getItem("isDemo") === "true"
 
   const handleLogout = () => {
     signOut()
+    localStorage.removeItem("isDemo")
     navigate("/login", { replace: true })
   }
   const scrollToTop = () => {
@@ -57,7 +57,7 @@ export default function AppLayout() {
           <Flex align="center" justify="space-between">
             {/* Mobile: left icon / Desktop: brand */}
             <Box>
-                <Link as={NavLink} to="/dashboard" _hover={{ textDecoration: "none", color: "white" }}>
+                <Link as={NavLink} to="/" _hover={{ textDecoration: "none", color: "white" }}>
                 <Text display={{ base: "none", md: "block" }} fontFamily="Imbue, serif" fontWeight="400" letterSpacing="2px" fontSize="24px">FINANCE TRACKER</Text>
                 <Box display={{ base: "block", md: "none" }}><FiHome size={28} /></Box>
                 </Link>
@@ -142,7 +142,7 @@ export default function AppLayout() {
 
       {/* Main content */}
       <Box flex="1" w="full">
-        <Box px={{ base: 4, md: 16 }} py={{ base: 6, md: 8 }}>
+        <Box px={{ base: 4, md: 16 }} pt={{ base: 6, md: 8 }} pb={{ base: 6, md: 20 }}>
           <Outlet />
         </Box>
       </Box>
@@ -151,7 +151,7 @@ export default function AppLayout() {
       <Box bg="brand.900" color="white" w="full" borderTop="1px solid" borderColor="rgba(255,255,255,0.12)">
         <Box px={{ base: 4, md: 16 }} py={6}>
           <Flex align="center" justify="space-between" direction={{ base: "column", md: "row" }} gap={{ base: 5, md: 0 }}>
-            <Link as={NavLink} to="/dashboard" _hover={{ textDecoration: "none", color: "white" }}>
+            <Link as={NavLink} to="/" _hover={{ textDecoration: "none", color: "white" }}>
                <Text fontFamily="Imbue, serif" fontWeight="400" letterSpacing="2px" fontSize={{ base: "24px", md: "24px" }}>FINANCE TRACKER</Text>
             </Link>
             <Text opacity={0.85} fontSize="16px" cursor="pointer" _hover={{ opacity: 1 }} onClick={scrollToTop}>Back to Top</Text>

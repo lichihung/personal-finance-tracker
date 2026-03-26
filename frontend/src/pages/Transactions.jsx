@@ -436,8 +436,8 @@ export default function Transactions() {
             <Thead>
               <Tr>
                 <Th w="28%" fontSize="12px">Date</Th>
-                <Th w="45%" fontSize="12px">Description</Th>
-                <Th w="27%" fontSize="12px" isNumeric>Amount</Th>
+                <Th w="44%" fontSize="12px">Description</Th>
+                <Th w="28%" fontSize="12px" isNumeric>Amount</Th>
               </Tr>
             </Thead>
 
@@ -472,7 +472,7 @@ export default function Transactions() {
                   <Td>
                     <Text noOfLines={1}>{t.description}</Text>
                   </Td>
-                  <Td isNumeric fontWeight="600">{t.amount}</Td>
+                  <Td isNumeric fontWeight="500">{t.amount}</Td>
                 </Tr>
               ))}
             </Tbody>

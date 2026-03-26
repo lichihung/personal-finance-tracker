@@ -143,6 +143,7 @@ export default function Login() {
 
                 <Button
                   mt={4}
+                  mb={6}
                   colorScheme="teal"
                   type="submit"
                   isLoading={isSubmitting}

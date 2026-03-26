@@ -171,14 +171,74 @@ class ForgotPasswordView(APIView):
                 send_mail(
                     subject="Reset your Finance Tracker password",
                     message=(
+                        f"Hi {user.username},\n\n"
                         "We received a request to reset your password.\n\n"
                         f"Use this link to reset it:\n{reset_link}\n\n"
-                        "If you did not request this, you can ignore this email."
+                        "If you did not request this, you can ignore this email.\n\n"
+                        "Sincerely,\n"
+                        "Finance Tracker"
                     ),
                     from_email=settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[user.email],
                     fail_silently=False,
+                    html_message=f"""
+                        <div style="margin:0; padding:24px; background-color:#faf7ef; font-family:Arial, sans-serif; color:#36403b;">
+                        <div style="max-width:600px; margin:0 auto; background:#ffffff; border:1px solid #003d20; border-radius:8px; overflow:hidden;">
+                            
+                            <div style="background-color:#003d20; color:#ffffff; padding:20px 24px; font-size:28px; letter-spacing:1px; font-family:Georgia, serif;">
+                            Finance Tracker
+                            </div>
+
+                            <div style="padding:32px 24px; line-height:1.7; font-size:16px;">
+                            <p style="margin:0 0 20px 0;">Hi {user.username},</p>
+
+                            <p style="margin:0 0 20px 0;">
+                                We received a request to reset your password.
+                            </p>
+
+                            <p style="margin:0 0 24px 0;">
+                                Use the button below to reset it:
+                            </p>
+
+                            <p style="margin:0 0 28px 0;">
+                                <a
+                                href="{reset_link}"
+                                style="
+                                    display:inline-block;
+                                    background-color:#003d20;
+                                    color:#ffffff;
+                                    text-decoration:none;
+                                    padding:12px 20px;
+                                    border-radius:99px;
+                                    font-weight:600;
+                                "
+                                >
+                                Reset Password
+                                </a>
+                            </p>
+
+                            <p style="margin:0 0 20px 0; color:#6b7280; font-size:14px;">
+                                If the button does not work, copy and paste this link into your browser:
+                            </p>
+
+                            <p style="margin:0 0 24px 0; word-break:break-word; font-size:14px; color:#003d20;">
+                                {reset_link}
+                            </p>
+
+                            <p style="margin:0 0 8px 0;">
+                                If you did not request this, you can ignore this email.
+                            </p>
+
+                            <p style="margin:24px 0 0 0;">
+                                Sincerely,<br />
+                                Finance Tracker
+                            </p>
+                            </div>
+                        </div>
+                        </div>
+                    """,
                 )
+
             except Exception as e:
                 print("EMAIL ERROR:", str(e))
 

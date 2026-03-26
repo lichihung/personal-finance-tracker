@@ -7,7 +7,11 @@ const theme = extendTheme({
       body: {
         bg: "cream.50",
         color: "ink.900",
+        letterSpacing: "1px",
       },
+      "*": {
+      letterSpacing: "1px",
+    },
     },
   },
   colors: {
