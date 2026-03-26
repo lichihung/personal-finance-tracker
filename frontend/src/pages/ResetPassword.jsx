@@ -14,6 +14,7 @@ import { useNavigate, useSearchParams, Link as RouterLink } from "react-router-d
 
 import AuthCard from "../components/auth/AuthCard"
 import FormField from "../components/ui/FormField"
+import { getErrorMessage, SUCCESS_MESSAGES } from "../utils/messages"
 
 const BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api"
@@ -76,14 +77,14 @@ export default function ResetPassword() {
         )
       }
 
-      setSuccessMessage("Password reset successfully. Redirecting to login...")
+      setSuccessMessage(`${SUCCESS_MESSAGES.passwordReset} Redirecting to login...`)
 
       setTimeout(() => {
         navigate("/login", { replace: true })
       }, 1500)
     } catch (err) {
       console.error(err)
-      setSubmitError(err.message || "Unable to reset password.")
+      setSubmitError(getErrorMessage(err, "Unable to reset password."))
     } finally {
       setIsSubmitting(false)
     }

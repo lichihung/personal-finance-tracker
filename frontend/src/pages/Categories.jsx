@@ -5,6 +5,7 @@ import { FiChevronRight, FiChevronLeft, FiPlus, FiFileText } from "react-icons/f
 import ConfirmDialog from "../components/ui/ConfirmDialog"
 import CategoryModal from "../components/categories/CategoryModal"
 import { apiFetch } from "../api/clientFetch"
+import { getErrorMessage, SUCCESS_MESSAGES } from "../utils/messages"
 
 const formatShortDate = (dateString) => {
   if (!dateString) return ""
@@ -30,7 +31,7 @@ export default function Categories() {
         else if (data && Array.isArray(data.results)) setCategories(data.results)
         else setCategories([])
       } catch (err) {
-        setErrorMsg(err.message || "Failed to load categories")
+        setErrorMsg(getErrorMessage(err, "Unable to load categories."))
       } finally {
         setLoading(false)
       }
@@ -70,7 +71,8 @@ export default function Categories() {
 
     if (exists) {
       toast({
-        title: "Category already exists.",
+        title: "Error",
+        description: getErrorMessage("Category already exists"),
         status: "error",
         duration: 2500,
         isClosable: true,
@@ -90,10 +92,17 @@ export default function Categories() {
         else if (fresh && Array.isArray(fresh.results)) setCategories(fresh.results)
         else setCategories([])
 
-        toast({ title: "Category updated.", status: "success"})
+        toast({
+          title: "Success",
+          description: SUCCESS_MESSAGES.categoryUpdated,
+          status: "success",
+          duration: 2500,
+          isClosable: true,
+        })
       } catch (err) {
         toast({
-          title: err?.data?.name?.[0] || err.message || "Update failed",
+          title: "Error",
+          description: getErrorMessage(err, "Unable to update category."),
           status: "error",
           duration: 2500,
           isClosable: true,
@@ -112,10 +121,17 @@ export default function Categories() {
         else if (fresh && Array.isArray(fresh.results)) setCategories(fresh.results)
         else setCategories([])
 
-        toast({ title: "Category added.", status: "success", duration: 2500, isClosable: true })
+        toast({
+          title: "Success",
+          description: SUCCESS_MESSAGES.categoryCreated,
+          status: "success",
+          duration: 2500,
+          isClosable: true,
+        })
       } catch (err) {
         toast({
-          title: err?.data?.name?.[0] || err.message || "Create failed",
+          title: "Error",
+          description: getErrorMessage(err, "Unable to create category."),
           status: "error",
           duration: 2500,
           isClosable: true,
@@ -127,11 +143,6 @@ export default function Categories() {
     setEditing(null)
   }
 
-  const getErrMsg = (err) => {
-    if (err?.data?.detail) return err.data.detail
-    if (err?.data?.name?.[0]) return err.data.name[0]
-    return err?.message || "Delete failed"
-  }
   const confirmDelete = async () => {
     if (!categoryToDelete) return
 
@@ -142,18 +153,36 @@ export default function Categories() {
 
       setCategories((prev) => prev.filter((c) => c.id !== categoryToDelete.id))
       setDeleteId(null)
-      toast({ title: "Category deleted", status: "success", duration: 2500, isClosable: true })
+      toast({
+        title: "Success",
+        description: SUCCESS_MESSAGES.categoryDeleted,
+        status: "success",
+        duration: 2500,
+        isClosable: true,
+      })
     } catch (err) {
       if (err.status === 409) {
-        toast({ title: "Can't delete", description: err.data.detail, status: "error", duration: 3000, isClosable: true })
+        toast({
+          title: "Error",
+          description: getErrorMessage(err, "Unable to delete category."),
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        })
         return
       }
-      toast({ title: "Delete failed", description: getErrMsg(err), status: "error", duration: 2500, isClosable: true })
+      toast({
+        title: "Error",
+        description: getErrorMessage(err, "Unable to delete category."),
+        status: "error",
+        duration: 2500,
+        isClosable: true,
+      })
     }
   }
 
   return (
-    <Box w="full" px={{ base: 2, md: 16 }} >
+    <Box w="full" px={{ base: 2, md: 16 }}>
       <Text
         fontSize={{ base: "42px", md: "80px" }}
         fontWeight="400"
@@ -182,10 +211,10 @@ export default function Categories() {
             <FiFileText size={28} />
           </Box>
           <Text fontSize="lg" fontWeight="semibold" mb={2} color="ink.900">No categories yet. Add your first one.</Text>
-          <Text color="brand.700">Create categories to organize your transactions.</Text>
-          <Button mt={6} mb={6} leftIcon={<FiPlus />} fontSize="sm" onClick={openAdd}>
+          <Text color="brand.700">Categories help keep your transactions organized.</Text>
+          {/* <Button mt={6} mb={6} leftIcon={<FiPlus />} fontSize="sm" onClick={openAdd}>
             Add Category
-          </Button>
+          </Button> */}
         </Box>
       ) : (
       <>

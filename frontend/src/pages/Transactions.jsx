@@ -7,6 +7,7 @@ import TransactionFormModal from "../components/transactions/TransactionFormModa
 import { getTransactions, createTransaction, updateTransaction, deleteTransaction, getTransactionMonths } from "../api/transactionService"
 import { getCategories } from "../api/categoryService"
 import { useNavigate } from "react-router-dom"
+import { getErrorMessage, SUCCESS_MESSAGES } from "../utils/messages"
 
 
 // Badge UI for transaction type
@@ -130,7 +131,7 @@ export default function Transactions() {
       try {
         await reloadTransactions()
       } catch (err) {
-        setErrorMsg(err.message || "Failed to load transactions")
+        setErrorMsg(getErrorMessage(err, "Unable to load transactions."))
       } finally {
         setLoading(false)
       }
@@ -166,8 +167,8 @@ export default function Transactions() {
       if (editingId) {
         await updateTransaction(editingId, payload)
         toast({
-          title: "Updated",
-          description: "Transaction updated successfully.",
+          title: "Success",
+          description: SUCCESS_MESSAGES.transactionUpdated,
           status: "success",
           duration: 2000,
           isClosable: true,
@@ -175,8 +176,8 @@ export default function Transactions() {
       } else {
         await createTransaction(payload)
         toast({
-          title: "Created",
-          description: "Transaction created successfully.",
+          title: "Success",
+          description: SUCCESS_MESSAGES.transactionCreated,
           status: "success",
           duration: 2000,
           isClosable: true,
@@ -198,11 +199,17 @@ export default function Transactions() {
       setFieldErrors({})
       onClose()
     } catch (err) {
-      setErrorMsg(err.data ? JSON.stringify(err.data) : (err.message || "Save failed"))
+      setErrorMsg(getErrorMessage(err, "Unable to save transaction."))
     } finally {
       setSaving(false)
     }
   }
+
+  const hasActiveFilters =
+    Boolean(month) ||
+    Boolean(category) ||
+    Boolean(type) ||
+    Boolean(q.trim())
 
   const openDelete = () => setIsDeleteOpen(true)
   const closeDelete = () => setIsDeleteOpen(false)
@@ -322,7 +329,7 @@ export default function Transactions() {
                 setPage(1)
                 return
               }
-              setErrorMsg(err.message || "Failed to load transactions")
+              setErrorMsg(getErrorMessage(err, "Unable to load transactions."))
             } finally {
               setLoading(false)
             }
@@ -335,26 +342,40 @@ export default function Transactions() {
 
     {!loading && !errorMsg ? (
       transactions.length === 0 ? (
-        <Box bg="cream.50" borderRadius="12px" p={10} textAlign="center">
-          <Box w="60px" h="60px" mb={5} mx="auto" borderRadius="20px" bg="#36403b07" display="flex" alignItems="center" justifyContent="center">
+        <Box bg="cream.50" borderRadius="12px" p={10} textAlign="center" mb={8}>
+          <Box
+            w="60px"
+            h="60px"
+            mb={5}
+            mx="auto"
+            borderRadius="20px"
+            bg="#36403b07"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
             <FiFileText size={28} />
           </Box>
-          <Text fontSize="lg" fontWeight="semibold" mb={2} color="ink.900">No transactions found</Text>
-          <Text color="brand.700">Try adjusting your filters or add a new transaction</Text>
-          <Button mt={6} mb={6} leftIcon={<FiPlus />} fontSize="sm" onClick={() => {
-            setEditingId(null)
-            setForm({
-              date: "",
-              type: "expense",
-              category: "",
-              description: "",
-              amount: "",
-            })
-            setFieldErrors({})
-            onOpen()
-          }}>
-            Add Transaction
-          </Button>
+
+          {hasActiveFilters ? (
+            <>
+              <Text fontSize="lg" fontWeight="semibold" mb={2} color="ink.900">
+                No transactions found
+              </Text>
+              <Text color="brand.700">
+                Try adjusting your filters or search
+              </Text>
+            </>
+          ) : (
+            <>
+              <Text fontSize="lg" fontWeight="semibold" mb={2} color="ink.900">
+                No transactions yet
+              </Text>
+              <Text color="brand.700">
+                Add your first transaction to get started
+              </Text>
+            </>
+          )}
         </Box>
       ) : (
       <>
@@ -528,8 +549,8 @@ export default function Transactions() {
                   await reloadTransactions()
 
                   toast({
-                    title: "Deleted",
-                    description: "Transaction deleted successfully.",
+                    title: "Success",
+                    description: SUCCESS_MESSAGES.transactionDeleted,
                     status: "success",
                     duration: 2000,
                     isClosable: true,
@@ -539,7 +560,7 @@ export default function Transactions() {
                   onClose()
                   setEditingId(null)
                 } catch (err) {
-                  setErrorMsg(err.data ? JSON.stringify(err.data) : (err.message || "Delete failed"))
+                  setErrorMsg(getErrorMessage(err, "Unable to delete transaction."))
                   closeDelete()
                 } finally {
                   setDeleting(false)

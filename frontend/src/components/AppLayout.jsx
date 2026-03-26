@@ -78,8 +78,8 @@ export default function AppLayout() {
               <Link as={NavLink} to="/dashboard" style={navLinkStyle}>Dashboard</Link>
               <Link as={NavLink} to="/transactions" style={navLinkStyle}>Transactions</Link>
               <Link as={NavLink} to="/categories" style={navLinkStyle}>Categories</Link>
-              <Link as={NavLink} to="/privacy" style={navLinkStyle}>Privacy Policy</Link>
-              <Link as={NavLink} to="/terms" style={navLinkStyle}>Terms of Use</Link>
+              <Link as={NavLink} to="/privacy" style={navLinkStyle}>Privacy</Link>
+              <Link as={NavLink} to="/terms" style={navLinkStyle}>Terms</Link>
 
               <Button
                 size="sm" 

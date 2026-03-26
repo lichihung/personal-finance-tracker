@@ -4,6 +4,7 @@ import { Link as RouterLink } from "react-router-dom"
 
 import AuthCard from "../components/auth/AuthCard"
 import FormField from "../components/ui/FormField"
+import { getErrorMessage, SUCCESS_MESSAGES } from "../utils/messages"
 
 const BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api"
@@ -39,11 +40,10 @@ export default function ForgotPassword() {
         throw new Error(data?.detail || "Something went wrong.")
       }
 
-      setSuccess(
-        "If an account with that email exists, a reset link has been sent."
-      )
+      setSuccess(SUCCESS_MESSAGES.resetLinkSent)
+
     } catch (err) {
-      setError(err.message || "Unable to send reset email.")
+      setError(getErrorMessage(err, "Unable to send reset email."))
     } finally {
       setLoading(false)
     }

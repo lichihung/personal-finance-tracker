@@ -7,6 +7,7 @@ import AuthCard from "../components/auth/AuthCard"
 import FormField from "../components/ui/FormField"
 import { login, register as registerUser } from "../api/authFetch"
 import { isAuthed } from "../api/clientFetch"
+import { getErrorMessage, SUCCESS_MESSAGES } from "../utils/messages"
 
 export default function Login() {
   const navigate = useNavigate()
@@ -51,7 +52,7 @@ export default function Login() {
       }
     } catch (err) {
       console.error(err)
-      setSubmitError(err.message || "Failed")
+      setSubmitError(getErrorMessage(err, "Unable to continue. Please try again."))
     }
   }
 
