@@ -7,10 +7,10 @@ const theme = extendTheme({
       body: {
         bg: "cream.50",
         color: "ink.900",
-        letterSpacing: "1px",
+        letterSpacing: "0.5px",
       },
       "*": {
-      letterSpacing: "1px",
+      letterSpacing: "0.5px",
     },
     },
   },
