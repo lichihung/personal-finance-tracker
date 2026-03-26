@@ -1,51 +1,68 @@
-# Personal Finance Tracker
+# Finance Tracker
 
-A full-stack personal finance web app to track income and expenses, built with React and Django REST API.
+A simple and intuitive web app to track your income and expenses in one place.
 
-## Project Overview
+- Live Demo: https://lichihung-finance-tracker.netlify.app/
 
-Personal Finance Tracker is a full-stack web application for managing personal income and expenses.
+---
 
-Users can securely log in, record transactions, categorize expenses, and visualize financial activity through charts and summaries. The application is built with a React frontend and a Django REST API backend, with JWT-based authentication.
+## Overview
 
-The project demonstrates full-stack development including API design, authentication, responsive UI, and deployment.
+Finance Tracker helps you stay on top of your personal finances without unnecessary complexity.
 
-## Features
+You can:
+- Record income and expenses
+- Organize transactions with categories
+- Review your financial activity
+- Explore the app instantly with a demo account
 
-- User authentication (JWT login / register)
-- Dashboard with expense overview and charts
-- Transaction management (add, edit, delete)
-- Category management
-- Filtering and search
-- Responsive UI (mobile friendly)
+The app is built with a React frontend and a Django REST API backend, and deployed for real-world usage.
 
-## Demo
+---
 
-Live Demo: https://lichihung-finance-tracker.netlify.app/
-
-Backend API: https://personal-finance-tracker-edzo.onrender.com/api/
+## Try It Out
 
 ### Demo Account
 Username: demo  
-Password: demo1234
+Password: demo1234  
+
+You can explore the app without signing up.  
+Demo mode is read-only.
+
+---
+
+## Features
+
+- Secure authentication (JWT login / register)
+- Password reset via email
+- Dashboard with financial overview
+- Transaction management (add, edit, delete)
+- Category management
+- Filtering and search
+- Demo mode for quick exploration
+- Responsive design (mobile & desktop)
+
+---
 
 ## Tech Stack
 
-Frontend
+### Frontend
 - React
 - Chakra UI
 - React Router
 - React Hook Form
 - Recharts
 
-Backend
+### Backend
 - Django
 - Django REST Framework
 - JWT Authentication (SimpleJWT)
 
-Deployment
+### Deployment
 - Frontend: Netlify
 - Backend: Render
+
+---
 
 ## Screenshots
 
@@ -57,6 +74,8 @@ Deployment
 
 ### Categories
 ![Categories](screenshots/categories.png)
+
+---
 
 ## Run Locally
 

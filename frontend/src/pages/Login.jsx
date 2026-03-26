@@ -7,7 +7,7 @@ import AuthCard from "../components/auth/AuthCard"
 import FormField from "../components/ui/FormField"
 import { login, register as registerUser } from "../api/authFetch"
 import { isAuthed } from "../api/clientFetch"
-import { getErrorMessage, SUCCESS_MESSAGES } from "../utils/messages"
+import { getErrorMessage } from "../utils/messages"
 
 export default function Login() {
   const navigate = useNavigate()

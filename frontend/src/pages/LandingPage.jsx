@@ -1,9 +1,55 @@
-import { Box, Button, Flex, HStack, Link, SimpleGrid, Text, VStack, Grid, GridItem, } from "@chakra-ui/react"
+import { Box, Button, Flex, HStack, Link, SimpleGrid, Text, VStack, Grid, GridItem, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon } from "@chakra-ui/react"
 import { NavLink, useNavigate } from "react-router-dom"
 import { loginDemo } from "../api/authFetch"
+import { useEffect, useRef, useState } from "react"
+import { signOut } from "../auth/auth"
 
 export default function LandingPage() {
   const navigate = useNavigate()
+  const sectionRef = useRef(null)
+  const [isVisible, setIsVisible] = useState(false)
+  const gridRef = useRef(null)
+  const [gridVisible, setGridVisible] = useState(false)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true)
+        }
+      },
+      { threshold: 0.3 }
+    )
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setGridVisible(true)
+        }
+      },
+      { threshold: 0.2 }
+    )
+
+    if (gridRef.current) {
+      observer.observe(gridRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
+  const getCardAnimation = (delay) => ({
+    opacity: gridVisible ? 1 : 0,
+    transform: gridVisible ? "translateY(0)" : "translateY(30px)",
+    transition: `opacity 1.8s cubic-bezier(0.32, 1, 0.44, 1) ${delay}s, transform 1.8s cubic-bezier(0.32, 1, 0.44, 1) ${delay}s`,
+  })
 
   return (
     <Flex minH="100vh" direction="column" bg="cream.50">
@@ -54,10 +100,10 @@ export default function LandingPage() {
       </Box>
 
       <Box flex="1" w="full">
-        <Box maxW="1200px" mx="auto" px={{ base: 6, md: 16 }} py={{ base: 16, md: 24 }}>
+        <Box maxW="1200px" mx="auto" px={{ base: 6, md: 16 }} pt={{ base: 20, md: 28 }} pb={{ base: 8, md: 10 }}>
           <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={{ base: 10, md: 16 }} alignItems="center">
-            {/* Left */}
-            <VStack align={{ base: "center", md: "start"}} spacing={8}>
+
+            <VStack align={{ base: "center", md: "start"}} spacing={14}>
               <Text
                 fontFamily="Imbue, serif"
                 fontWeight="400"
@@ -77,10 +123,11 @@ export default function LandingPage() {
 
               <Text
                 color="gray.700"
-                fontSize={{ base: "18px", md: "18px" }}
+                fontSize={{ base: "18px", md: "16px" }}
                 lineHeight="1.5"
                 maxW="720px"
                 textAlign={{ base: "center", md: "left" }}
+                letterSpacing="1px"
               >
                 A simple way to record income and expenses, organize
                 categories, and stay on top of your monthly spending.
@@ -93,7 +140,11 @@ export default function LandingPage() {
                   borderRadius="full"
                   fontSize="14px"
                   _hover={{ bg: "transparent", color:"brand.900", borderColor:"brand.900" }}
-                  onClick={() => navigate("/login")}
+                  onClick={() => {
+                    signOut()
+                    localStorage.removeItem("isDemo")
+                    navigate("/login")
+                  }}
                 >
                   Get Started
                 </Button>
@@ -119,13 +170,10 @@ export default function LandingPage() {
                   Try Demo
                 </Button>
               </HStack>
-
-              <Text color="brand.800" fontSize={{ base: "16px", md: "15px" }} pt={1} textAlign={{ base: "center", md: "left" }}>
-                No clutter. Just the essentials you need to manage your finances.
-              </Text>
             </VStack>
 
             <Grid
+                ref={gridRef}
                 templateColumns="repeat(2, 1fr)"
                 gap={3}
                 alignItems="start"
@@ -143,10 +191,10 @@ export default function LandingPage() {
                     px={6}
                     fontFamily="Imbue, serif"
                     letterSpacing="2px"
-                    transition="all 0.5s ease"
+                    style={getCardAnimation(0)}
                     _hover={{
-                        transform: "translateY(-4px) scale(1.01)",
-                        boxShadow: "xl",
+                      transform: "translateY(-6px) scale(1.02)",
+                      boxShadow: "xl",
                     }}
                     >
                     <Text fontWeight="400" fontSize={{ base: "20px", md: "20px" }} lineHeight="1.5">
@@ -169,10 +217,10 @@ export default function LandingPage() {
                     px={6}
                     fontFamily="Imbue, serif"
                     letterSpacing="2px"
-                    transition="all 0.5s ease"
+                    style={getCardAnimation(1)}
                     _hover={{
-                        transform: "translateY(-4px) scale(1.01)",
-                        boxShadow: "xl",
+                      transform: "translateY(-6px) scale(1.02)",
+                      boxShadow: "xl",
                     }}
                     >
                     <Text fontWeight="400" fontSize={{ base: "20px", md: "20px" }} lineHeight="1.5">
@@ -195,10 +243,10 @@ export default function LandingPage() {
                     px={6}
                     fontFamily="Imbue, serif"
                     letterSpacing="2px"
-                    transition="all 0.5s ease"
+                    style={getCardAnimation(1.5)}
                     _hover={{
-                        transform: "translateY(-4px) scale(1.01)",
-                        boxShadow: "xl",
+                      transform: "translateY(-6px) scale(1.02)",
+                      boxShadow: "xl",
                     }}
                     >
                     <Text fontWeight="400" fontSize={{ base: "20px", md: "20px" }} lineHeight="1.5">
@@ -219,10 +267,10 @@ export default function LandingPage() {
                     px={6}
                     fontFamily="Imbue, serif"
                     letterSpacing="2px"
-                    transition="all 0.5s ease"
+                    style={getCardAnimation(0.5)}
                     _hover={{
-                        transform: "translateY(-4px) scale(1.01)",
-                        boxShadow: "xl",
+                      transform: "translateY(-6px) scale(1.02)",
+                      boxShadow: "xl",
                     }}
                     >
                     <Text fontWeight="400" fontSize={{ base: "20px", md: "20px" }} lineHeight="1.5">
@@ -235,6 +283,120 @@ export default function LandingPage() {
             </Grid>
           </SimpleGrid>
         </Box>
+      </Box>
+
+      <Box ref={sectionRef} px={{ base: 6, md: 16 }} mb={{ base: 36, md: 40 }} mt={{ base: 44, md: 60 }}>
+        <VStack
+          maxW="820px"
+          mx="auto"
+          spacing={4}
+          textAlign="center"
+          transform={isVisible ? "translateY(0)" : "translateY(20px)"}
+          opacity={isVisible ? 1 : 0}
+          transition="all 2s ease"
+        >
+          <Text
+            fontFamily="Imbue, serif"
+            fontWeight="500"
+            letterSpacing="2px"
+            textTransform="uppercase"
+            color="brand.900"
+            fontSize={{ base: "40px", md: "50px" }}
+            lineHeight="1.4"
+          >
+            More thoughtful, less overwhelming
+          </Text>
+
+          <Text
+            color="brand.800"
+            fontSize={{ base: "15px", md: "16px" }}
+            lineHeight="1.8"
+            maxW="760px"
+            letterSpacing="2px"
+          >
+            Finance Tracker is like keeping a quiet record of everyday life.
+          </Text>
+        </VStack>
+      </Box>
+
+      <Box maxW="800px" mx="auto" py={20} mb={20}>
+        <Text fontWeight={500} fontSize={{ base: "24px", md: "34px"}} mb={10} textAlign="center" px={4} letterSpacing="2px" fontFamily="Imbue, serif" textTransform="uppercase">
+          Frequently Asked Questions
+        </Text>
+
+        <Accordion allowToggle w={{ base: "340px", md: "800px"}} mx="auto">
+          <AccordionItem border="none" borderBottom="1px solid" borderColor="line.400">
+            <h2>
+              <AccordionButton px={0} py={5} _hover={{ bg: "transparent", borderColor: "cream.50" }} _focus={{ boxShadow: "none", outline: "none" }} _expanded={{ bg: "transparent" }}>
+                <Box flex="1" textAlign="left">
+                  <Text fontWeight={600} color="gray.700" fontSize={{ base: "16px", md:"16px"}} letterSpacing="1px">
+                    Is my data secure?
+                  </Text>
+                </Box>
+                  <AccordionIcon />
+              </AccordionButton>
+            </h2>
+            <AccordionPanel px={0} pb={8}>
+              <Text color="brand.800" fontWeight={500} fontSize="14px" letterSpacing="1px">
+                Yes. Each account can only access its own data. Authentication is handled securely using JWT.
+              </Text>
+            </AccordionPanel>
+          </AccordionItem>
+
+          <AccordionItem border="none" borderBottom="1px solid" borderColor="line.400">
+            <h2>
+              <AccordionButton px={0} py={5} _hover={{ bg: "transparent", borderColor: "cream.50" }} _focus={{ boxShadow: "none", outline: "none" }} _expanded={{ bg: "transparent" }}>
+                <Box flex="1" textAlign="left">
+                  <Text fontWeight={600} color="gray.700" fontSize={{ base: "16px", md:"16px"}} letterSpacing="1px">
+                    Can I try the app without signing up?
+                  </Text>
+                </Box>
+                <AccordionIcon />
+              </AccordionButton>
+            </h2>
+            <AccordionPanel px={0} pb={8}>
+              <Text color="brand.800" fontWeight={500} fontSize="14px" letterSpacing="1px">
+                Yes. You can use the demo account to explore the app. Demo mode is read-only.
+              </Text>
+            </AccordionPanel>
+          </AccordionItem>
+
+          <AccordionItem border="none" borderBottom="1px solid" borderColor="line.400">
+            <h2>
+              <AccordionButton px={0} py={5} _hover={{ bg: "transparent", borderColor: "cream.50" }} _focus={{ boxShadow: "none", outline: "none" }} _expanded={{ bg: "transparent" }}>
+                <Box flex="1" textAlign="left">
+                  <Text fontWeight={600} color="gray.700" fontSize={{ base: "16px", md:"16px"}} letterSpacing="1px">
+                    Can I edit or delete data in demo mode?
+                  </Text>
+                </Box>
+                <AccordionIcon />
+              </AccordionButton>
+            </h2>
+            <AccordionPanel px={0} pb={8}>
+              <Text color="brand.800" fontWeight={500} fontSize="14px" letterSpacing="1px">
+                No. Demo mode is read-only to prevent changes to shared data.
+              </Text>
+            </AccordionPanel>
+          </AccordionItem>
+
+          <AccordionItem border="none" borderBottom="1px solid" borderColor="line.400">
+            <h2>
+              <AccordionButton px={0} py={5} _hover={{ bg: "transparent", borderColor: "cream.50" }} _focus={{ boxShadow: "none", outline: "none" }} _expanded={{ bg: "transparent" }}>
+                <Box flex="1" textAlign="left">
+                  <Text fontWeight={600} color="gray.700" fontSize={{ base: "16px", md:"16px"}} letterSpacing="1px">
+                    What happens if I forget my password?
+                  </Text>
+                </Box>
+                <AccordionIcon />
+              </AccordionButton>
+            </h2>
+            <AccordionPanel px={0} pb={8}>
+              <Text color="brand.800" fontWeight={500} fontSize="14px" letterSpacing="1px">
+                You can reset your password using the “Forgot password” link on the login page.
+              </Text>
+            </AccordionPanel>
+          </AccordionItem>
+        </Accordion>
       </Box>
 
       <Box
@@ -252,7 +414,7 @@ export default function LandingPage() {
             position="relative"
             gap={{ base: 4, md: 0 }}
             >
-            {/* Left: Brand */}
+
             <Link
                 as={NavLink}
                 to="/"
@@ -268,7 +430,6 @@ export default function LandingPage() {
                 </Text>
             </Link>
 
-            {/* Center: Copyright */}
             <Text
                 position={{ base: "static", md: "absolute" }}
                 left="50%"
