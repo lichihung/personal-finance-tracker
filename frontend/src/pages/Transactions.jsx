@@ -218,15 +218,20 @@ export default function Transactions() {
     try {
       const token = localStorage.getItem("access")
 
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/transactions/export/`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const exportMonth =
+        month || new Date().toISOString().slice(0, 7)
+
+      const url = new URL(
+        `${import.meta.env.VITE_API_BASE_URL}/transactions/export/`
       )
+      url.searchParams.set("month", exportMonth)
+
+      const response = await fetch(url.toString(), {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
 
       if (!response.ok) {
         throw new Error(`Export failed: ${response.status}`)
@@ -240,19 +245,19 @@ export default function Transactions() {
       }
 
       const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
+      const downloadUrl = window.URL.createObjectURL(blob)
       const a = document.createElement("a")
-      a.href = url
-      a.download = "transactions.csv"
+      a.href = downloadUrl
+      a.download = `transactions-${exportMonth}.csv`
       document.body.appendChild(a)
       a.click()
       a.remove()
-      window.URL.revokeObjectURL(url)
+      window.URL.revokeObjectURL(downloadUrl)
     } catch (err) {
       console.error(err)
     }
   }
-
+  
   return (
 
     <Box w="full" px={{ base: 2, md: 16 }}>

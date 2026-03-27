@@ -134,20 +134,21 @@ class TransactionViewSet(ModelViewSet):
     
     @action(detail=False, methods=["get"])
     def export(self, request):
-        user = request.user
-
-        today = datetime.today().date()
-        start_date = today.replace(day=1)
-
         qs = self.get_queryset()
 
-        qs = qs.filter(date__gte=start_date, date__lte=today)
+        export_month = request.query_params.get("month")
+
+        if not export_month:
+            today = datetime.today().date()
+            qs = qs.filter(date__year=today.year, date__month=today.month)
+            filename_month = today.strftime("%Y-%m")
+        else:
+            filename_month = export_month
 
         response = HttpResponse(content_type="text/csv")
-        response["Content-Disposition"] = 'attachment; filename="transactions.csv"'
+        response["Content-Disposition"] = f'attachment; filename="transactions-{filename_month}.csv"'
 
         writer = csv.writer(response)
-
         writer.writerow(["Date", "Type", "Category", "Description", "Amount"])
 
         for t in qs:
