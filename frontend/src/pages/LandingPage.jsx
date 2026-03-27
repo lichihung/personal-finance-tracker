@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom"
 import { loginDemo } from "../api/authFetch"
 import { useEffect, useRef, useState } from "react"
 import { signOut } from "../auth/auth"
+import { trackEvent } from "../utils/analytics"
 
 export default function LandingPage() {
   const navigate = useNavigate()
@@ -43,6 +44,10 @@ export default function LandingPage() {
     }
 
     return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    trackEvent("landing_page_view")
   }, [])
 
   const getCardAnimation = (delay) => ({
@@ -114,11 +119,11 @@ export default function LandingPage() {
                 color="brand.900"
                 textAlign={{ base: "center", md: "left" }}
               >
-                Keep track of
+                YOUR DAILY
                 <br />
-                your money,
+                SPENDING,
                 <br />
-                simply
+                SIMPLIFIED
               </Text>
 
               <Text
@@ -129,8 +134,9 @@ export default function LandingPage() {
                 textAlign={{ base: "center", md: "left" }}
                 letterSpacing="1px"
               >
-                A simple way to record income and expenses, organize
-                categories, and stay on top of your monthly spending.
+                A clean and minimal finance tracker that helps you log transactions and understand your habits.
+                <br />
+                Like writing a daily journal.
               </Text>
 
               <HStack spacing={6} pt={1.5} flexWrap="wrap">
@@ -141,6 +147,9 @@ export default function LandingPage() {
                   fontSize="14px"
                   _hover={{ bg: "transparent", color:"brand.900", borderColor:"brand.900" }}
                   onClick={() => {
+                    trackEvent("click_signup", {
+                      page: "landing",
+                    })
                     signOut()
                     localStorage.removeItem("isDemo")
                     navigate("/login")
@@ -159,6 +168,9 @@ export default function LandingPage() {
                   fontSize="14px"
                   _hover={{ bg: "brand.900", color:"white", borderColor:"brand.900" }}
                   onClick={async () => {
+                    trackEvent("click_demo", {
+                      page: "landing",
+                    })
                     try {
                     await loginDemo()
                     navigate("/dashboard")
@@ -293,7 +305,7 @@ export default function LandingPage() {
           textAlign="center"
           transform={isVisible ? "translateY(0)" : "translateY(20px)"}
           opacity={isVisible ? 1 : 0}
-          transition="all 2s ease"
+          transition="all 1.8s ease"
         >
           <Text
             fontFamily="Imbue, serif"

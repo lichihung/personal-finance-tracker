@@ -16,6 +16,9 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.core.mail import send_mail
 from django.conf import settings
+from django.http import HttpResponse
+import csv
+from datetime import datetime
 
 User = get_user_model()
 
@@ -129,6 +132,37 @@ class TransactionViewSet(ModelViewSet):
         months = sorted({d.strftime("%Y-%m") for d in qs.values_list("date", flat=True)}, reverse=True)
         return Response({"results": months})
     
+    @action(detail=False, methods=["get"])
+    def export(self, request):
+        user = request.user
+
+        today = datetime.today().date()
+        start_date = today.replace(day=1)
+
+        qs = self.get_queryset()
+
+        qs = qs.filter(date__gte=start_date, date__lte=today)
+
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = 'attachment; filename="transactions.csv"'
+
+        writer = csv.writer(response)
+
+        writer.writerow(["Date", "Type", "Category", "Description", "Amount"])
+
+        for t in qs:
+            amount = t.amount if t.type == "income" else -t.amount
+
+            writer.writerow([
+                t.date.strftime("%Y-%m-%d"),
+                t.type,
+                t.category.name if t.category else "",
+                t.description,
+                amount,
+            ])
+
+        return response
+    
     def destroy(self, request, *args, **kwargs):
         block_demo_writes(request)
         return super().destroy(request, *args, **kwargs)
@@ -220,7 +254,7 @@ class ForgotPasswordView(APIView):
                         background-color:#003d20;
                         color:#ffffff;
                         text-decoration:none;
-                        padding:14px 18px;
+                        padding:16px 16px;
                         border-radius:99px;
                         font-weight:600;
                     "

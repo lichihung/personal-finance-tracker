@@ -163,12 +163,11 @@ const theme = extendTheme({
         pillDark: {
           field: {
             borderRadius: "full",
-            bg: "brand.700",
+            bg: "brand.900",
             color: "white",
             px: "16px",
             px: "16px",
             borderColor: "rgba(255,255,255,0.22)",
-            _placeholder: { color: "white" },
             _hover: { bg: "brand.800" },
             _focus: { bg: "brand.900", boxShadow: "0 0 0 2px rgba(255,255,255,0.22)" },
           },

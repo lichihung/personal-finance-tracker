@@ -8,6 +8,7 @@ import { getTransactions, createTransaction, updateTransaction, deleteTransactio
 import { getCategories } from "../api/categoryService"
 import { useNavigate } from "react-router-dom"
 import { getErrorMessage, SUCCESS_MESSAGES } from "../utils/messages"
+import { trackEvent } from "../utils/analytics"
 
 
 // Badge UI for transaction type
@@ -184,7 +185,6 @@ export default function Transactions() {
         })
       }
 
-      // refresh UI
       await loadMonths()
       await reloadTransactions()
 
@@ -213,6 +213,45 @@ export default function Transactions() {
 
   const openDelete = () => setIsDeleteOpen(true)
   const closeDelete = () => setIsDeleteOpen(false)
+
+  const handleExport = async () => {
+    try {
+      const token = localStorage.getItem("access")
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/transactions/export/`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error(`Export failed: ${response.status}`)
+      }
+
+      const contentType = response.headers.get("content-type") || ""
+      if (!contentType.includes("text/csv")) {
+        const text = await response.text()
+        console.error("Unexpected response:", text)
+        throw new Error("Response was not CSV")
+      }
+
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = "transactions.csv"
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      window.URL.revokeObjectURL(url)
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
   return (
 
@@ -272,7 +311,7 @@ export default function Transactions() {
                   </Select>
                 </WrapItem>
                 <WrapItem w={{ base: "full", md: "auto" }}>
-                  <Input placeholder="Search" w={{ base: "full", md: "240px" }} size="sm" variant="outline" _placeholder={{ textAlign: "center" }} value={q} onChange={(e) => {
+                  <Input placeholder="Search" w={{ base: "full", md: "240px" }} size="sm" variant="pillDark" _placeholder={{ textAlign: "left", color: "white" }} value={q} onChange={(e) => {
                     setQ(e.target.value)
                     setPage(1)}} />
                 </WrapItem>
@@ -288,15 +327,54 @@ export default function Transactions() {
                 </WrapItem>
             </Wrap>
 
-            <Button w={{ base: "full", md: "220px"}} variant="brandOutline" size="sm" onClick={() => { 
-              setEditingId(null) 
-              setForm({ date: "", type: "expense", category: "", description: "", amount: "", }) 
-              setFieldErrors({}) 
-              onOpen() }}
-              leftIcon={<FiPlus />}
-              >
-              Add Transaction
-              </Button>
+            <Box w={{ base: "full", md: "220px" }}>
+              <Button w={{ base: "full", md: "220px"}} variant="brandOutline" size="sm" onClick={() => { 
+                trackEvent("click_add_transaction", {
+                  page: "transactions",
+                })
+
+                setEditingId(null) 
+                setForm({ date: "", type: "expense", category: "", description: "", amount: "", }) 
+                setFieldErrors({}) 
+                onOpen() }}
+                leftIcon={<FiPlus />}
+                >
+                Add Transaction
+                </Button>
+
+                <Button
+                  w="full"
+                  mt={3}
+                  variant="brandOutline"
+                  size="sm"
+                  onClick={() => {
+                    trackEvent("click_export_pro", {
+                      page: "transactions",
+                    })
+
+                    // toast({
+                    //   title: "Coming soon",
+                    //   description: "Export will be available in Pro.",
+                    //   status: "info",
+                    //   duration: 2000,
+                    //   isClosable: true,
+                    // })
+
+                    handleExport()
+                  }}
+                >
+                  Export
+                    <Badge
+                      ml={4}
+                      fontSize="0.6em"
+                      bg="transparent"
+                      borderColor="#c9a24d"
+                      color="#c9a24d"
+                      borderRadius="full"
+                    >PRO
+                    </Badge>
+                </Button>
+              </Box>
           </Flex>
         </Box>
   
