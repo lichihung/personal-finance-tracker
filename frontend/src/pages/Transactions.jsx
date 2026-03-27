@@ -219,7 +219,7 @@ export default function Transactions() {
       const token = localStorage.getItem("access")
 
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/transactions/export/`,
+        `${import.meta.env.VITE_API_BASE_URL}/transactions/export/`,
         {
           method: "GET",
           headers: {
