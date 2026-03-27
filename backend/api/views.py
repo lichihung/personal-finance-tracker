@@ -114,22 +114,13 @@ class TransactionViewSet(ModelViewSet):
 
     @action(detail=False, methods=["get"], url_path="months")
     def months(self, request):
-        qs = self.get_queryset()
+        qs = Transaction.objects.filter(user=request.user)
 
-        tx_type = self.request.query_params.get("type")
-        category_id = self.request.query_params.get("category")
-        q = self.request.query_params.get("q")
+        months = sorted(
+            {d.strftime("%Y-%m") for d in qs.values_list("date", flat=True)},
+            reverse=True
+        )
 
-        if tx_type in ("income", "expense"):
-            qs = qs.filter(type=tx_type)
-
-        if category_id and category_id.isdigit():
-            qs = qs.filter(category_id=int(category_id))
-
-        if q:
-            qs = qs.filter(description__icontains = q)
-
-        months = sorted({d.strftime("%Y-%m") for d in qs.values_list("date", flat=True)}, reverse=True)
         return Response({"results": months})
     
     @action(detail=False, methods=["get"])

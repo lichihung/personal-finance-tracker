@@ -63,6 +63,7 @@ export default function Transactions() {
   const [sort, setSort] = useState("date_desc")
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
   const [allMonths, setAllMonths] = useState([])
+  const [searchInput, setSearchInput] = useState("")
 
     // Generic form updater (updates one field at a time)
   const updateForm = (field, value) => {
@@ -91,12 +92,12 @@ export default function Transactions() {
 
   const loadMonths = useCallback(async () => {
     try {
-      const months = await getTransactionMonths({ type, category, q })
+      const months = await getTransactionMonths()
       setAllMonths(months)
     } catch {
       // ignore
     }
-  }, [type, category, q])
+  }, [])
 
   const reloadTransactions = useCallback(async () => {
     const data = await getTransactions({ month, type, category, q, sort, page })
@@ -150,7 +151,15 @@ export default function Transactions() {
     if (month && !allMonths.includes(month)) setMonth("")
   }, [allMonths, month])
 
-  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setQ(searchInput)
+      setPage(1)
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [searchInput])
+
   const handleSave = async () => {
     if (!validateForm()) return
     setSaving(true)
@@ -257,7 +266,7 @@ export default function Transactions() {
       console.error(err)
     }
   }
-  
+
   return (
 
     <Box w="full" px={{ base: 2, md: 16 }}>
@@ -316,15 +325,16 @@ export default function Transactions() {
                   </Select>
                 </WrapItem>
                 <WrapItem w={{ base: "full", md: "auto" }}>
-                  <Input placeholder="Search" w={{ base: "full", md: "240px" }} size="sm" variant="pillDark" _placeholder={{ textAlign: "left", color: "white" }} value={q} onChange={(e) => {
-                    setQ(e.target.value)
-                    setPage(1)}} />
+                  <Input placeholder="Search" w={{ base: "full", md: "240px" }} size="sm" variant="pillDark" _placeholder={{ textAlign: "left", color: "white" }} value={searchInput} onChange={(e) => {
+                    setSearchInput(e.target.value)
+                    }} />
                 </WrapItem>
                 <WrapItem w={{ base: "full", md: "auto" }}>
                   <Button variant="brandOutline" size="sm" w={{ base: "full", md: "96px" }} onClick={() => {
                     setMonth("") 
                     setCategory("") 
                     setType("")
+                    setSearchInput("")
                     setQ("")
                     setSort("date_desc")}}>
                     Reset
@@ -357,20 +367,20 @@ export default function Transactions() {
                       page: "transactions",
                     })
 
-                    // toast({
-                    //   title: "Coming soon",
-                    //   description: "Export will be available in Pro.",
-                    //   status: "info",
-                    //   duration: 2000,
-                    //   isClosable: true,
-                    // })
+                    toast({
+                      title: "Coming soon",
+                      description: "Export will be available in Pro.",
+                      status: "info",
+                      duration: 2000,
+                      isClosable: true,
+                    })
 
-                    handleExport()
+                    // handleExport()
                   }}
                 >
                   Export
                     <Badge
-                      ml={4}
+                      ml={5}
                       fontSize="0.6em"
                       bg="transparent"
                       borderColor="#c9a24d"
