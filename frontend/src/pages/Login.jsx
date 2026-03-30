@@ -47,8 +47,8 @@ export default function Login() {
         navigate("/dashboard", {replace: true})
       } else {
         await registerUser(values.username, values.email, values.password)
-        await login(values.username, values.password)
-        navigate("/dashboard", {replace: true})
+        setMode("login")
+        setSubmitError("Account created successfully. Please log in.")
       }
     } catch (err) {
       console.error(err)
