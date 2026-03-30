@@ -1,8 +1,6 @@
 from django.db import models
 from django.conf import settings
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.contrib.auth import get_user_model
+
 
 # Create your models here.
 class Category(models.Model):
@@ -44,10 +42,3 @@ class UserSecurity(models.Model):
 
     def __str__(self):
         return f"{self.user.username} security"
-    
-User = get_user_model()
-
-@receiver(post_save, sender=User)
-def create_user_security(sender, instance, created, **kwargs):
-    if created:
-        UserSecurity.objects.create(user=instance)
