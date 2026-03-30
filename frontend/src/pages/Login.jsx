@@ -149,7 +149,11 @@ export default function Login() {
                 ) : null}
 
                 {submitError ? (
-                  <Text color="red.500" fontSize="sm" textAlign="left">
+                  <Text
+                    color={submitError.includes("successfully") ? "green.500" : "red.500"}
+                    fontSize="sm"
+                    textAlign="left"
+                  >
                     {submitError}
                   </Text>
                 ) : null}
