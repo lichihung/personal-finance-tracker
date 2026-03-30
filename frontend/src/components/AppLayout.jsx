@@ -48,7 +48,8 @@ export default function AppLayout() {
           fontSize="sm"
           fontWeight="500"
         >
-          You are viewing a demo account. Changes are disabled.
+            <Text>You are viewing a demo account.</Text>
+            <Text>Changes are disabled.</Text>
         </Box>
       )}
       {/* Topbar */}
@@ -101,7 +102,7 @@ export default function AppLayout() {
              aria-label="Open menu"
              onClick={onOpen}
              _hover={{ bg: "transparent" }}
-             _active={{ bg: "transparent" }}
+             _active={{ bg: "transparent", borderColor: "brand.900" }}
             />
           </Flex>
         </Box>
