@@ -35,15 +35,15 @@ class CategoryViewSet(ModelViewSet):
         return Category.objects.filter(user=self.request.user)
     
     def perform_create(self, serializer):
-        # block_demo_writes(self.request)
+        block_demo_writes(self.request)
         serializer.save(user=self.request.user)
 
     def perform_update(self, serializer):
-        # block_demo_writes(self.request)
+        block_demo_writes(self.request)
         serializer.save()
 
     def destroy(self, request, *args, **kwargs):
-        # block_demo_writes(request)
+        block_demo_writes(request)
         instance = self.get_object()
         try:
             self.perform_destroy(instance)
@@ -105,11 +105,11 @@ class TransactionViewSet(ModelViewSet):
         return qs
         
     def perform_create(self, serializer):
-        # block_demo_writes(self.request)
+        block_demo_writes(self.request)
         serializer.save(user=self.request.user)
     
     def perform_update(self, serializer):
-        # block_demo_writes(self.request)
+        block_demo_writes(self.request)
         serializer.save()
 
     @action(detail=False, methods=["get"], url_path="months")

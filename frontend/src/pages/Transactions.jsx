@@ -342,8 +342,8 @@ export default function Transactions() {
                 </WrapItem>
             </Wrap>
 
-            <Box w={{ base: "full", md: "220px" }}>
-              <Button w={{ base: "full", md: "220px"}} variant="brandOutline" size="sm" onClick={() => { 
+            <Flex w={{ base: "full", md: "220px" }} direction="column">
+              <Button w={{ base: "full", md: "220px"}} order={{ base: 2, md: 1 }} mt={{ base: 2, md: 0 }} variant="brandOutline" size="sm" onClick={() => { 
                 trackEvent("click_add_transaction", {
                   page: "transactions",
                 })
@@ -359,7 +359,8 @@ export default function Transactions() {
 
                 <Button
                   w="full"
-                  mt={3}
+                  order={{ base: 1, md: 2 }}
+                  mt={{ base: 0, md: 4 }}
                   variant="brandOutline"
                   size="sm"
                   onClick={() => {
@@ -380,7 +381,7 @@ export default function Transactions() {
                 >
                   Export
                     <Badge
-                      ml={5}
+                      ml={{ base: 3, md: 5 }}
                       fontSize="0.6em"
                       bg="transparent"
                       borderColor="#c9a24d"
@@ -389,7 +390,7 @@ export default function Transactions() {
                     >PRO
                     </Badge>
                 </Button>
-              </Box>
+              </Flex>
           </Flex>
         </Box>
   

@@ -114,19 +114,19 @@ export default function AppLayout() {
             <DrawerCloseButton mt={2}/>
             <DrawerBody pt={16}>
              <VStack align="stretch" spacing={6}>
-                <Link as={NavLink} to="/dashboard" onClick={onClose} _hover={{ textDecoration: "none" }}>
+                <Link as={NavLink} to="/dashboard" onClick={onClose} _hover={{ color: "white", textDecoration: "none" }} _focus={{ color: "white", textDecoration: "none" }}>
                     <Text fontSize="lg">Dashboard</Text>
                 </Link>
-                <Link as={NavLink} to="/transactions" onClick={onClose} _hover={{ textDecoration: "none" }}>
+                <Link as={NavLink} to="/transactions" onClick={onClose} _hover={{ color: "white", textDecoration: "none" }} _focus={{ color: "white", textDecoration: "none" }}>
                     <Text fontSize="lg">Transactions</Text>
                 </Link>
-                <Link as={NavLink} to="/categories" onClick={onClose} _hover={{ textDecoration: "none" }}>
+                <Link as={NavLink} to="/categories" onClick={onClose} _hover={{ color: "white", textDecoration: "none" }} _focus={{ color: "white", textDecoration: "none" }}>
                     <Text fontSize="lg">Categories</Text>
                 </Link>
-                <Link as={NavLink} to="/privacy" onClick={onClose} _hover={{ textDecoration: "none" }}>
+                <Link as={NavLink} to="/privacy" onClick={onClose} _hover={{ color: "white", textDecoration: "none" }} _focus={{ color: "white", textDecoration: "none" }}>
                     <Text fontSize="lg">Privacy Policy</Text>
                 </Link>
-                <Link as={NavLink} to="/terms" onClick={onClose} _hover={{ textDecoration: "none" }}>
+                <Link as={NavLink} to="/terms" onClick={onClose} _hover={{ color: "white", textDecoration: "none" }} _focus={{ color: "white", textDecoration: "none" }}>
                     <Text fontSize="lg">Terms of Use</Text>
                 </Link>
                 <Button mt={4} variant="outline" borderColor="white" color="white" bg="transparent" _hover={{ bg: "white", color: "brand.900" }} 
