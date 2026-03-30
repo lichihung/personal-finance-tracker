@@ -140,3 +140,32 @@ class EmailOrUsernameTokenObtainPairSerializer(TokenObtainPairSerializer):
             "refresh": str(refresh),
             "access": str(refresh.access_token),
         }
+    
+class VerifyEmailSerializer(serializers.Serializer):
+    uid = serializers.CharField()
+    token = serializers.CharField()
+
+    def validate(self, attrs):
+        uid = attrs.get("uid")
+        token = attrs.get("token")
+
+        try:
+            user_id = force_str(urlsafe_base64_decode(uid))
+            user = User.objects.get(pk=user_id)
+        except Exception:
+            raise serializers.ValidationError({"detail": "Invalid verification link."})
+
+        if not default_token_generator.check_token(user, token):
+            raise serializers.ValidationError({"detail": "Invalid or expired verification link."})
+
+        attrs["user"] = user
+        return attrs
+
+    def save(self):
+        user = self.validated_data["user"]
+        from .models import UserSecurity
+
+        security, _ = UserSecurity.objects.get_or_create(user=user)
+        security.email_verified = True
+        security.save()
+        return user

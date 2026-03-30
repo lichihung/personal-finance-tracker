@@ -4,8 +4,8 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from .models import Category, Transaction
-from .serializers import CategorySerializer, TransactionSerializer, RegisterSerializer, ResetPasswordSerializer, EmailOrUsernameTokenObtainPairSerializer
+from .models import Category, Transaction, UserSecurity
+from .serializers import CategorySerializer, TransactionSerializer, RegisterSerializer, ResetPasswordSerializer, EmailOrUsernameTokenObtainPairSerializer, VerifyEmailSerializer
 from django.db import IntegrityError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.throttling import AnonRateThrottle
@@ -167,7 +167,55 @@ class RegisterView(APIView):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        return Response({"username": user.username}, status=status.HTTP_201_CREATED)
+
+        security, _ = UserSecurity.objects.get_or_create(user=user)
+        security.email_verified = False
+        security.save()
+
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+
+        verify_link = (
+            f"{settings.FRONTEND_URL}/verify-email/"
+            f"?uid={uid}&token={token}"
+        )
+
+        try:
+            send_mail(
+                subject="Verify your Finance Tracker email",
+                message=(
+                    f"Hi {user.username},\n\n"
+                    "Thanks for creating your account.\n\n"
+                    f"Use this link to verify your email:\n{verify_link}\n\n"
+                    "If you did not create this account, you can ignore this email.\n\n"
+                    "Sincerely,\n"
+                    "Finance Tracker"
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            print("VERIFICATION EMAIL ERROR:", str(e))
+
+        return Response(
+            {"detail": "Account created. Please check your email to verify your account."},
+            status=status.HTTP_201_CREATED,
+        )
+    
+
+class VerifyEmailView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = VerifyEmailSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            {"detail": "Email verified successfully."},
+            status=status.HTTP_200_OK,
+        )
     
 
 class ForgotPasswordView(APIView):
