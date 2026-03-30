@@ -270,7 +270,7 @@ export default function Dashboard() {
 
       {!loading && !errorMsg && (
         <>
-        <HStack display={{ base: "flex", md: "none" }} justify="center" mb={8} w="full">
+        <HStack display={{ base: "flex", md: "none" }} justify="center" mb={{ base: 4, md: 8}} w="full">
             <Box w="180px">
               <Select
                 w="full"
@@ -287,25 +287,25 @@ export default function Dashboard() {
             </Box>
           </HStack>
 
-          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{base: 4, md: 8}} mt={{base: 4, md: 8}} mb={10}>
-            <Box bg="linear-gradient(135deg, #003d20, #5f8f77)" p={8} borderRadius="8px" color="white">
+          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{base: 2, md: 8}} mt={{base: 0, md: 8}} mb={{base: 6, md: 8}}>
+            <Box bg="linear-gradient(135deg, #003d20, #5f8f77)" p={{base: 6, md: 8}} borderRadius="8px" color="white">
               <Stat>
-                <StatLabel fontSize="18px" mb={2}>This Month Income</StatLabel>
-                <StatNumber fontSize="24px">{hasAnyTransactions ? money(totalIncome) : "-"}</StatNumber>
+                <StatLabel fontSize={{ base: "16px", md: "18px" }} mb={{ base: 1, md: 2}}>This Month Income</StatLabel>
+                <StatNumber fontSize={{ base: "20px", md: "24px" }}>{hasAnyTransactions ? money(totalIncome) : "-"}</StatNumber>
               </Stat>
             </Box>
 
-            <Box bg="linear-gradient(135deg, #89a899, #d7e6de)" p={8} borderRadius="8px" color="white">
+            <Box bg="linear-gradient(135deg, #89a899, #d7e6de)" p={{base: 6, md: 8}} borderRadius="8px" color="white">
               <Stat>
-                <StatLabel fontSize="18px" mb={2}>This Month Expense</StatLabel>
-                <StatNumber fontSize="24px">{hasAnyTransactions ? money(totalExpense) : "-"}</StatNumber>
+                <StatLabel fontSize={{ base: "16px", md: "18px" }} mb={{ base: 1, md: 2}}>This Month Expense</StatLabel>
+                <StatNumber fontSize={{ base: "20px", md: "24px" }}>{hasAnyTransactions ? money(totalExpense) : "-"}</StatNumber>
               </Stat>
             </Box>
 
-            <Box bg="linear-gradient(135deg, #c9a24d, #f8e6c8)" p={8} borderRadius="8px" color="white" >
+            <Box bg="linear-gradient(135deg, #c9a24d, #f8e6c8)" p={{base: 6, md: 8}} borderRadius="8px" color="white" >
               <Stat>
-                <StatLabel fontSize="18px" mb={2}>This Month Net</StatLabel>
-                <StatNumber fontSize="24px" color={net >= 0 ? "white" : "ink.900"}>
+                <StatLabel fontSize={{ base: "16px", md: "18px" }} mb={{ base: 1, md: 2}}>This Month Net</StatLabel>
+                <StatNumber fontSize={{ base: "20px", md: "24px" }} color={net >= 0 ? "white" : "ink.900"}>
                   {hasAnyTransactions ? money(net) : "-"}
                 </StatNumber>
               </Stat>
@@ -330,9 +330,9 @@ export default function Dashboard() {
             </Box>
           </HStack>
 
-          <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={10} mb={8} alignItems="start">
+          <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={{ base: 6, md: 10 }} mb={{ base: 3, md: 8 }} alignItems="start">
             <Box bg="transparent" p={0} w="full" display="flex" flexDirection="column" alignItems={{ base: "center", md: "flex-start" }} textAlign={{ base: "center", md: "left" }}>
-              <Heading fontSize="26px" mb={6} textAlign={{ base: "center", md: "left" }}>Expense by Category</Heading>
+              <Heading fontSize="26px" mb={{ base: 1, md: 6 }} textAlign={{ base: "center", md: "left" }}>Expense by Category</Heading>
 
               {pieData.length === 0 ? (
                   <Box textAlign={{ base: "center", md: "left" }}>

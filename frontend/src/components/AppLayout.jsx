@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom"
 import { signOut } from "../auth/auth"
 import { HamburgerIcon } from "@chakra-ui/icons"
 import { FiHome } from "react-icons/fi"
+import { useEffect, useRef, useState } from "react"
 
 const navLinkStyle = ({ isActive }) => ({
   textDecoration: "none",
@@ -17,6 +18,8 @@ export default function AppLayout() {
   const location = useLocation()
   const {isOpen, onOpen, onClose} = useDisclosure()
   const isDemo = localStorage.getItem("isDemo") === "true"
+  const [showMobileHeader, setShowMobileHeader] = useState(true)
+  const lastScrollY = useRef(0)
 
   const handleLogout = () => {
     signOut()
@@ -37,74 +40,107 @@ export default function AppLayout() {
     return "FINANCE TRACKER"
   }
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+
+      if (currentScrollY <= 10) {
+        setShowMobileHeader(true)
+        lastScrollY.current = currentScrollY
+        return
+      }
+
+      if (currentScrollY > lastScrollY.current) {
+        // scrolling down
+        setShowMobileHeader(false)
+      } else {
+        // scrolling up
+        setShowMobileHeader(true)
+      }
+
+      lastScrollY.current = currentScrollY
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
   return (
     <Flex minH="100vh" direction="column" bg="cream.50">
-      {isDemo && (
-        <Box
-          bg="orange.200"
-          color="black"
-          textAlign="center"
-          py={2}
-          fontSize="sm"
-          fontWeight="500"
+      <Box position={{ base: "fixed", md: "static" }} top="0" left="0" w="full" zIndex="1000"
+        transform={{
+          base: showMobileHeader ? "translateY(0)" : "translateY(-100%)",
+          md: "none",
+        }}
+        transition="transform 0.25s ease"
         >
-            <Text>You are viewing a demo account.</Text>
-            <Text>Changes are disabled.</Text>
-        </Box>
-      )}
-      {/* Topbar */}
-      <Box bg="brand.900" color="white" w="full">
-        <Box px={{ base: 6, md: 16 }} py={{ base: 4, md: 5 }}>
-          <Flex align="center" justify="space-between">
-            {/* Mobile: left icon / Desktop: brand */}
-            <Box>
-                <Link as={NavLink} to="/dashboard" _hover={{ textDecoration: "none", color: "white" }}>
-                <Text display={{ base: "none", md: "block" }} fontFamily="Imbue, serif" fontWeight="400" letterSpacing="2px" fontSize="24px">FINANCE TRACKER</Text>
-                <Box display={{ base: "block", md: "none" }}><FiHome size={28} /></Box>
-                </Link>
-            </Box>
+        {isDemo && (
+          <Box
+            bg="orange.200"
+            color="black"
+            textAlign="center"
+            py={2}
+            fontSize="sm"
+            fontWeight="500"
+          >
+              <Text>You are viewing a demo account.</Text>
+              <Text>Changes are disabled.</Text>
+          </Box>
+        )}
+        {/* Topbar */}
+        <Box bg="brand.900" color="white" w="full">
+          <Box px={{ base: 6, md: 16 }} py={{ base: 3, md: 5 }}>
+            <Flex align="center" justify="space-between">
+              {/* Mobile: left icon / Desktop: brand */}
+              <Box>
+                  <Link as={NavLink} to="/dashboard" _hover={{ textDecoration: "none", color: "white" }}>
+                  <Text display={{ base: "none", md: "block" }} fontFamily="Imbue, serif" fontWeight="400" letterSpacing="2px" fontSize="24px">FINANCE TRACKER</Text>
+                  <Box display={{ base: "block", md: "none" }}><FiHome size={28} /></Box>
+                  </Link>
+              </Box>
 
-            {/* Mobile center title */}
-            <Text
-             display={{ base: "block", md: "none"}}
-             fontFamily="Imbue, serif"
-             fontWeight="400"
-             letterSpacing="2px"
-             fontSize="38px"
-            >
-             {getMobileTitle()}
-            </Text>
-
-            <HStack spacing={4} fontSize="14px" display={{ base: "none", md: "flex" }}>
-              <Link as={NavLink} to="/dashboard" style={navLinkStyle}>Dashboard</Link>
-              <Link as={NavLink} to="/transactions" style={navLinkStyle}>Transactions</Link>
-              <Link as={NavLink} to="/categories" style={navLinkStyle}>Categories</Link>
-              <Link as={NavLink} to="/privacy" style={navLinkStyle}>Privacy</Link>
-              <Link as={NavLink} to="/terms" style={navLinkStyle}>Terms</Link>
-
-              <Button
-                size="sm" 
-                borderColor="white" 
-                color="white" 
-                _hover={{ bg: "white", color: "brand.900", borderColor: "white", }}
-                onClick={handleLogout}
+              {/* Mobile center title */}
+              <Text
+              display={{ base: "block", md: "none"}}
+              fontFamily="Imbue, serif"
+              fontWeight="400"
+              letterSpacing="2px"
+              fontSize="38px"
               >
-                Logout
-              </Button>
-            </HStack>
+              {getMobileTitle()}
+              </Text>
 
-            {/* Mobile menu button */}
-            <IconButton
-             display={{ base: "inline-flex", md: "none" }}
-             icon={<HamburgerIcon boxSize={8}/>}
-             variant="ghost"
-             color="white"
-             aria-label="Open menu"
-             onClick={onOpen}
-             _hover={{ bg: "transparent" }}
-             _active={{ bg: "transparent", borderColor: "brand.900" }}
-            />
-          </Flex>
+              <HStack spacing={4} fontSize="14px" display={{ base: "none", md: "flex" }}>
+                <Link as={NavLink} to="/dashboard" style={navLinkStyle}>Dashboard</Link>
+                <Link as={NavLink} to="/transactions" style={navLinkStyle}>Transactions</Link>
+                <Link as={NavLink} to="/categories" style={navLinkStyle}>Categories</Link>
+                <Link as={NavLink} to="/privacy" style={navLinkStyle}>Privacy</Link>
+                <Link as={NavLink} to="/terms" style={navLinkStyle}>Terms</Link>
+
+                <Button
+                  size="sm" 
+                  borderColor="white" 
+                  color="white" 
+                  _hover={{ bg: "white", color: "brand.900", borderColor: "white", }}
+                  onClick={handleLogout}
+                >
+                  Logout
+                </Button>
+              </HStack>
+
+              {/* Mobile menu button */}
+              <IconButton
+              display={{ base: "inline-flex", md: "none" }}
+              icon={<HamburgerIcon boxSize={8}/>}
+              variant="ghost"
+              color="white"
+              aria-label="Open menu"
+              onClick={onOpen}
+              _hover={{ bg: "transparent" }}
+              _active={{ bg: "transparent", borderColor: "brand.900" }}
+              />
+            </Flex>
+          </Box>
         </Box>
       </Box>
 
@@ -143,7 +179,7 @@ export default function AppLayout() {
 
       {/* Main content */}
       <Box flex="1" w="full">
-        <Box px={{ base: 4, md: 16 }} pt={{ base: 6, md: 8 }} pb={{ base: 6, md: 20 }}>
+        <Box px={{ base: 4, md: 16 }} pt={{ base: isDemo ? 40 : 24, md: 8 }} pb={{ base: 6, md: 20 }}>
           <Outlet />
         </Box>
       </Box>
@@ -156,7 +192,7 @@ export default function AppLayout() {
                <Text fontFamily="Imbue, serif" fontWeight="400" letterSpacing="2px" fontSize={{ base: "24px", md: "24px" }}>FINANCE TRACKER</Text>
             </Link>
             <Text opacity={0.85} fontSize="16px" cursor="pointer" _hover={{ opacity: 1 }} onClick={scrollToTop}>Back to Top</Text>
-            <Text opacity={0.85} fontSize="12px">Copyright © Li-Chi Hung</Text>
+            <Text opacity={0.85} fontSize="12px">Copyright © Verdia</Text>
           </Flex>
         </Box>
       </Box>

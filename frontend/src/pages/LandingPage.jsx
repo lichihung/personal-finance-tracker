@@ -453,7 +453,7 @@ export default function LandingPage() {
                 fontSize="12px"
                 opacity={0.85}
             >
-                Copyright © Li-Chi Hung
+                Copyright © Verdia
             </Text>
 
             <Flex gap={6}>
