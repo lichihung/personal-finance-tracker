@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Transaction
+from .models import Category, Transaction, UserSecurity
 
 # Register your models here.
 @admin.register(Category)
@@ -13,3 +13,8 @@ class TransactionAdmin(admin.ModelAdmin):
     list_display = ("id", "date", "type", "amount", "category", "user", "created_at")
     search_fields = ("description", "category__name", "user__username")
     list_filter = ("type", "date", "created_at")
+
+@admin.register(UserSecurity)
+class UserSecurityAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "email_verified")
+    search_fields = ("user__username", "user__email")
