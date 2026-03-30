@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     "anymail",
-    'api',
+    "api.apps.ApiConfig",
 ]
 
 MIDDLEWARE = [
