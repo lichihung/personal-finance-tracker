@@ -94,8 +94,12 @@ export default function LandingPage() {
               <Text
                 cursor="pointer"
                 fontWeight="600"
-                onClick={() => navigate("/login")}
                 _hover={{ textDecoration: "none", color: "white" }}
+                onClick={() => {
+                  signOut()
+                  localStorage.removeItem("isDemo")
+                  navigate("/login")
+                }}
               >
                 Login
               </Text>
