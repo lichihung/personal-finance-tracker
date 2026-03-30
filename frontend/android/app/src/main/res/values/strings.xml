@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Verdia - Finance Tracker</string>
-    <string name="title_activity_main">Verdia - Finance Tracker</string>
+    <string name="app_name">Verdia</string>
+    <string name="title_activity_main">Verdia</string>
     <string name="package_name">com.verdia.financetracker</string>
     <string name="custom_url_scheme">com.verdia.financetracker</string>
 </resources>

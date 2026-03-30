@@ -198,7 +198,7 @@ export default function Categories() {
         Categories
       </Text>
         
-      <Flex justify={{base: "center", md:"flex-start"}} mb={{ base: 10, md: 12 }}>
+      <Flex justify={{base: "center", md:"flex-start"}} mt={{base: 4}} mb={{ base: 8, md: 12 }}>
         <Button variant="brandOutline" w={{ base: "full", md: "200px" }} size="sm" onClick={openAdd} leftIcon={<FiPlus />}>Add Category</Button>
       </Flex>
 
@@ -212,9 +212,6 @@ export default function Categories() {
           </Box>
           <Text fontSize="lg" fontWeight="semibold" mb={2} color="ink.900">No categories yet. Add your first one.</Text>
           <Text color="brand.700">Categories help keep your transactions organized.</Text>
-          {/* <Button mt={6} mb={6} leftIcon={<FiPlus />} fontSize="sm" onClick={openAdd}>
-            Add Category
-          </Button> */}
         </Box>
       ) : (
       <>
@@ -264,7 +261,7 @@ export default function Categories() {
           <Table variant="simple" w="full" sx={{ tableLayout: "fixed" }}>
             <Thead>
               <Tr>
-                <Th w="28%" fontSize="12px">Date</Th>
+                <Th w="28%" fontSize="12px">Created</Th>
                 <Th w="42%" fontSize="12px">Category</Th>
                 <Th w="30%" fontSize="12px" isNumeric>Actions</Th>
               </Tr>
