@@ -4,6 +4,8 @@ from django.contrib.auth import get_user_model
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_str
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.exceptions import AuthenticationFailed
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -113,3 +115,28 @@ class ResetPasswordSerializer(serializers.Serializer):
         user.set_password(password)
         user.save()
         return user
+    
+class EmailOrUsernameTokenObtainPairSerializer(TokenObtainPairSerializer):
+    username_field = "identifier"
+
+    def validate(self, attrs):
+        identifier = self.initial_data.get("identifier", "").strip()
+        password = self.initial_data.get("password", "")
+
+        if not identifier or not password:
+            raise AuthenticationFailed("Email/username and password are required.")
+
+        if "@" in identifier:
+            user = User.objects.filter(email__iexact=identifier).first()
+        else:
+            user = User.objects.filter(username__iexact=identifier).first()
+
+        if user is None or not user.check_password(password):
+            raise AuthenticationFailed("Invalid email/username or password.")
+
+        refresh = self.get_token(user)
+
+        return {
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        }

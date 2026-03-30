@@ -35,7 +35,7 @@ export default function Login() {
     watch,
     formState: {errors, isSubmitting},
   } = useForm({
-    defaultValues: {username: "", email: "", password: "", confirmPassword: ""},
+    defaultValues: {identifier: "", username: "", email: "", password: "", confirmPassword: ""},
   })
   const password = watch("password")
 
@@ -43,7 +43,7 @@ export default function Login() {
     setSubmitError("")
     try {
       if (mode === "login") {
-        await login(values.username, values.password)
+        await login(values.identifier, values.password)
         navigate("/dashboard", {replace: true})
       } else {
         await registerUser(values.username, values.email, values.password)
@@ -63,12 +63,25 @@ export default function Login() {
           <AuthCard title={title} subtitle={subtitle}>
             <Box as="form" onSubmit={handleSubmit(onSubmit)} >
               <VStack spacing={4} align="stretch">
+              {mode === "login" ? (
+                <FormField label="Email or Username" error={errors.identifier?.message}>
+                  <Input
+                    placeholder="email@example.com or username"
+                    {...register("identifier", {
+                      required: "Email or username is required.",
+                    })}
+                  />
+                </FormField>
+              ) : (
                 <FormField label="Username" error={errors.username?.message}>
                   <Input
                     placeholder="username"
-                    {...register("username", {required: "Username is required."})}
+                    {...register("username", {
+                      required: "Username is required.",
+                    })}
                   />
                 </FormField>
+              )}
 
                 {mode === "register" ? (
                   <FormField label="Email" error={errors.email?.message}>

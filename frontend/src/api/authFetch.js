@@ -1,13 +1,13 @@
 const BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api"
 
-export const login = async(username, password) => {
+export const login = async(identifier, password) => {
     localStorage.removeItem("isDemo")
     
     const res = await fetch(`${BASE_URL}/auth/token/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ identifier, password }),
     })
 
     const data = await res.json()

@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from .models import Category, Transaction
-from .serializers import CategorySerializer, TransactionSerializer, RegisterSerializer, ResetPasswordSerializer
+from .serializers import CategorySerializer, TransactionSerializer, RegisterSerializer, ResetPasswordSerializer, EmailOrUsernameTokenObtainPairSerializer
 from django.db import IntegrityError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.throttling import AnonRateThrottle
@@ -308,3 +308,4 @@ class LoginRateThrottle(AnonRateThrottle):
 
 class RateLimitedTokenView(TokenObtainPairView):
     throttle_classes = [LoginRateThrottle]
+    serializer_class = EmailOrUsernameTokenObtainPairSerializer
