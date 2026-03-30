@@ -11,12 +11,14 @@ import Terms from "./pages/Terms.jsx"
 import ResetPassword from "./pages/ResetPassword.jsx"
 import ForgotPassword from "./pages/ForgotPassword.jsx"
 import LandingPage from "./pages/LandingPage.jsx"
+import VerifyEmail from "./pages/VerifyEmail"
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/reset-password" element={<ResetPassword />} />

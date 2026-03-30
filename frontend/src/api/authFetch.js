@@ -46,3 +46,19 @@ export const loginDemo = async () => {
   localStorage.setItem("isDemo", "true")
   return data
 }
+
+export const verifyEmail = async (uid, token) => {
+  const res = await fetch(`${BASE_URL}/auth/verify-email/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ uid, token }),
+  })
+
+  const data = await res.json()
+
+  if (!res.ok) {
+    throw new Error(data?.detail || "Unable to verify email.")
+  }
+
+  return data
+}
