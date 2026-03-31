@@ -162,7 +162,7 @@ export default function ResetPassword() {
 
                 <Button
                   mt={4}
-                  colorScheme="teal"
+                  _hover={{ color: "white" }}
                   type="submit"
                   isLoading={isSubmitting}
                   w="full"

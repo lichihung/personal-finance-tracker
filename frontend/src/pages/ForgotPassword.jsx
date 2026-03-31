@@ -81,7 +81,7 @@ export default function ForgotPassword() {
 
                 <Button
                   type="submit"
-                  colorScheme="teal"
+                  _hover={{ color: "white" }}
                   isLoading={loading}
                   w="full"
                   mt={4}

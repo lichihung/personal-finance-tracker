@@ -67,7 +67,7 @@ export default function VerifyEmail() {
                 <Button
                   as={RouterLink}
                   to="/login"
-                  colorScheme="teal"
+                  _hover={{ color: "white" }}
                   w="full"
                 >
                   Go to login
