@@ -233,7 +233,7 @@ class RegisterView(APIView):
                                 background-color:#003d20;
                                 color:#ffffff;
                                 text-decoration:none;
-                                padding:14px 16px;
+                                padding:12px 16px;
                                 border-radius:99px;
                                 font-weight:600;
                             "
@@ -479,7 +479,7 @@ class ForgotPasswordView(APIView):
                         background-color:#003d20;
                         color:#ffffff;
                         text-decoration:none;
-                        padding:14px 16px;
+                        padding:12px 16px;
                         border-radius:99px;
                         font-weight:600;
                     "

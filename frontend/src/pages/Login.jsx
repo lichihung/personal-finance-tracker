@@ -168,9 +168,9 @@ export default function Login() {
                     <Link
                       as={RouterLink}
                       to="/forgot-password"
-                      color="brand.700"
+                      color="brand.800"
                       textDecoration="underline"
-                      _hover={{ color: "brand.800", textDecoration: "underline" }}
+                      _hover={{ color: "brand.700", textDecoration: "underline" }}
                     >
                       Forgot password?
                     </Link>
@@ -206,9 +206,9 @@ export default function Login() {
                     {submitError}{" "}
                     {mode === "login" && showResendLink ? (
                       <Link
-                        color="brand.900"
+                        color="brand.800"
                         textDecoration="underline"
-                        _hover={{ color: "brand.800", textDecoration: "underline" }}
+                        _hover={{ color: "brand.700", textDecoration: "underline" }}
                         onClick={handleResendVerification}
                       >
                         Resend verification email
