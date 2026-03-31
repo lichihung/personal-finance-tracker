@@ -33,10 +33,18 @@ export default function Login() {
     register,
     handleSubmit,
     watch,
-    formState: {errors, isSubmitting},
+    reset,
+    formState: { errors, isSubmitting },
   } = useForm({
-    defaultValues: {identifier: "", username: "", email: "", password: "", confirmPassword: ""},
+    defaultValues: {
+      identifier: "",
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
   })
+  
   const password = watch("password")
 
   const onSubmit = async (values) => {
