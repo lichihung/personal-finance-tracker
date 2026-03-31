@@ -208,6 +208,8 @@ class VerifyEmailView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+        print("VERIFY EMAIL DATA:", request.data)
+        
         serializer = VerifyEmailSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()

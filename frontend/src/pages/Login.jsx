@@ -69,8 +69,7 @@ export default function Login() {
       }
     } catch (err) {
       console.error(err)
-      // setSubmitError(getErrorMessage(err, "Unable to continue. Please try again."))
-      setSubmitError(err.message || "Unable to continue. Please try again.")
+      setSubmitError(getErrorMessage(err, "Unable to continue. Please try again."))
     }
   }
 
