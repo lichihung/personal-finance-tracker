@@ -16,6 +16,7 @@ export default function Login() {
   const [showConfirmPw, setShowConfirmPw] = useState(false)
   const [submitError, setSubmitError] = useState("")
   const [resendMessage, setResendMessage] = useState("")
+  const [showResendLink, setShowResendLink] = useState(false)
 
   const title = useMemo(
     () => (mode === "login" ? "Welcome back" : "Create account"), [mode]
@@ -54,6 +55,7 @@ export default function Login() {
     try {
       if (mode === "login") {
         await login(values.identifier, values.password)
+        setShowResendLink(false)
         navigate("/dashboard", {replace: true})
       } else {
         await registerUser(values.username, values.email, values.password)
@@ -67,6 +69,7 @@ export default function Login() {
         })
 
         setMode("login")
+        setShowResendLink(true)
         setSubmitError("Account created successfully. Please verify your email.")
       }
     } catch (err) {
@@ -201,9 +204,9 @@ export default function Login() {
                     textAlign="left"
                   >
                     {submitError}{" "}
-                    {mode === "login" && submitError.includes("Please verify your email") ? (
+                    {mode === "login" && showResendLink ? (
                       <Link
-                        color="brand.700"
+                        color="brand.900"
                         textDecoration="underline"
                         _hover={{ color: "brand.800", textDecoration: "underline" }}
                         onClick={handleResendVerification}
@@ -219,7 +222,7 @@ export default function Login() {
                     {resendMessage}
                   </Text>
                 ) : null}
-                
+
                 <Button
                   mt={4}
                   mb={6}
@@ -234,12 +237,26 @@ export default function Login() {
                   {mode === "login" ? (
                     <>
                     Don't have an account?{" "}
-                    <Link color="brand.700" textDecoration="underline" _hover={{color: "brand.800", textDecoration: "underline"}} onClick={() => setMode("register")}>Sign up</Link>
+                    <Link color="brand.700" textDecoration="underline" _hover={{color: "brand.800", textDecoration: "underline"}} 
+                    onClick={() => {
+                      setMode("register")
+                      setShowResendLink(false)
+                      setSubmitError("")
+                      setResendMessage("")
+                    }}
+                    >Sign up</Link>
                     </>
                   ) : (
                     <>
                     Already have an account?{" "}
-                    <Link color="brand.700" textDecoration="underline" _hover={{color: "brand.800", textDecoration: "underline"}} onClick={() => setMode("login")}>Log in</Link>
+                    <Link color="brand.700" textDecoration="underline" _hover={{color: "brand.800", textDecoration: "underline"}}
+                    onClick={() => {
+                      setMode("login")
+                      setShowResendLink(false)
+                      setSubmitError("")
+                      setResendMessage("")
+                    }}
+                    >Log in</Link>
                     </>
                   )}
                 </Text>
