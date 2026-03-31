@@ -164,7 +164,7 @@ export default function Login() {
                 </FormField>
 
                 {mode === "login" ? (
-                  <Text fontSize="sm" textAlign="right">
+                  <Text fontSize="sm" textAlign="left">
                     <Link
                       as={RouterLink}
                       to="/forgot-password"
