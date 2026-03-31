@@ -62,3 +62,19 @@ export const verifyEmail = async (uid, token) => {
 
   return data
 }
+
+export const resendVerificationEmail = async (email) => {
+  const res = await fetch(`${BASE_URL}/auth/resend-verification/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  })
+
+  const data = await res.json()
+
+  if (!res.ok) {
+    throw new Error(data?.detail || data?.email?.[0] || "Unable to resend verification email.")
+  }
+
+  return data
+}

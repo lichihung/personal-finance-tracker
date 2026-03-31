@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from .models import Category, Transaction, UserSecurity
-from .serializers import CategorySerializer, TransactionSerializer, RegisterSerializer, ResetPasswordSerializer, EmailOrUsernameTokenObtainPairSerializer, VerifyEmailSerializer
+from .serializers import CategorySerializer, TransactionSerializer, RegisterSerializer, ResetPasswordSerializer, EmailOrUsernameTokenObtainPairSerializer, VerifyEmailSerializer, ResendVerificationEmailSerializer
 from django.db import IntegrityError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.throttling import AnonRateThrottle
@@ -233,7 +233,7 @@ class RegisterView(APIView):
                                 background-color:#003d20;
                                 color:#ffffff;
                                 text-decoration:none;
-                                padding:16px 16px;
+                                padding:14px 16px;
                                 border-radius:99px;
                                 font-weight:600;
                             "
@@ -282,6 +282,123 @@ class VerifyEmailView(APIView):
 
         return Response(
             {"detail": "Email verified successfully."},
+            status=status.HTTP_200_OK,
+        )
+    
+
+class ResendVerificationEmailView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = ResendVerificationEmailSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data["email"]
+        user = User.objects.filter(email__iexact=email).first()
+
+        if user:
+            security, _ = UserSecurity.objects.get_or_create(
+                user=user,
+                defaults={"email_verified": True},
+            )
+
+            if not security.email_verified:
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                token = default_token_generator.make_token(user)
+
+                verify_link = (
+                    f"{settings.FRONTEND_URL}/verify-email/"
+                    f"?uid={uid}&token={token}"
+                )
+
+                try:
+                    send_mail(
+                        subject="Verify your Finance Tracker email",
+                        message=(
+                            f"Hi {user.username},\n\n"
+                            "Thanks for creating your account.\n\n"
+                            f"Use this link to verify your email:\n{verify_link}\n\n"
+                            "If you did not create this account, you can ignore this email.\n\n"
+                            "Sincerely,\n"
+                            "Finance Tracker"
+                        ),
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[user.email],
+                        fail_silently=False,
+                        html_message=f"""
+                            <div style="margin:0; padding:24px; background-color:#faf7ef; font-family:Arial, sans-serif; color:#36403b;">
+                              <div style="
+                                  max-width:600px;
+                                  margin:0 auto;
+                                  background:#ffffff;
+                                  border-radius:12px;
+                                  overflow:hidden;
+                                  box-shadow:0 10px 30px rgba(0,0,0,0.08);
+                              ">
+                                
+                                <div style="
+                                  background-color:#003d20;
+                                  height:72px;
+                                  border-radius:12px 12px 0 0;
+                                ">
+                                </div>
+
+                                <div style="padding:32px 28px; line-height:1.7; font-size:14px;">
+                                  <p style="margin:0 0 20px 0;">
+                                    Hi <span style="color:#89a899;">{user.username}</span>,
+                                  </p>
+
+                                  <p style="margin:0 0 20px 0;">
+                                    Thanks for creating your account.
+                                  </p>
+
+                                  <p style="margin:0 0 24px 0;">
+                                    Use the button below to verify your email:
+                                  </p>
+
+                                  <p style="margin:0 0 28px 0;">
+                                    <a
+                                      href="{verify_link}"
+                                      style="
+                                        display:inline-block;
+                                        background-color:#003d20;
+                                        color:#ffffff;
+                                        text-decoration:none;
+                                        padding:14px 16px;
+                                        border-radius:99px;
+                                        font-weight:600;
+                                      "
+                                    >
+                                      Verify Email
+                                    </a>
+                                  </p>
+
+                                  <p style="margin:0 0 20px 0; color:#6b7280; font-size:14px;">
+                                    If the button does not work, copy and paste this link into your browser:
+                                  </p>
+
+                                  <p style="margin:0 0 24px 0; word-break:break-word; font-size:14px; color:#003d20;">
+                                    {verify_link}
+                                  </p>
+
+                                  <p style="margin:0 0 8px 0;">
+                                    If you did not create this account, you can ignore this email.
+                                  </p>
+
+                                  <p style="margin:24px 0 0 0;">
+                                    Sincerely,<br />
+                                    Finance Tracker
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                        """,
+                    )
+                except Exception as e:
+                    print("RESEND VERIFICATION EMAIL ERROR:", str(e))
+
+        return Response(
+            {"detail": "If an account with that email exists and is not yet verified, a verification email has been sent."},
             status=status.HTTP_200_OK,
         )
     
@@ -362,7 +479,7 @@ class ForgotPasswordView(APIView):
                         background-color:#003d20;
                         color:#ffffff;
                         text-decoration:none;
-                        padding:16px 16px;
+                        padding:14px 16px;
                         border-radius:99px;
                         font-weight:600;
                     "

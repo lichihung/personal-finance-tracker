@@ -174,3 +174,9 @@ class VerifyEmailSerializer(serializers.Serializer):
         security.email_verified = True
         security.save()
         return user
+    
+class ResendVerificationEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        return value.strip().lower()

@@ -5,7 +5,7 @@ import { useNavigate, Link as RouterLink} from "react-router-dom"
 
 import AuthCard from "../components/auth/AuthCard"
 import FormField from "../components/ui/FormField"
-import { login, register as registerUser } from "../api/authFetch"
+import { login, register as registerUser, resendVerificationEmail } from "../api/authFetch"
 import { isAuthed } from "../api/clientFetch"
 import { getErrorMessage } from "../utils/messages"
 
@@ -15,6 +15,7 @@ export default function Login() {
   const [showPw, setShowPw] = useState(true)
   const [showConfirmPw, setShowConfirmPw] = useState(false)
   const [submitError, setSubmitError] = useState("")
+  const [resendMessage, setResendMessage] = useState("")
 
   const title = useMemo(
     () => (mode === "login" ? "Welcome back" : "Create account"), [mode]
@@ -49,6 +50,7 @@ export default function Login() {
 
   const onSubmit = async (values) => {
     setSubmitError("")
+    setResendMessage("")
     try {
       if (mode === "login") {
         await login(values.identifier, values.password)
@@ -69,7 +71,35 @@ export default function Login() {
       }
     } catch (err) {
       console.error(err)
-      setSubmitError(getErrorMessage(err, "Unable to continue. Please try again."))
+      setSubmitError(err.message || "Unable to continue. Please try again.")
+    }
+  }
+
+  const handleResendVerification = async () => {
+    setSubmitError("")
+    setResendMessage("")
+
+    const email = watch("identifier")?.trim()
+
+    if (!email) {
+      setSubmitError("Please enter your email first.")
+      return
+    }
+
+    if (!email.includes("@")) {
+      setSubmitError("Please enter your email address to resend verification.")
+      return
+    }
+
+    try {
+      const data = await resendVerificationEmail(email)
+      setResendMessage(
+        data?.detail ||
+          "If an account with that email exists and is not yet verified, a verification email has been sent."
+      )
+    } catch (err) {
+      console.error(err)
+      setSubmitError(err.message || "Unable to resend verification email.")
     }
   }
 
@@ -172,6 +202,25 @@ export default function Login() {
                     textAlign="left"
                   >
                     {submitError}
+                  </Text>
+                ) : null}
+
+                {mode === "login" ? (
+                  <Text fontSize="sm" textAlign="left">
+                    <Link
+                      color="brand.700"
+                      textDecoration="underline"
+                      _hover={{ color: "brand.800", textDecoration: "underline" }}
+                      onClick={handleResendVerification}
+                    >
+                      Resend verification email
+                    </Link>
+                  </Text>
+                ) : null}
+
+                {resendMessage ? (
+                  <Text color="green.500" fontSize="sm" textAlign="left">
+                    {resendMessage}
                   </Text>
                 ) : null}
 
