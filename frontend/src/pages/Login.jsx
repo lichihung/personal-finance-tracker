@@ -76,7 +76,6 @@ export default function Login() {
   }
 
   const handleResendVerification = async () => {
-    setSubmitError("")
     setResendMessage("")
 
     const email = watch("identifier")?.trim()
@@ -201,20 +200,17 @@ export default function Login() {
                     fontSize="sm"
                     textAlign="left"
                   >
-                    {submitError}
-                  </Text>
-                ) : null}
-
-                {mode === "login" ? (
-                  <Text fontSize="sm" textAlign="left">
-                    <Link
-                      color="brand.700"
-                      textDecoration="underline"
-                      _hover={{ color: "brand.800", textDecoration: "underline" }}
-                      onClick={handleResendVerification}
-                    >
-                      Resend verification email
-                    </Link>
+                    {submitError}{" "}
+                    {mode === "login" && submitError.includes("Please verify your email") ? (
+                      <Link
+                        color="brand.700"
+                        textDecoration="underline"
+                        _hover={{ color: "brand.800", textDecoration: "underline" }}
+                        onClick={handleResendVerification}
+                      >
+                        Resend verification email
+                      </Link>
+                    ) : null}
                   </Text>
                 ) : null}
 
@@ -223,7 +219,7 @@ export default function Login() {
                     {resendMessage}
                   </Text>
                 ) : null}
-
+                
                 <Button
                   mt={4}
                   mb={6}
