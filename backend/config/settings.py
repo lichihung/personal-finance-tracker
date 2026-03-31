@@ -142,6 +142,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "https://lichihung-finance-tracker.netlify.app",
+    "https://localhost",
     "http://localhost",
     "capacitor://localhost",
 ]
