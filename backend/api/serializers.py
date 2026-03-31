@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Transaction
+from .models import Category, Transaction, UserSecurity
 from django.contrib.auth import get_user_model
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
@@ -133,6 +133,11 @@ class EmailOrUsernameTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         if user is None or not user.check_password(password):
             raise AuthenticationFailed("Invalid email/username or password.")
+
+        security, _ = UserSecurity.objects.get_or_create(user=user)
+
+        if not security.email_verified:
+            raise AuthenticationFailed("Please verify your email before logging in.")
 
         refresh = self.get_token(user)
 

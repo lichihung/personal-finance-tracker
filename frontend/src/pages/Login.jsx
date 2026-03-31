@@ -47,8 +47,17 @@ export default function Login() {
         navigate("/dashboard", {replace: true})
       } else {
         await registerUser(values.username, values.email, values.password)
+
+        reset({
+          identifier: "",
+          username: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+        })
+
         setMode("login")
-        setSubmitError("Account created successfully. Please log in.")
+        setSubmitError("Account created successfully. Please verify your email.")
       }
     } catch (err) {
       console.error(err)
