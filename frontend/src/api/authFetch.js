@@ -16,7 +16,7 @@ export const login = async(identifier, password) => {
         if (res.status === 429 || res.status === 403) {
         throw new Error("Too many login attempts. Please try again in a minute.")
         }
-        throw new Error("Invalid username or password.")
+        throw new Error(data?.detail || "Unable to log in.")
     }
 
     localStorage.setItem("access", data.access)

@@ -194,6 +194,74 @@ class RegisterView(APIView):
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[user.email],
                 fail_silently=False,
+                html_message=f"""
+                    <div style="margin:0; padding:24px; background-color:#faf7ef; font-family:Arial, sans-serif; color:#36403b;">
+                    <div style="
+                        max-width:600px;
+                        margin:0 auto;
+                        background:#ffffff;
+                        border-radius:12px;
+                        overflow:hidden;
+                        box-shadow:0 10px 30px rgba(0,0,0,0.08);
+                    ">
+                        
+                        <div style="
+                        background-color:#003d20;
+                        height:72px;
+                        border-radius:12px 12px 0 0;
+                        ">
+                        </div>
+
+                        <div style="padding:32px 28px; line-height:1.7; font-size:14px;">
+                        <p style="margin:0 0 20px 0;">
+                            Hi <span style="color:#89a899;">{user.username}</span>,
+                        </p>
+
+                        <p style="margin:0 0 20px 0;">
+                            Thanks for creating your account.
+                        </p>
+
+                        <p style="margin:0 0 24px 0;">
+                            Use the button below to verify your email:
+                        </p>
+
+                        <p style="margin:0 0 28px 0;">
+                            <a
+                            href="{verify_link}"
+                            style="
+                                display:inline-block;
+                                background-color:#003d20;
+                                color:#ffffff;
+                                text-decoration:none;
+                                padding:16px 16px;
+                                border-radius:99px;
+                                font-weight:600;
+                            "
+                            >
+                            Verify Email
+                            </a>
+                        </p>
+
+                        <p style="margin:0 0 20px 0; color:#6b7280; font-size:14px;">
+                            If the button does not work, copy and paste this link into your browser:
+                        </p>
+
+                        <p style="margin:0 0 24px 0; word-break:break-word; font-size:14px; color:#003d20;">
+                            {verify_link}
+                        </p>
+
+                        <p style="margin:0 0 8px 0;">
+                            If you did not create this account, you can ignore this email.
+                        </p>
+
+                        <p style="margin:24px 0 0 0;">
+                            Sincerely,<br />
+                            Finance Tracker
+                        </p>
+                        </div>
+                    </div>
+                    </div>
+                """,
             )
         except Exception as e:
             print("VERIFICATION EMAIL ERROR:", str(e))
@@ -208,8 +276,6 @@ class VerifyEmailView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        print("VERIFY EMAIL DATA:", request.data)
-        
         serializer = VerifyEmailSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
