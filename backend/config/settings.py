@@ -37,7 +37,6 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 ALLOWED_HOSTS = os.getenv(
     "ALLOWED_HOSTS",
     "127.0.0.1,localhost,personal-finance-tracker-edzo.onrender.com",
-    "api.verdiafinancetracker.com",
 ).split(",")
 
 # Application definition
