@@ -8,7 +8,7 @@ from .models import Category, Transaction, UserSecurity
 from .serializers import CategorySerializer, TransactionSerializer, RegisterSerializer, ResetPasswordSerializer, EmailOrUsernameTokenObtainPairSerializer, VerifyEmailSerializer, ResendVerificationEmailSerializer
 from django.db import IntegrityError
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.throttling import AnonRateThrottle
+from rest_framework.throttling import AnonRateThrottle, SimpleRateThrottle
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
@@ -27,6 +27,22 @@ def block_demo_writes(request):
         raise ValidationError({"detail": ["Demo account is read-only."]})
 
 # Create your views here.
+class LoginRateThrottle(SimpleRateThrottle):
+    scope = "login"
+
+    def get_cache_key(self, request, view):
+        return self.get_ident(request)
+
+class RegisterRateThrottle(AnonRateThrottle):
+    rate = "10/min"
+
+class ResendVerificationRateThrottle(AnonRateThrottle):
+    rate = "3/min"
+
+class ForgotPasswordRateThrottle(AnonRateThrottle):
+    rate = "3/min"
+
+
 class CategoryViewSet(ModelViewSet):
     serializer_class = CategorySerializer
     permission_classes = [IsAuthenticated]
@@ -162,6 +178,7 @@ class TransactionViewSet(ModelViewSet):
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
+    throttle_classes = [RegisterRateThrottle]
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -288,6 +305,7 @@ class VerifyEmailView(APIView):
 
 class ResendVerificationEmailView(APIView):
     permission_classes = [AllowAny]
+    throttle_classes = [ResendVerificationRateThrottle]
 
     def post(self, request):
         serializer = ResendVerificationEmailSerializer(data=request.data)
@@ -405,6 +423,7 @@ class ResendVerificationEmailView(APIView):
 
 class ForgotPasswordView(APIView):
     permission_classes = [AllowAny]
+    throttle_classes = [ForgotPasswordRateThrottle]
 
     def post(self, request):
         email = request.data.get("email", "").strip().lower()
@@ -535,10 +554,12 @@ class ResetPasswordView(APIView):
             status=status.HTTP_200_OK,
         )
     
-
-class LoginRateThrottle(AnonRateThrottle):
-    rate = "5/min"
-
 class RateLimitedTokenView(TokenObtainPairView):
     throttle_classes = [LoginRateThrottle]
     serializer_class = EmailOrUsernameTokenObtainPairSerializer
+
+class HealthCheckView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        return Response({"status": "ok"}, status=status.HTTP_200_OK)

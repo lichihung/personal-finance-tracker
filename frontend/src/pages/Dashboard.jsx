@@ -287,7 +287,7 @@ export default function Dashboard() {
             </Box>
           </HStack>
 
-          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{base: 2, md: 8}} mt={{base: 0, md: 8}} mb={{base: 6, md: 8}}>
+          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{base: 2, md: 8}} mt={{base: 0, md: 8}} mb={{base: 8, md: 8}}>
             <Box bg="linear-gradient(135deg, #003d20, #5f8f77)" p={{base: 6, md: 8}} borderRadius="8px" color="white">
               <Stat>
                 <StatLabel fontSize={{ base: "16px", md: "18px" }} mb={{ base: 1, md: 2}}>This Month Income</StatLabel>
