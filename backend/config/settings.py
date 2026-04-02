@@ -37,6 +37,7 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 ALLOWED_HOSTS = os.getenv(
     "ALLOWED_HOSTS",
     "127.0.0.1,localhost,personal-finance-tracker-edzo.onrender.com",
+    "api.verdiafinancetracker.com",
 ).split(",")
 
 # Application definition
@@ -145,6 +146,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://localhost",
     "http://localhost",
     "capacitor://localhost",
+    "https://verdiafinancetracker.com",
 ]
 
 REST_FRAMEWORK = {

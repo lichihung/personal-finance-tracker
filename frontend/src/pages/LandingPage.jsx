@@ -76,7 +76,7 @@ export default function LandingPage() {
               </Text>
             </Link>
 
-            <HStack spacing={{ base: 4, md: 8 }} fontSize={{ base: "14px", md: "14px" }}>
+            <HStack spacing={{ base: 4, md: 8 }} fontSize={{ base: "12px", md: "14px" }}>
               <Link
                 as={NavLink}
                 to="/privacy"
@@ -143,10 +143,10 @@ export default function LandingPage() {
                 Like writing a daily journal.
               </Text>
 
-              <HStack spacing={6} pt={1.5} flexWrap="wrap">
+              <HStack spacing={6} pt={1.5} justify={{ base: "center", md: "flex-start" }}>
                 <Button
                   size="md"
-                  px={10}
+                  px={{ base: 6, md: 10 }}
                   borderRadius="full"
                   fontSize="14px"
                   _hover={{ bg: "transparent", color:"brand.900", borderColor:"brand.900" }}
@@ -164,7 +164,7 @@ export default function LandingPage() {
 
                 <Button
                   size="md"
-                  px={10}
+                  px={{ base: 6, md: 10 }}
                   borderRadius="full"
                   backgroundColor="transparent"
                   borderColor="brand.900"
