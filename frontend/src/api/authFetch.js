@@ -33,9 +33,24 @@ export const register = async(username, email, password) => {
 
     const data = await res.json()
 
-    if(!res.ok) {
-        const msg = data?.detail || data?.email?.[0] || data?.username?.[0] || data?.password?.[0] || "Unable to create account. Please try again"
-        throw new Error(msg)
+    if (!res.ok) {
+      let msg =
+        data?.detail ||
+        data?.email?.[0] ||
+        data?.username?.[0] ||
+        data?.password?.[0]
+
+      if (!msg && data && typeof data === "object") {
+        const firstValue = Object.values(data)[0]
+
+        if (Array.isArray(firstValue) && firstValue.length > 0) {
+          msg = firstValue[0]
+        } else if (typeof firstValue === "string") {
+          msg = firstValue
+        }
+      }
+
+      throw new Error(msg || "Unable to create account. Please try again.")
     }
 
     return data

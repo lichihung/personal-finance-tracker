@@ -74,7 +74,7 @@ export default function ForgotPassword() {
                 )}
 
                 {success && (
-                  <Text color="brand.700" fontSize="sm">
+                  <Text color="green.500" fontSize="sm">
                     {success}
                   </Text>
                 )}

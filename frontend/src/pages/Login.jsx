@@ -199,7 +199,7 @@ export default function Login() {
 
                 {submitError ? (
                   <Text
-                    color={submitError.includes("successfully") ? "green.500" : "red.500"}
+                    color={submitError.includes("successfully") ? "blue.500" : "red.500"}
                     fontSize="sm"
                     textAlign="left"
                   >
@@ -218,7 +218,7 @@ export default function Login() {
                 ) : null}
 
                 {resendMessage ? (
-                  <Text color="green.500" fontSize="sm" textAlign="left">
+                  <Text color="blue.500" fontSize="sm" textAlign="left">
                     {resendMessage}
                   </Text>
                 ) : null}
