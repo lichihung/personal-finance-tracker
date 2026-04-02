@@ -33,6 +33,9 @@ export const register = async(username, email, password) => {
 
     const data = await res.json()
 
+    console.log("register response status:", res.status)
+    console.log("register response data:", data)
+
     if (!res.ok) {
       let msg =
         data?.detail ||

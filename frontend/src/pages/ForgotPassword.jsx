@@ -68,13 +68,13 @@ export default function ForgotPassword() {
                 </FormField>
 
                 {error && (
-                  <Text color="red.500" fontSize="sm">
+                  <Text color="red.500" fontSize="sm" textAlign="left">
                     {error}
                   </Text>
                 )}
 
                 {success && (
-                  <Text color="blue.500" fontSize="sm">
+                  <Text color="blue.500" fontSize="sm" textAlign="left">
                     {success}
                   </Text>
                 )}
