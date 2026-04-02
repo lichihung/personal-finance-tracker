@@ -189,7 +189,7 @@ class RegisterView(APIView):
                     f"Use this link to verify your email:\n{verify_link}\n\n"
                     "If you did not create this account, you can ignore this email.\n\n"
                     "Sincerely,\n"
-                    "Finance Tracker"
+                    "Verdia Finance Tracker"
                 ),
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[user.email],
@@ -387,7 +387,7 @@ class ResendVerificationEmailView(APIView):
 
                                   <p style="margin:24px 0 0 0;">
                                     Sincerely,<br />
-                                    Finance Tracker
+                                    Verdia Finance Tracker
                                   </p>
                                 </div>
                               </div>
@@ -435,7 +435,7 @@ class ForgotPasswordView(APIView):
         f"Use this link to reset it:\n{reset_link}\n\n"
         "If you did not request this, you can ignore this email.\n\n"
         "Sincerely,\n"
-        "Finance Tracker"
+        "Verdia Finance Tracker"
     ),
     from_email=settings.DEFAULT_FROM_EMAIL,
     recipient_list=[user.email],
@@ -502,7 +502,7 @@ class ForgotPasswordView(APIView):
 
                 <p style="margin:24px 0 0 0;">
                     Sincerely,<br />
-                    Finance Tracker
+                    Verdia Finance Tracker
                 </p>
 
                 </div>

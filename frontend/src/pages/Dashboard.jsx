@@ -330,9 +330,9 @@ export default function Dashboard() {
             </Box>
           </HStack>
 
-          <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={{ base: 6, md: 10 }} mb={{ base: 3, md: 8 }} alignItems="start">
+          <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={{ base: 6, md: 10 }} mb={{ base: 6, md: 8 }} alignItems="start">
             <Box bg="transparent" p={0} w="full" display="flex" flexDirection="column" alignItems={{ base: "center", md: "flex-start" }} textAlign={{ base: "center", md: "left" }}>
-              <Heading fontSize="26px" mb={{ base: 1, md: 6 }} textAlign={{ base: "center", md: "left" }}>Expense by Category</Heading>
+              <Heading fontSize={{ base: "24px", md: "26px"}} mb={{ base: 2, md: 6 }} textAlign={{ base: "center", md: "left" }}>Expense by Category</Heading>
 
               {pieData.length === 0 ? (
                   <Box textAlign={{ base: "center", md: "left" }}>
@@ -379,7 +379,7 @@ export default function Dashboard() {
             </Box>
 
             <Box bg="transparent" p={0} w="full" display="flex" flexDirection="column" alignItems={{ base: "center", md: "stretch" }}>
-              <Heading fontSize="26px" mb={6}>Daily Expense Trend</Heading>
+              <Heading fontSize={{ base: "24px", md: "26px"}} mb={6}>Daily Expense Trend</Heading>
 
               {!hasDailyExpenseData ? (
                   <Box textAlign={{ base: "center", md: "left" }}>
