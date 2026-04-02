@@ -53,7 +53,7 @@ export default function VerifyEmail() {
                 fontSize="sm"
                 color={
                   status === "success"
-                    ? "green.500"
+                    ? "blue.500"
                     : status === "error"
                     ? "red.500"
                     : "gray.600"

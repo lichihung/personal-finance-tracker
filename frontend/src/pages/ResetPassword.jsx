@@ -155,7 +155,7 @@ export default function ResetPassword() {
                 ) : null}
 
                 {successMessage ? (
-                  <Text color="green.500" fontSize="sm" textAlign="left">
+                  <Text color="blue.500" fontSize="sm" textAlign="left">
                     {successMessage}
                   </Text>
                 ) : null}

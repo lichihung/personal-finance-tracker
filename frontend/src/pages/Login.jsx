@@ -205,14 +205,16 @@ export default function Login() {
                   >
                     {submitError}{" "}
                     {mode === "login" && showResendLink ? (
-                      <Link
-                        color="brand.800"
-                        textDecoration="underline"
-                        _hover={{ color: "brand.700", textDecoration: "underline" }}
-                        onClick={handleResendVerification}
-                      >
-                        Resend verification email
-                      </Link>
+                      <Text fontSize="sm" textAlign="left" mt={1}>
+                        <Link
+                          color="brand.800"
+                          textDecoration="underline"
+                          _hover={{ color: "blue.700", textDecoration: "underline" }}
+                          onClick={handleResendVerification}
+                        >
+                          Resend verification email
+                        </Link>
+                      </Text>
                     ) : null}
                   </Text>
                 ) : null}
