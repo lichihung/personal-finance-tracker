@@ -27,17 +27,37 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key")
 
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-SECURE_CONTENT_TYPE_NOSNIFF = True
-X_FRAME_OPTIONS = "DENY"
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = os.getenv(
-    "ALLOWED_HOSTS",
-    "127.0.0.1,localhost,personal-finance-tracker-edzo.onrender.com",
-).split(",")
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_SSL_REDIRECT = not DEBUG
+
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_HTTPONLY = True
+
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = "same-origin"
+X_FRAME_OPTIONS = "DENY"
+
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv(
+        "ALLOWED_HOSTS",
+        "127.0.0.1,localhost,personal-finance-tracker-edzo.onrender.com,api.verdiafinancetracker.com",
+    ).split(",")
+    if host.strip()
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        "CSRF_TRUSTED_ORIGINS",
+        "https://verdiafinancetracker.com,https://www.verdiafinancetracker.com,https://api.verdiafinancetracker.com",
+    ).split(",")
+    if origin.strip()
+]
 
 # Application definition
 
@@ -139,13 +159,21 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "https://lichihung-finance-tracker.netlify.app",
-    "https://localhost",
-    "http://localhost",
-    "capacitor://localhost",
-    "https://verdiafinancetracker.com",
+    origin.strip()
+    for origin in os.getenv(
+        "CORS_ALLOWED_ORIGINS",
+        ",".join([
+            "http://127.0.0.1:5173",
+            "http://localhost:5173",
+            "https://localhost",
+            "http://localhost",
+            "capacitor://localhost",
+            "https://lichihung-finance-tracker.netlify.app",
+            "https://verdiafinancetracker.com",
+            "https://www.verdiafinancetracker.com",
+        ])
+    ).split(",")
+    if origin.strip()
 ]
 
 REST_FRAMEWORK = {

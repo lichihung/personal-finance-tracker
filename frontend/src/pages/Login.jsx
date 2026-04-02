@@ -205,11 +205,11 @@ export default function Login() {
                   >
                     {submitError}{" "}
                     {mode === "login" && showResendLink ? (
-                      <Text fontSize="sm" textAlign="left" mt={1}>
+                      <Text fontSize="sm" textAlign="left" mt={1} opacity={0.8}>
                         <Link
-                          color="brand.800"
+                          color="blue.700"
                           textDecoration="underline"
-                          _hover={{ color: "blue.700", textDecoration: "underline" }}
+                          _hover={{ color: "blue.500", textDecoration: "underline" }}
                           onClick={handleResendVerification}
                         >
                           Resend verification email
