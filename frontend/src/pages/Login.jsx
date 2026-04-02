@@ -7,7 +7,6 @@ import AuthCard from "../components/auth/AuthCard"
 import FormField from "../components/ui/FormField"
 import { login, register as registerUser, resendVerificationEmail } from "../api/authFetch"
 import { isAuthed } from "../api/clientFetch"
-import { getErrorMessage } from "../utils/messages"
 
 export default function Login() {
   const navigate = useNavigate()
@@ -241,10 +240,19 @@ export default function Login() {
                     Don't have an account?{" "}
                     <Link color="brand.700" textDecoration="underline" _hover={{color: "brand.800", textDecoration: "underline"}} 
                     onClick={() => {
+                      reset({
+                        identifier: "",
+                        username: "",
+                        email: "",
+                        password: "",
+                        confirmPassword: "",
+                      })
                       setMode("register")
                       setShowResendLink(false)
                       setSubmitError("")
                       setResendMessage("")
+                      setShowPw(true)
+                      setShowConfirmPw(false)
                     }}
                     >Sign up</Link>
                     </>
@@ -253,10 +261,19 @@ export default function Login() {
                     Already have an account?{" "}
                     <Link color="brand.700" textDecoration="underline" _hover={{color: "brand.800", textDecoration: "underline"}}
                     onClick={() => {
+                      reset({
+                        identifier: "",
+                        username: "",
+                        email: "",
+                        password: "",
+                        confirmPassword: "",
+                      })
                       setMode("login")
                       setShowResendLink(false)
                       setSubmitError("")
                       setResendMessage("")
+                      setShowPw(true)
+                      setShowConfirmPw(false)
                     }}
                     >Log in</Link>
                     </>

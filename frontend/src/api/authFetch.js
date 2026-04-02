@@ -33,15 +33,27 @@ export const register = async(username, email, password) => {
 
     const data = await res.json()
 
-    console.log("register response status:", res.status)
-    console.log("register response data:", data)
-
-    if (!res.ok) {
+   if (!res.ok) {
       let msg =
         data?.detail ||
+        data?.message ||
         data?.email?.[0] ||
         data?.username?.[0] ||
-        data?.password?.[0]
+        data?.password?.[0] ||
+        data?.errors?.email?.[0] ||
+        data?.errors?.username?.[0] ||
+        data?.errors?.password?.[0] ||
+        data?.errors?.non_field_errors?.[0]
+
+      if (!msg && data?.errors && typeof data.errors === "object") {
+        const firstValue = Object.values(data.errors)[0]
+
+        if (Array.isArray(firstValue) && firstValue.length > 0) {
+          msg = firstValue[0]
+        } else if (typeof firstValue === "string") {
+          msg = firstValue
+        }
+      }
 
       if (!msg && data && typeof data === "object") {
         const firstValue = Object.values(data)[0]
