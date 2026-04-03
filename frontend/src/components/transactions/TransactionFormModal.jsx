@@ -90,7 +90,7 @@ export default function TransactionFormModal(props) {
                     </Box>
 
                     {isDemo ? (
-                        <Text fontSize="12px" color="orange.500" mt={2} textAlign="right" w="full">
+                        <Text fontSize={{base: "12px", md: "14px"}} color="orange.500" mt={3} textAlign="right" w="full">
                             Demo account is read-only.
                         </Text>
                     ) : null}
