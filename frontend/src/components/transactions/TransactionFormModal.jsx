@@ -87,15 +87,14 @@ export default function TransactionFormModal(props) {
                         <Button _hover={{ bg: "transparent", color:"brand.900", borderColor:"brand.900" }} isLoading={saving} isDisabled={saving || isDemo} onClick={onSave}>
                             Save
                         </Button>
-
-                        {isDemo ? (
-                            <Text fontSize="12px" color="orange.500" mt={2} textAlign="right" w="full">
-                                Demo account is read-only.
-                            </Text>
-                        ) : null}
                     </Box>
-
-
+                    
+                    {isDemo ? (
+                        <Text fontSize="12px" color="orange.500" mt={2} textAlign="right" w="full">
+                            Demo account is read-only.
+                        </Text>
+                    ) : null}
+                    
                 </ModalFooter>
             </ModalContent>
             </Modal>
