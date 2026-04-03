@@ -9,7 +9,7 @@ import {
 import FormField from "../ui/FormField"
 
 export default function TransactionFormModal(props) {
-    const { isOpen, onClose, editingId, form, updateForm, fieldErrors, categories, saving, onSave, onDelete } = props
+    const { isOpen, onClose, editingId, form, updateForm, fieldErrors, categories, saving, onSave, onDelete, isDemo } = props
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} isCentered>
@@ -76,13 +76,18 @@ export default function TransactionFormModal(props) {
                 </ModalBody>
     
                 <ModalFooter>
+                {isDemo ? (
+                    <Text fontSize="sm" color="orange.200" mr="auto">
+                        Demo account is read-only.
+                    </Text>
+                ) : null}
                 <Button variant="ghost" mr={3} onClick={onClose}>Cancel</Button>
                 { editingId ? (
-                    <Button colorScheme="red" variant="ghost" mr={3} onClick={onDelete}>
+                    <Button colorScheme="red" variant="ghost" mr={3} onClick={onDelete} isDisabled={isDemo}>
                     Delete
                     </Button>
                 ): null}
-                <Button colorScheme="blue" isLoading={saving} isDisabled={saving} onClick={onSave}>
+                <Button colorScheme="blue" isLoading={saving} isDisabled={saving || isDemo} onClick={onSave}>
                     Save
                 </Button>
                 </ModalFooter>

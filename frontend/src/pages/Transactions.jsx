@@ -35,6 +35,7 @@ export default function Transactions() {
   const toast = useToast()
   const cancelRef = useRef()
   const navigate = useNavigate()
+  const isDemo = localStorage.getItem("isDemo") === "true"
 
   // Filter states
   const [month, setMonth] = useState("")
@@ -161,6 +162,16 @@ export default function Transactions() {
   }, [searchInput])
 
   const handleSave = async () => {
+    if (isDemo) {
+      toast({
+        title: "Demo account",
+        description: "Changes are disabled in the demo account.",
+        status: "info",
+        duration: 2000,
+        isClosable: true,
+      })
+      return
+    }
     if (!validateForm()) return
     setSaving(true)
     setErrorMsg("")
@@ -601,6 +612,7 @@ export default function Transactions() {
         fieldErrors={fieldErrors}
         categories={categories}
         saving={saving}
+        isDemo={isDemo}
         onSave={handleSave}
         onDelete={openDelete}
         onGoToCategories={() => {
@@ -633,6 +645,18 @@ export default function Transactions() {
               isLoading={deleting}
               isDisabled={deleting}
               onClick={async () => {
+                if (isDemo) {
+                  toast({
+                    title: "Demo account",
+                    description: "Changes are disabled in the demo account.",
+                    status: "info",
+                    duration: 2000,
+                    isClosable: true,
+                  })
+                  closeDelete()
+                  onClose()
+                  return
+                }
                 setDeleting(true)
                 setErrorMsg("")
                 try {

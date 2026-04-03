@@ -54,6 +54,23 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+.recharts-wrapper *,
+.recharts-surface,
+.recharts-layer,
+.recharts-sector,
+.recharts-rectangle {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.recharts-wrapper *:focus,
+.recharts-surface:focus,
+.recharts-layer:focus,
+.recharts-sector:focus,
+.recharts-rectangle:focus {
+  outline: none !important;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
