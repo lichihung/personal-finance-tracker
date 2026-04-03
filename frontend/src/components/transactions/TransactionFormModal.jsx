@@ -77,7 +77,7 @@ export default function TransactionFormModal(props) {
     
                 <ModalFooter>
                 {isDemo ? (
-                    <Text fontSize="sm" color="orange.200" mr="auto">
+                    <Text fontSize="12px" color="orange.500" mr="auto">
                         Demo account is read-only.
                     </Text>
                 ) : null}
