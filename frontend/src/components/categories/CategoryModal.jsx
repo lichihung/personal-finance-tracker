@@ -1,4 +1,4 @@
-import { Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Input, VStack, Box } from "@chakra-ui/react"
+import { Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Input, VStack, Box, Text } from "@chakra-ui/react"
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import FormField from "../ui/FormField"
