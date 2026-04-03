@@ -3,7 +3,7 @@ import {
   ModalBody, ModalFooter, ModalCloseButton,
   FormControl, FormLabel, Input, NumberInput,
   NumberInputField, RadioGroup, Radio, Stack,
-  Button, Select, Text, Link
+  Button, Select, Text, Link, Box
 } from "@chakra-ui/react"
 
 import FormField from "../ui/FormField"
@@ -88,7 +88,7 @@ export default function TransactionFormModal(props) {
                             Save
                         </Button>
                     </Box>
-                    
+
                     {isDemo ? (
                         <Text fontSize="12px" color="orange.500" mt={2} textAlign="right" w="full">
                             Demo account is read-only.
