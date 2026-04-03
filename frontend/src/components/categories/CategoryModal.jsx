@@ -72,7 +72,7 @@ export default function CategoryModal({
 
                     {isDemo ? (
                         <Text fontSize={{base: "12px", md: "14px"}} color="orange.500" mt={4} textAlign="right" w="full">
-                        Demo account is read-only.
+                        Demo account is read-only. Please log in.
                         </Text>
                     ) : null}
                 </ModalFooter>
