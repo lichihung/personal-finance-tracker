@@ -132,7 +132,7 @@ export default function LandingPage() {
 
               <Text
                 color="gray.700"
-                fontSize={{ base: "18px", md: "16px" }}
+                fontSize={{ base: "16px", md: "16px" }}
                 lineHeight="1.5"
                 maxW="720px"
                 textAlign={{ base: "center", md: "left" }}

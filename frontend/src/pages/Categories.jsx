@@ -15,6 +15,17 @@ const formatShortDate = (dateString) => {
 
 export default function Categories() {
   const toast = useToast()
+  const isDemo = localStorage.getItem("isDemo") === "true"
+
+  const showDemoReadOnlyToast = () => {
+    toast({
+      title: "Demo account",
+      description: "Demo account is read-only.",
+      status: "info",
+      duration: 2000,
+      isClosable: true,
+    })
+  }
 
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
@@ -60,6 +71,11 @@ export default function Categories() {
   }
 
   const submitCategoryName = async (name) => {
+    if (isDemo) {
+      showDemoReadOnlyToast()
+      return
+    }
+
     const trimmed = name.trim()
     if (!trimmed) return
 
@@ -144,6 +160,12 @@ export default function Categories() {
   }
 
   const confirmDelete = async () => {
+    if (isDemo) {
+      showDemoReadOnlyToast()
+      setDeleteId(null)
+      return
+    }
+
     if (!categoryToDelete) return
 
     try {
@@ -246,7 +268,13 @@ export default function Categories() {
                         icon={<DeleteIcon />}
                         size="sm"
                         variant="ghost"
-                        onClick={() => setDeleteId(c.id)}
+                        onClick={() => {
+                          if (isDemo) {
+                            showDemoReadOnlyToast()
+                            return
+                          }
+                          setDeleteId(c.id)
+                        }}
                       />
                     </HStack>
                   </Td>
@@ -287,7 +315,13 @@ export default function Categories() {
                         icon={<DeleteIcon />}
                         size="sm"
                         variant="ghost"
-                        onClick={() => setDeleteId(c.id)}
+                        onClick={() => {
+                          if (isDemo) {
+                            showDemoReadOnlyToast()
+                            return
+                          }
+                          setDeleteId(c.id)
+                        }}
                       />
                     </HStack>
                   </Td>
@@ -304,6 +338,7 @@ export default function Categories() {
        onClose={() => setIsModalOpen(false)}
        onSubmit={submitCategoryName}
        initialValue={editing}
+       isDemo={isDemo}
       />
 
       <ConfirmDialog

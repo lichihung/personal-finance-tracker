@@ -1,4 +1,4 @@
-import { Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Input, VStack} from "@chakra-ui/react"
+import { Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Input, VStack, Box } from "@chakra-ui/react"
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import FormField from "../ui/FormField"
@@ -8,6 +8,7 @@ export default function CategoryModal({
     onClose,
     onSubmit,
     initialValue,
+    isDemo,
 }) {
     const isEdit = !!initialValue
 
@@ -27,6 +28,7 @@ export default function CategoryModal({
     }, [initialValue, isOpen, reset])
 
     const submit = async (values) => {
+        if (isDemo) return
         await onSubmit(values.name)
         onClose()
     }
@@ -54,16 +56,25 @@ export default function CategoryModal({
                     </VStack>
                 </ModalBody>
 
-                <ModalFooter>
-                    <Button variant="ghost" fontWeight="600" mr={3} onClick={onClose}>Cancel</Button>
-                    <Button
-                     colorScheme="teal"
-                     type="submit"
-                     form="category-form"
-                     isLoading={isSubmitting}
-                    >
-                        {isEdit ? "Update" : "Save"}
-                    </Button>
+                <ModalFooter flexDirection="column" align="stretch">
+                    <Box display="flex" justifyContent="flex-end" w="full">
+                        <Button variant="ghost" fontWeight="600" mr={3} onClick={onClose}>Cancel</Button>
+                        <Button
+                        _hover={{ bg: "transparent", color:"brand.900", borderColor:"brand.900" }}
+                        type="submit"
+                        form="category-form"
+                        isLoading={isSubmitting}
+                        isDisabled={isSubmitting || isDemo}
+                        >
+                            {isEdit ? "Update" : "Save"}
+                        </Button>
+                    </Box>
+
+                    {isDemo ? (
+                        <Text fontSize={{base: "12px", md: "14px"}} color="orange.500" mt={4} textAlign="right" w="full">
+                        Demo account is read-only.
+                        </Text>
+                    ) : null}
                 </ModalFooter>
             </ModalContent>
         </Modal>
