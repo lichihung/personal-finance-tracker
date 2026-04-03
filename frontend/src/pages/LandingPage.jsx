@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom"
 import { loginDemo } from "../api/authFetch"
 import { useEffect, useRef, useState } from "react"
 import { signOut } from "../auth/auth"
-import { trackEvent } from "../utils/analytics"
+import { trackEvent, trackPageView } from "../utils/analytics"
 
 export default function LandingPage() {
   const navigate = useNavigate()
@@ -47,7 +47,7 @@ export default function LandingPage() {
   }, [])
 
   useEffect(() => {
-    trackEvent("landing_page_view")
+    trackPageView("/")
   }, [])
 
   const getCardAnimation = (delay) => ({
@@ -151,7 +151,7 @@ export default function LandingPage() {
                   fontSize="14px"
                   _hover={{ bg: "transparent", color:"brand.900", borderColor:"brand.900" }}
                   onClick={() => {
-                    trackEvent("click_signup", {
+                    trackEvent("click_get_started", {
                       page: "landing",
                     })
                     signOut()
@@ -172,7 +172,7 @@ export default function LandingPage() {
                   fontSize="14px"
                   _hover={{ bg: "brand.900", color:"white", borderColor:"brand.900" }}
                   onClick={async () => {
-                    trackEvent("click_demo", {
+                    trackEvent("click_try_demo", {
                       page: "landing",
                     })
                     try {

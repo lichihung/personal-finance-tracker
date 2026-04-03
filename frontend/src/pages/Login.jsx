@@ -7,6 +7,7 @@ import AuthCard from "../components/auth/AuthCard"
 import FormField from "../components/ui/FormField"
 import { login, register as registerUser, resendVerificationEmail } from "../api/authFetch"
 import { isAuthed } from "../api/clientFetch"
+import { trackEvent } from "../utils/analytics"
 
 export default function Login() {
   const navigate = useNavigate()
@@ -55,6 +56,9 @@ export default function Login() {
       if (mode === "login") {
         await login(values.identifier, values.password)
         setShowResendLink(false)
+        trackEvent("login", {
+          method: "password",
+        })
         navigate("/dashboard", {replace: true})
       } else {
         await registerUser(values.username, values.email, values.password)
@@ -69,6 +73,9 @@ export default function Login() {
 
         setMode("login")
         setShowResendLink(true)
+        trackEvent("sign_up", {
+          method: "email",
+        })
         setSubmitError("Account created successfully. Please verify your email.")
       }
     } catch (err) {
@@ -98,6 +105,7 @@ export default function Login() {
         data?.detail ||
           "If an account with that email exists and is not yet verified, a verification email has been sent."
       )
+      trackEvent("resend_verification_email")
     } catch (err) {
       console.error(err)
       setSubmitError(err.message || "Unable to resend verification email.")

@@ -73,6 +73,7 @@ export const register = async(username, email, password) => {
 
 export const loginDemo = async () => {
   const data = await login("demo", "demo1234")
+  trackEvent("login_demo")
   localStorage.setItem("isDemo", "true")
   return data
 }
