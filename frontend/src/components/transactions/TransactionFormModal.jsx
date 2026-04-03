@@ -75,21 +75,27 @@ export default function TransactionFormModal(props) {
                 </Stack>
                 </ModalBody>
     
-                <ModalFooter>
-                {isDemo ? (
-                    <Text fontSize="12px" color="orange.500" mr="auto">
-                        Demo account is read-only.
-                    </Text>
-                ) : null}
-                <Button variant="ghost" mr={3} onClick={onClose}>Cancel</Button>
-                { editingId ? (
-                    <Button colorScheme="red" variant="ghost" mr={3} onClick={onDelete} isDisabled={isDemo}>
-                    Delete
-                    </Button>
-                ): null}
-                <Button colorScheme="blue" isLoading={saving} isDisabled={saving || isDemo} onClick={onSave}>
-                    Save
-                </Button>
+                <ModalFooter flexDirection="column" align="stretch">
+                    <Box display="flex" justifyContent="flex-end" w="full">
+
+                       <Button variant="ghost" mr={3} onClick={onClose}>Cancel</Button>
+                        { editingId ? (
+                            <Button colorScheme="red" variant="ghost" mr={3} onClick={onDelete} isDisabled={isDemo}>
+                            Delete
+                            </Button>
+                        ): null}
+                        <Button _hover={{ bg: "transparent", color:"brand.900", borderColor:"brand.900" }} isLoading={saving} isDisabled={saving || isDemo} onClick={onSave}>
+                            Save
+                        </Button>
+
+                        {isDemo ? (
+                            <Text fontSize="12px" color="orange.500" mt={2} textAlign="right" w="full">
+                                Demo account is read-only.
+                            </Text>
+                        ) : null}
+                    </Box>
+
+
                 </ModalFooter>
             </ModalContent>
             </Modal>
