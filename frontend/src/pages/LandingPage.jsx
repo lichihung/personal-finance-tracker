@@ -177,6 +177,7 @@ export default function LandingPage() {
                     })
                     try {
                     await loginDemo()
+                    trackEvent("login_demo")
                     navigate("/dashboard")
                     } catch (err) {
                     console.error(err)
