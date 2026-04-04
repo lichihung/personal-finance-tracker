@@ -12,10 +12,12 @@ import ResetPassword from "./pages/ResetPassword.jsx"
 import ForgotPassword from "./pages/ForgotPassword.jsx"
 import LandingPage from "./pages/LandingPage.jsx"
 import VerifyEmail from "./pages/VerifyEmail"
+import AnalyticsTracker from "./components/AnalyticsTracker"
 
 export default function App() {
   return (
     <BrowserRouter>
+      <AnalyticsTracker />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/verify-email" element={<VerifyEmail />} />

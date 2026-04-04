@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom"
 import { loginDemo } from "../api/authFetch"
 import { useEffect, useRef, useState } from "react"
 import { signOut } from "../auth/auth"
-import { trackEvent, trackPageView } from "../utils/analytics"
+import { trackEvent } from "../utils/analytics"
 
 export default function LandingPage() {
   const navigate = useNavigate()
@@ -44,10 +44,6 @@ export default function LandingPage() {
     }
 
     return () => observer.disconnect()
-  }, [])
-
-  useEffect(() => {
-    trackPageView("/")
   }, [])
 
   const getCardAnimation = (delay) => ({
