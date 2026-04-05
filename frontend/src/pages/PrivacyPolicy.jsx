@@ -57,11 +57,38 @@ export default function PrivacyPolicy() {
           </Text>
 
           <Text>
-            If you have questions about this policy, please contact the app
-            owner through the project repository or portfolio contact page.
+            If you have questions about this policy, please contact us at verdia.financetracker@gmail.com.
           </Text>
 
-          <Text cursor="pointer" onClick={handleBack} color="brand.800" _hover={{color: "brand.700", textDecoration: "underline"}}>
+          <Text fontWeight="600" mt={6} color="brand.800">
+            Delete your account
+          </Text>
+
+          <Text>
+            To request account deletion:
+          </Text>
+
+          <Text>
+            1. Email us at verdia.financetracker@gmail.com
+          </Text>
+
+          <Text>
+            2. Include your username
+          </Text>
+
+          <Text>
+            3. We will delete your data within 7 days
+          </Text>
+
+          <Text>
+            All account information and transaction data will be permanently deleted within 7 days and not retained.
+          </Text>
+
+          <Text>
+            All user data will be permanently deleted and not retained after deletion.
+          </Text>
+
+          <Text cursor="pointer" mt={4} mb={12} onClick={handleBack} color="brand.800" _hover={{color: "brand.700", textDecoration: "underline"}}>
             ←  Back
           </Text>
         </VStack>
