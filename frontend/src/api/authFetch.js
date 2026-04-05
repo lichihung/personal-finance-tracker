@@ -1,27 +1,36 @@
 const BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api"
 
-export const login = async(identifier, password) => {
+export const login = async (identifier, password) => {
+  const normalizedIdentifier = String(identifier || "").trim().toLowerCase()
+
+  const res = await fetch(`${BASE_URL}/auth/token/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ identifier, password }),
+  })
+
+  const data = await res.json()
+
+  if (!res.ok) {
     localStorage.removeItem("isDemo")
-    
-    const res = await fetch(`${BASE_URL}/auth/token/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ identifier, password }),
-    })
 
-    const data = await res.json()
-
-    if (!res.ok) {
-        if (res.status === 429 || res.status === 403) {
-        throw new Error("Too many login attempts. Please try again in a minute.")
-        }
-        throw new Error(data?.detail || "Unable to log in.")
+    if (res.status === 429 || res.status === 403) {
+      throw new Error("Too many login attempts. Please try again in a minute.")
     }
+    throw new Error(data?.detail || "Unable to log in.")
+  }
 
-    localStorage.setItem("access", data.access)
-    localStorage.setItem("refresh", data.refresh)
-    return data
+  localStorage.setItem("access", data.access)
+  localStorage.setItem("refresh", data.refresh)
+
+  if (normalizedIdentifier === "demo") {
+    localStorage.setItem("isDemo", "true")
+  } else {
+    localStorage.removeItem("isDemo")
+  }
+
+  return data
 }
 
 export const register = async(username, email, password) => {

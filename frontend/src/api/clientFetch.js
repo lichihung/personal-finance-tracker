@@ -10,6 +10,7 @@ const setAccessToken = (token) => localStorage.setItem(ACCESS_KEY, token)
 export const clearTokens = () => {
   localStorage.removeItem(ACCESS_KEY)
   localStorage.removeItem(REFRESH_KEY)
+  localStorage.removeItem("isDemo")
 }
 
 const redirectToLogin = () => {
