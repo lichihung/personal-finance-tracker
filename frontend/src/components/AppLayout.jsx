@@ -149,7 +149,7 @@ export default function AppLayout() {
         <DrawerOverlay />
         <DrawerContent bg="brand.900" color="white">
             <DrawerCloseButton mt={2}/>
-            <DrawerBody pt={16}>
+            <DrawerBody pt={16} _focus={{boxShadow: "0 0 0 2px rgba(255,255,255,0.6)"}}>
              <VStack align="stretch" spacing={6}>
                 <Link as={NavLink} to="/dashboard" onClick={onClose} _hover={{ color: "white", textDecoration: "none" }} _focus={{ color: "white", textDecoration: "none" }}>
                     <Text fontSize="lg">Dashboard</Text>

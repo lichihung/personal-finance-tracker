@@ -18,7 +18,7 @@ export default function TransactionFormModal(props) {
                 <ModalHeader>
                 {editingId ? "Edit Transaction" : "Add Transaction"}
                 </ModalHeader>
-                <ModalCloseButton />
+                <ModalCloseButton _focus={{boxShadow: "0 0 0 2px rgba(255,255,255,0.6)"}}/>
     
                 <ModalBody>
                 <Stack spacing={4}>

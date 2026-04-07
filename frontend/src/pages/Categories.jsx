@@ -221,7 +221,7 @@ export default function Categories() {
       </Text>
         
       <Flex justify={{base: "center", md:"flex-start"}} mt={{base: 4}} mb={{ base: 8, md: 12 }}>
-        <Button variant="brandOutline" w={{ base: "full", md: "200px" }} size="sm" onClick={openAdd} leftIcon={<FiPlus />}>Add Category</Button>
+        <Button variant={{ base: "solid", md: "brandOutline" }} w={{ base: "full", md: "200px" }} size="sm" onClick={openAdd} leftIcon={<FiPlus />}>Add Category</Button>
       </Flex>
 
       {loading ? <Text>Loading...</Text> : null}

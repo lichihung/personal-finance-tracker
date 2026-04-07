@@ -38,7 +38,7 @@ export default function CategoryModal({
             <ModalOverlay/>
             <ModalContent  borderRadius="xl" p={4} boxShadow="soft">
                 <ModalHeader>{isEdit ? "Edit Category" : "Add Category"}</ModalHeader>
-                <ModalCloseButton/>
+                <ModalCloseButton _focus={{boxShadow: "0 0 0 2px rgba(255,255,255,0.6)"}}/>
 
                 <ModalBody>
                     <VStack as="form" id="category-form" onSubmit={handleSubmit(submit)} spacing={4}>

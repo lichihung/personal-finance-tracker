@@ -1,7 +1,7 @@
-import { Box, Heading, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Badge, Text, Select, HStack, Button, useDisclosure, Input, Flex, Wrap, WrapItem } from "@chakra-ui/react"
+import { Box, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Badge, Text, Select, HStack, Button, useDisclosure, Input, Flex, Wrap, WrapItem, Drawer, DrawerOverlay, DrawerContent, DrawerHeader, DrawerBody, DrawerCloseButton, VStack } from "@chakra-ui/react"
 import { Spinner, Center, Alert, AlertIcon, AlertTitle, AlertDescription, useToast, AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay } from "@chakra-ui/react"
 import { useEffect, useState, useRef, useCallback } from "react"
-import { FiFileText } from "react-icons/fi"
+import { FiFileText, FiFilter } from "react-icons/fi"
 import { FiChevronRight, FiChevronLeft, FiPlus } from "react-icons/fi"
 import TransactionFormModal from "../components/transactions/TransactionFormModal"
 import { getTransactions, createTransaction, updateTransaction, deleteTransaction, getTransactionMonths } from "../api/transactionService"
@@ -37,6 +37,7 @@ export default function Transactions() {
   const navigate = useNavigate()
   const isDemo = localStorage.getItem("isDemo") === "true"
 
+
   // Filter states
   const [month, setMonth] = useState("")
   const [category, setCategory] = useState("")
@@ -65,6 +66,7 @@ export default function Transactions() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
   const [allMonths, setAllMonths] = useState([])
   const [searchInput, setSearchInput] = useState("")
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
 
     // Generic form updater (updates one field at a time)
   const updateForm = (field, value) => {
@@ -231,6 +233,13 @@ export default function Transactions() {
     Boolean(type) ||
     Boolean(q.trim())
 
+  const activeFilterCount =
+    (month ? 1 : 0) +
+    (category ? 1 : 0) +
+    (type ? 1 : 0) +
+    (q.trim() ? 1 : 0) +
+    (sort !== "date_desc" ? 1 : 0)
+
   const openDelete = () => setIsDeleteOpen(true)
   const closeDelete = () => setIsDeleteOpen(false)
 
@@ -296,112 +305,233 @@ export default function Transactions() {
           Transactions
         </Text>
 
-        <Box mb={{ base: 10, md: 16 }} mt={{base: 4}}>
-          <Flex align={{ base: "stretch", md: "flex-start" }} direction={{ base: "column", md: "row" }} justify="space-between" mb={4} gap={{ base: 2, md: 2 }}>
-            <Wrap spacing={{ base: 2, md: 4 }} align="center" w={{ base: "full", md: "auto" }}>
-                <WrapItem w={{ base: "calc(50% - 4px)", md: "auto" }}>
-                  <Select placeholder="All Months" w={{ base: "full", md: "240px" }} size="sm" variant="pillDark" value={month} onChange={(e) => {
-                    setMonth(e.target.value)
-                    setPage(1)}}>
-                    {allMonths.map((m) => (
-                      <option key={m} value={m}>{m}</option>
-                    ))}
-                  </Select>
-                </WrapItem>
-                <WrapItem w={{ base: "calc(50% - 4px)", md: "auto" }}>
-                  <Select placeholder="All Categories" w={{ base: "full", md: "240px" }} size="sm" variant="pillDark" value={category} onChange={(e) => {
-                    setCategory(e.target.value)
-                    setPage(1)}}>
-                    {categories.map((c) => (
-                      <option key={c.id} value={String(c.id)}>{c.name}</option>
-                    ))}
-                  </Select>
-                </WrapItem >
-                <WrapItem w={{ base: "calc(50% - 4px)", md: "auto" }}>
-                  <Select placeholder="All Types" w={{ base: "full", md: "240px" }} size="sm" variant="pillDark" value={type} onChange={(e) => {
-                    setType(e.target.value)
-                    setPage(1)}}>
-                    <option value="income">Income</option>
-                    <option value="expense">Expense</option>
-                  </Select>
-                </WrapItem>
-                <WrapItem w={{ base: "calc(50% - 4px)", md: "auto" }}>
-                  <Select w={{ base: "full", md: "240px" }} size="sm" variant="pillDark" value={sort} onChange={(e) => {
-                    setSort(e.target.value)
-                    setPage(1)}}>
-                    <option value="date_desc">Date: New → Old </option>
-                    <option value="date_asc">Date: Old → New </option>
-                    <option value="amount_desc">Amount: High → Low </option>
-                    <option value="amount_asc">Amount: Low → High </option>
-                  </Select>
-                </WrapItem>
-                <WrapItem w={{ base: "full", md: "auto" }}>
-                  <Input placeholder="Search" w={{ base: "full", md: "240px" }} size="sm" variant="pillDark" _placeholder={{ textAlign: "left", color: "white" }} value={searchInput} onChange={(e) => {
-                    setSearchInput(e.target.value)
-                    }} />
-                </WrapItem>
-                <WrapItem w={{ base: "full", md: "auto" }}>
-                  <Button variant="brandOutline" size="sm" w={{ base: "full", md: "96px" }} onClick={() => {
-                    setMonth("") 
-                    setCategory("") 
-                    setType("")
-                    setSearchInput("")
-                    setQ("")
-                    setSort("date_desc")}}>
-                    Reset
-                  </Button>
-                </WrapItem>
-            </Wrap>
+        <Box mb={{ base: 10, md: 16 }} mt={{ base: 4 }}>
+          {/* Mobile controls */}
+          <Box display={{ base: "block", md: "none" }}>
+            <Flex gap={3} mb={4}>
+              <Input
+                placeholder="Search"
+                flex="1"
+                size="sm"
+                variant="outline"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+              />
 
-            <Flex w={{ base: "full", md: "220px" }} direction="column">
-              <Button w={{ base: "full", md: "220px"}} order={{ base: 2, md: 1 }} mt={{ base: 2, md: 0 }} variant="brandOutline" size="sm" onClick={() => { 
+              <Button
+                size="sm"
+                minW="120px"
+                onClick={() => setIsFilterOpen(true)}
+                leftIcon={<FiFilter />}
+                variant={hasActiveFilters ? "solid" : "brandOutline"}
+                bg={hasActiveFilters ? "brand.700" : undefined}
+                color={hasActiveFilters ? "white" : undefined}
+                _hover={
+                  hasActiveFilters
+                    ? { bg: "brand.800" }
+                    : undefined
+                }
+              >
+                Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
+              </Button>
+            </Flex>
+
+            <Button
+              w="full"
+              variant="solid"
+              size="sm"
+              leftIcon={<FiPlus />}
+              onClick={() => {
                 trackEvent("click_add_transaction", {
                   page: "transactions",
                 })
 
-                setEditingId(null) 
-                setForm({ date: "", type: "expense", category: "", description: "", amount: "", }) 
-                setFieldErrors({}) 
-                onOpen() }}
-                leftIcon={<FiPlus />}
-                >
-                Add Transaction
-                </Button>
+                setEditingId(null)
+                setForm({
+                  date: "",
+                  type: "expense",
+                  category: "",
+                  description: "",
+                  amount: "",
+                })
+                setFieldErrors({})
+                onOpen()
+              }}
+            >
+              Add Transaction
+            </Button>
+          </Box>
 
-                <Button
-                  w="full"
-                  order={{ base: 1, md: 2 }}
-                  mt={{ base: 0, md: 4 }}
-                  variant="brandOutline"
+          {/* Desktop controls */}
+          <Flex
+            display={{ base: "none", md: "flex" }}
+            align="flex-start"
+            direction="row"
+            justify="space-between"
+            mb={4}
+            gap={2}
+          >
+            <Wrap spacing={4} align="center" w="auto">
+              <WrapItem>
+                <Select
+                  placeholder="All Months"
+                  w="240px"
                   size="sm"
-                  onClick={() => {
-                    trackEvent("click_export_pro", {
-                      page: "transactions",
-                    })
-
-                    toast({
-                      title: "Coming soon",
-                      description: "Export will be available in Pro.",
-                      status: "info",
-                      duration: 2000,
-                      isClosable: true,
-                    })
-
-                    // handleExport()
+                  variant="pillDark"
+                  value={month}
+                  onChange={(e) => {
+                    setMonth(e.target.value)
+                    setPage(1)
                   }}
                 >
-                  Export
-                    <Badge
-                      ml={{ base: 3, md: 5 }}
-                      fontSize="0.6em"
-                      bg="transparent"
-                      borderColor="#c9a24d"
-                      color="#c9a24d"
-                      borderRadius="full"
-                    >PRO
-                    </Badge>
+                  {allMonths.map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </Select>
+              </WrapItem>
+
+              <WrapItem>
+                <Select
+                  placeholder="All Categories"
+                  w="240px"
+                  size="sm"
+                  variant="pillDark"
+                  value={category}
+                  onChange={(e) => {
+                    setCategory(e.target.value)
+                    setPage(1)
+                  }}
+                >
+                  {categories.map((c) => (
+                    <option key={c.id} value={String(c.id)}>{c.name}</option>
+                  ))}
+                </Select>
+              </WrapItem>
+
+              <WrapItem>
+                <Select
+                  placeholder="All Types"
+                  w="240px"
+                  size="sm"
+                  variant="pillDark"
+                  value={type}
+                  onChange={(e) => {
+                    setType(e.target.value)
+                    setPage(1)
+                  }}
+                >
+                  <option value="income">Income</option>
+                  <option value="expense">Expense</option>
+                </Select>
+              </WrapItem>
+
+              <WrapItem>
+                <Select
+                  w="240px"
+                  size="sm"
+                  variant="pillDark"
+                  value={sort}
+                  onChange={(e) => {
+                    setSort(e.target.value)
+                    setPage(1)
+                  }}
+                >
+                  <option value="date_desc">Date: New → Old</option>
+                  <option value="date_asc">Date: Old → New</option>
+                  <option value="amount_desc">Amount: High → Low</option>
+                  <option value="amount_asc">Amount: Low → High</option>
+                </Select>
+              </WrapItem>
+
+              <WrapItem>
+                <Input
+                  placeholder="Search"
+                  w="240px"
+                  size="sm"
+                  variant="pillDark"
+                  _placeholder={{ textAlign: "left", color: "white" }}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                />
+              </WrapItem>
+
+              <WrapItem>
+                <Button
+                  variant="brandOutline"
+                  size="sm"
+                  w="96px"
+                  onClick={() => {
+                    setMonth("")
+                    setCategory("")
+                    setType("")
+                    setSearchInput("")
+                    setQ("")
+                    setSort("date_desc")
+                  }}
+                >
+                  Reset
                 </Button>
-              </Flex>
+              </WrapItem>
+            </Wrap>
+
+            <Flex w="220px" direction="column">
+              <Button
+                w="220px"
+                variant="brandOutline"
+                size="sm"
+                onClick={() => {
+                  trackEvent("click_add_transaction", {
+                    page: "transactions",
+                  })
+
+                  setEditingId(null)
+                  setForm({
+                    date: "",
+                    type: "expense",
+                    category: "",
+                    description: "",
+                    amount: "",
+                  })
+                  setFieldErrors({})
+                  onOpen()
+                }}
+                leftIcon={<FiPlus />}
+              >
+                Add Transaction
+              </Button>
+
+              <Button
+                w="full"
+                mt={4}
+                variant="brandOutline"
+                size="sm"
+                onClick={() => {
+                  trackEvent("click_export_pro", {
+                    page: "transactions",
+                  })
+
+                  toast({
+                    title: "Coming soon",
+                    description: "Export will be available in Pro. Stay tuned.",
+                    status: "info",
+                    duration: 2000,
+                    isClosable: true,
+                  })
+                }}
+              >
+                Export
+                <Badge
+                  ml={5}
+                  fontSize="0.6em"
+                  bg="transparent"
+                  borderColor="#c9a24d"
+                  color="#c9a24d"
+                  borderRadius="full"
+                >
+                  PRO
+                </Badge>
+              </Button>
+            </Flex>
           </Flex>
         </Box>
   
@@ -601,6 +731,167 @@ export default function Transactions() {
         </HStack>
       </HStack>
     ) : null }
+
+      <Drawer
+        isOpen={isFilterOpen}
+        placement="right"
+        onClose={() => setIsFilterOpen(false)}
+      >
+        <DrawerOverlay bg="blackAlpha.300" />
+        <DrawerContent bg="cream.50" maxW="85vw">
+          <DrawerCloseButton mt={2} mr={2}  _focus={{boxShadow: "0 0 0 2px rgba(255,255,255,0.6)"}}/>
+          <DrawerHeader
+            pt={20}
+            fontSize="2xl"
+            fontWeight="700"
+            color="brand.900"
+          >
+            Filters
+          </DrawerHeader>
+
+          <DrawerBody pb={12}>
+            <VStack spacing={6} align="stretch">
+              <Box>
+                <Text mb={2} fontWeight="600" color="brand.900">Month</Text>
+                <Select
+                  placeholder="Select Month"
+                  size="sm"
+                  variant="outline"
+                  value={month}
+                  onChange={(e) => {
+                    setMonth(e.target.value)
+                    setPage(1)
+                  }}
+                >
+                  {allMonths.map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </Select>
+              </Box>
+
+              <Box>
+                <Text mb={2} fontWeight="600" color="brand.900">Category</Text>
+                <Select
+                  placeholder="Select Category"
+                  size="sm"
+                  variant="outline"
+                  value={category}
+                  onChange={(e) => {
+                    setCategory(e.target.value)
+                    setPage(1)
+                  }}
+                >
+                  {categories.map((c) => (
+                    <option key={c.id} value={String(c.id)}>{c.name}</option>
+                  ))}
+                </Select>
+              </Box>
+
+              <Box>
+                <Text mb={2} fontWeight="600" color="brand.900">Type</Text>
+                <Select
+                  placeholder="Select Type"
+                  size="sm"
+                  variant="outline"
+                  value={type}
+                  onChange={(e) => {
+                    setType(e.target.value)
+                    setPage(1)
+                  }}
+                >
+                  <option value="income">Income</option>
+                  <option value="expense">Expense</option>
+                </Select>
+              </Box>
+
+              <Box>
+                <Text mb={2} fontWeight="600" color="brand.900">Sort</Text>
+                <Select
+                  size="sm"
+                  variant="outline"
+                  value={sort}
+                  onChange={(e) => {
+                    setSort(e.target.value)
+                    setPage(1)
+                  }}
+                >
+                  <option value="date_desc">Date: New → Old</option>
+                  <option value="date_asc">Date: Old → New</option>
+                  <option value="amount_desc">Amount: High → Low</option>
+                  <option value="amount_asc">Amount: Low → High</option>
+                </Select>
+              </Box>
+
+              <Box>
+                <Button
+                  variant="ghost"
+                  color="brand.900"
+                  fontWeight="600"
+                  _hover={{ bg: "transparent", borderColor: "transparent" }}
+                  _focus={{outline: "none", borderColor: "transparent"}}
+                  px="0"
+                  onClick={() => {
+                    trackEvent("click_export_pro", {
+                      page: "transactions",
+                    })
+
+                    toast({
+                      title: "Coming soon",
+                      description: "Export will be available in Pro. Stay tuned.",
+                      status: "info",
+                      duration: 2000,
+                      isClosable: true,
+                    })
+                  }}
+                >
+                  Export CSV
+                  <Badge
+                    ml={3}
+                    fontSize="0.7em"
+                    bg="transparent"
+                    borderColor="#c9a24d"
+                    color="#c9a24d"
+                    borderRadius="full"
+                  >
+                    PRO
+                  </Badge>
+                </Button>
+
+
+              </Box>
+
+              <HStack spacing={3} pt={4}>
+                <Button
+                  flex="1"
+                  variant="brandOutline"
+                  size="sm"
+                  onClick={() => {
+                    setMonth("")
+                    setCategory("")
+                    setType("")
+                    setSearchInput("")
+                    setQ("")
+                    setSort("date_desc")
+                  }}
+                >
+                  Reset
+                </Button>
+
+                <Button
+                  flex="1"
+                  variant="solid"
+                  size="sm"
+                  onClick={() => {
+                    setIsFilterOpen(false)
+                  }}
+                >
+                  Save
+                </Button>
+              </HStack>
+            </VStack>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
 
 
       <TransactionFormModal
