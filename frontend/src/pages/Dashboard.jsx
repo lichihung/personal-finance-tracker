@@ -5,6 +5,9 @@ import { apiFetch } from "../api/clientFetch"
 import { PieChart, Pie, Tooltip, Legend, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Cell, BarChart, Bar } from "recharts"
 
 function getCurrentMonth() {
+  if (localStorage.getItem("isDemo") === "true") {
+    return "2026-04"
+  }
   const d = new Date()
   const yyyy = d.getFullYear()
   const mm = String(d.getMonth() + 1).padStart(2, "0")

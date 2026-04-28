@@ -39,7 +39,9 @@ export default function Transactions() {
 
 
   // Filter states
-  const [month, setMonth] = useState("")
+  const getDefaultDemoMonth = () =>
+    localStorage.getItem("isDemo") === "true" ? "2026-04" : ""
+  const [month, setMonth] = useState(getDefaultDemoMonth)
   const [category, setCategory] = useState("")
   const [type, setType] = useState("")
   const [form, setForm] = useState({
@@ -248,7 +250,8 @@ export default function Transactions() {
       const token = localStorage.getItem("access")
 
       const exportMonth =
-        month || new Date().toISOString().slice(0, 7)
+        month ||
+        (isDemo ? "2026-04" : new Date().toISOString().slice(0, 7))
 
       const url = new URL(
         `${import.meta.env.VITE_API_BASE_URL}/transactions/export/`
