@@ -30,6 +30,8 @@ const formatShortDate = (dateString) => {
   return `${month}-${day}`
 }
 
+const today = () => new Date().toLocaleDateString("en-CA")
+
 export default function Transactions() {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const toast = useToast()
@@ -45,7 +47,7 @@ export default function Transactions() {
   const [category, setCategory] = useState("")
   const [type, setType] = useState("")
   const [form, setForm] = useState({
-    date: "",
+    date: today(),
     type: "expense",
     category: "",
     description: "",
@@ -213,7 +215,7 @@ export default function Transactions() {
       await reloadTransactions()
 
       setForm({
-        date: "",
+        date: today(),
         type: "expense",
         category: "",
         description: "",
@@ -351,7 +353,7 @@ export default function Transactions() {
 
                 setEditingId(null)
                 setForm({
-                  date: "",
+                  date: today(),
                   type: "expense",
                   category: "",
                   description: "",
@@ -489,7 +491,7 @@ export default function Transactions() {
 
                   setEditingId(null)
                   setForm({
-                    date: "",
+                    date: today(),
                     type: "expense",
                     category: "",
                     description: "",
