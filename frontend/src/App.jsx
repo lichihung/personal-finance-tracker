@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom"
+import { useEffect } from "react"
 
 import Login from "./pages/Login.jsx"
 import Dashboard from "./pages/Dashboard.jsx"
@@ -14,10 +15,38 @@ import LandingPage from "./pages/LandingPage.jsx"
 import VerifyEmail from "./pages/VerifyEmail"
 import AnalyticsTracker from "./components/AnalyticsTracker"
 
+function AndroidBackButton() {
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    let listener
+
+    const setup = async () => {
+      const { Capacitor } = await import("@capacitor/core")
+      if (!Capacitor.isNativePlatform()) return
+
+      const { App } = await import("@capacitor/app")
+      listener = await App.addListener("backButton", ({ canGoBack }) => {
+        if (canGoBack) {
+          navigate(-1)
+        } else {
+          App.minimizeApp()
+        }
+      })
+    }
+
+    setup()
+    return () => { listener?.remove() }
+  }, [navigate])
+
+  return null
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <AnalyticsTracker />
+      <AndroidBackButton />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
