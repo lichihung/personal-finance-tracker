@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:android": "node scripts/build-android.js",
+    "emulator": "node scripts/build-android.js --run"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.0",
