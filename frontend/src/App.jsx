@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+import { initTokenStorage } from "./api/tokenStorage"
 
 import Login from "./pages/Login.jsx"
 import Dashboard from "./pages/Dashboard.jsx"
@@ -43,6 +44,14 @@ function AndroidBackButton() {
 }
 
 export default function App() {
+  const [storageReady, setStorageReady] = useState(false)
+
+  useEffect(() => {
+    initTokenStorage().then(() => setStorageReady(true))
+  }, [])
+
+  if (!storageReady) return null
+
   return (
     <BrowserRouter>
       <AnalyticsTracker />
