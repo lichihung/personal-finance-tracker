@@ -1,3 +1,5 @@
+import { setStoredToken, removeStoredToken } from "./tokenStorage"
+
 const BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api"
 const ACCESS_KEY = "access"
@@ -5,16 +7,16 @@ const REFRESH_KEY = "refresh"
 
 const getAccessToken = () => localStorage.getItem(ACCESS_KEY)
 const getRefreshToken = () => localStorage.getItem(REFRESH_KEY)
-const setAccessToken = (token) => localStorage.setItem(ACCESS_KEY, token)
+const setAccessToken = (token) => setStoredToken(ACCESS_KEY, token)
 
 export const clearTokens = () => {
-  localStorage.removeItem(ACCESS_KEY)
-  localStorage.removeItem(REFRESH_KEY)
-  localStorage.removeItem("isDemo")
+  removeStoredToken(ACCESS_KEY)
+  removeStoredToken(REFRESH_KEY)
+  removeStoredToken("isDemo")
 }
 
 const redirectToLogin = () => {
-  if (window.location.pathname !== "login") {
+  if (window.location.pathname !== "/login") {
     window.location.href = "/login"
   }
 }
@@ -74,7 +76,9 @@ const refreshAccessToken = async () => {
       msg = "Refresh token invalid"
     }
 
-    throw new Error(msg)
+    const err = new Error(msg)
+    err.isAuthError = true
+    throw err
   }
 
   // Case 2: Refresh request SUCCEEDED
@@ -206,8 +210,11 @@ export const apiFetch = async (path, options = {}) => {
       res = await fetch(url, requestOptions)
       return handleResponse(res)
     } catch (err) {
-      clearTokens()
-      redirectToLogin()
+      // Only clear tokens on a definitive auth failure, not network errors
+      if (err.isAuthError) {
+        clearTokens()
+        redirectToLogin()
+      }
       throw err
     }
   }
@@ -222,9 +229,12 @@ export const apiFetch = async (path, options = {}) => {
     res = await fetch(url, requestOptions)
     return handleResponse(res)
   } catch (err) {
-    clearTokens()
     rejectRefreshQueue(err)
-    redirectToLogin()
+    // Only clear tokens on a definitive auth failure, not network errors
+    if (err.isAuthError) {
+      clearTokens()
+      redirectToLogin()
+    }
     throw err
   } finally {
     refreshInProgress = false

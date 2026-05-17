@@ -1,3 +1,5 @@
+import { setStoredToken, removeStoredToken } from "./tokenStorage"
+
 const BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api"
 
@@ -13,7 +15,7 @@ export const login = async (identifier, password) => {
   const data = await res.json()
 
   if (!res.ok) {
-    localStorage.removeItem("isDemo")
+    removeStoredToken("isDemo")
 
     if (res.status === 429 || res.status === 403) {
       throw new Error("Too many login attempts. Please try again in a minute.")
@@ -21,13 +23,13 @@ export const login = async (identifier, password) => {
     throw new Error(data?.detail || "Unable to log in.")
   }
 
-  localStorage.setItem("access", data.access)
-  localStorage.setItem("refresh", data.refresh)
+  setStoredToken("access", data.access)
+  setStoredToken("refresh", data.refresh)
 
   if (normalizedIdentifier === "demo") {
-    localStorage.setItem("isDemo", "true")
+    setStoredToken("isDemo", "true")
   } else {
-    localStorage.removeItem("isDemo")
+    removeStoredToken("isDemo")
   }
 
   return data
@@ -82,7 +84,7 @@ export const register = async(username, email, password) => {
 
 export const loginDemo = async () => {
   const data = await login("demo", "demo1234")
-  localStorage.setItem("isDemo", "true")
+  setStoredToken("isDemo", "true")
   return data
 }
 
