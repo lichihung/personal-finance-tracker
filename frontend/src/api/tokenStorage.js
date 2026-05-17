@@ -18,6 +18,13 @@ export const initTokenStorage = async () => {
         localStorage.removeItem(key)
       }
     }
+    // Demo sessions don't persist across app kills — clear on reopen
+    if (localStorage.getItem("isDemo") === "true") {
+      for (const key of ["access", "refresh", "isDemo"]) {
+        localStorage.removeItem(key)
+        Preferences.remove({ key })
+      }
+    }
   } catch {
     // fall back to localStorage-only if Preferences unavailable
   }

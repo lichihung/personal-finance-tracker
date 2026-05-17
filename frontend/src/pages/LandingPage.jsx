@@ -2,7 +2,7 @@ import { Box, Button, Flex, HStack, Link, SimpleGrid, Text, VStack, Grid, GridIt
 import { NavLink, useNavigate } from "react-router-dom"
 import { loginDemo } from "../api/authFetch"
 import { useEffect, useRef, useState } from "react"
-import { signOut } from "../auth/auth"
+import { signOut, isAuthed } from "../auth/auth"
 import { trackEvent } from "../utils/analytics"
 
 export default function LandingPage() {
@@ -11,6 +11,10 @@ export default function LandingPage() {
   const [isVisible, setIsVisible] = useState(false)
   const gridRef = useRef(null)
   const [gridVisible, setGridVisible] = useState(false)
+
+  useEffect(() => {
+    if (isAuthed()) navigate("/dashboard", { replace: true })
+  }, [navigate])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -150,8 +154,6 @@ export default function LandingPage() {
                     trackEvent("click_get_started", {
                       page: "landing",
                     })
-                    signOut()
-                    localStorage.removeItem("isDemo")
                     navigate("/login")
                   }}
                 >
