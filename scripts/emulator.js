@@ -121,6 +121,7 @@ function spawnScrcpy(deviceId) {
     detached: true,
     stdio: "ignore",
     shell: false,
+    windowsHide: true,
   }).unref()
 }
 
@@ -181,6 +182,7 @@ async function main() {
     spawn(emulatorBin, emulatorArgs, {
       detached: true,
       stdio: "ignore",
+      windowsHide: true,
     }).unref()
 
     // Wait for emulator to appear in adb

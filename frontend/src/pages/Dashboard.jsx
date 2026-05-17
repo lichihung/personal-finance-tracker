@@ -1,6 +1,7 @@
 import { Heading, Text, Box , Stat, StatLabel, StatNumber, SimpleGrid, HStack, Button, Select, useBreakpointValue, Center, Spinner, Alert, AlertIcon, AlertTitle, AlertDescription} from "@chakra-ui/react"
-import { Link as RouterLink } from "react-router-dom"
+import { Link as RouterLink, useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
+import { FiPlus } from "react-icons/fi"
 import { apiFetch } from "../api/clientFetch"
 import { PieChart, Pie, Tooltip, Legend, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Cell, BarChart, Bar } from "recharts"
 
@@ -15,6 +16,7 @@ function getCurrentMonth() {
 }
 
 export default function Dashboard() {
+  const navigate = useNavigate()
   const [transactions, setTransactions] = useState([])
   const [loading, setLoading] = useState(true)
   const [errorMsg, setErrorMsg] = useState("")
@@ -273,13 +275,13 @@ export default function Dashboard() {
 
       {!loading && !errorMsg && (
         <>
-        <HStack display={{ base: "flex", md: "none" }} justify="center" mb={{ base: 4, md: 8}} w="full">
+        <HStack display={{ base: "flex", md: "none" }} justify="space-between" mb={{ base: 4, md: 8}} w="full">
             <Box w="180px">
               <Select
                 w="full"
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
-                placeholder="Month" 
+                placeholder="Month"
               >
                 {allMonths.map((month) => (
                   <option key={month} value={month}>
@@ -288,6 +290,14 @@ export default function Dashboard() {
                 ))}
               </Select>
             </Box>
+            <Button
+              size="sm"
+              variant="solid"
+              leftIcon={<FiPlus />}
+              onClick={() => navigate("/transactions", { state: { openAdd: true } })}
+            >
+              Add
+            </Button>
           </HStack>
 
           <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{base: 2, md: 8}} mt={{base: 0, md: 8}} mb={{base: 8, md: 8}}>
@@ -316,7 +326,7 @@ export default function Dashboard() {
 
           </SimpleGrid>
 
-          <HStack display={{ base: "none", md: "block" }} justify="flex-start" mb={8} w="full">
+          <HStack display={{ base: "none", md: "flex" }} justify="flex-start" mb={8} w="full" align="center">
             <Box w="180px">
               <Select
                 w="full"
@@ -331,6 +341,14 @@ export default function Dashboard() {
                 ))}
               </Select>
             </Box>
+            <Button
+              size="sm"
+              variant="brandOutline"
+              leftIcon={<FiPlus />}
+              onClick={() => navigate("/transactions", { state: { openAdd: true } })}
+            >
+              Add Transaction
+            </Button>
           </HStack>
 
           <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={{ base: 6, md: 10 }} mb={{ base: 6, md: 8 }} alignItems="start">
