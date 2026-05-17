@@ -13,7 +13,7 @@
  * Works on macOS and Windows (requires Android SDK, not Android Studio).
  */
 
-import { execSync, spawn } from "child_process"
+import { execSync } from "child_process"
 import { join, dirname } from "path"
 import { fileURLToPath } from "url"
 import { existsSync } from "fs"
@@ -35,11 +35,6 @@ function capture(cmd, opts = {}) {
   } catch {
     return ""
   }
-}
-
-// Cross-platform synchronous sleep (pure Node.js, no shell needed)
-function sleep(ms) {
-  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms)
 }
 
 // ─── Android SDK ─────────────────────────────────────────────────────────────
@@ -78,30 +73,6 @@ function runningEmulators(adb) {
     .map((l) => l.split(/\s+/)[0])
 }
 
-function listAvds(emulator) {
-  return capture(`${emulator} -list-avds`)
-    .split("\n")
-    .filter(Boolean)
-}
-
-function waitForBoot(adb, deviceId) {
-  process.stdout.write("  Waiting for boot")
-  // First wait until adb sees the device at all
-  capture(`${adb} -s ${deviceId} wait-for-device`)
-
-  let booted = false
-  while (!booted) {
-    const val = capture(`${adb} -s ${deviceId} shell getprop sys.boot_completed`)
-    if (val === "1") {
-      booted = true
-    } else {
-      process.stdout.write(".")
-      sleep(2000)
-    }
-  }
-  console.log(" ready!")
-}
-
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -129,7 +100,6 @@ async function main() {
   // 3. Find / launch emulator
   const sdkPath = getSdkPath()
   const adb = sdkBin(sdkPath, "platform-tools", "adb")
-  const emulatorBin = sdkBin(sdkPath, "emulator", "emulator")
 
   let deviceId
   const already = runningEmulators(adb)
@@ -138,41 +108,27 @@ async function main() {
     deviceId = already[0]
     console.log(`\n✓ Using running emulator: ${deviceId}`)
   } else {
-    const avds = listAvds(emulatorBin)
-    if (avds.length === 0) {
-      console.error("\n✗ No AVDs found. Create one in Android Studio (Tools → Device Manager).")
-      process.exit(1)
-    }
-
-    const avd = avds[0]
-    console.log(`\n→ Starting emulator: ${avd}`)
-
-    // Launch emulator detached (it stays open after the script exits)
-    spawn(emulatorBin.replace(/"/g, ""), ["-avd", avd, "-no-snapshot-save"], {
-      detached: true,
-      shell: false,
-      stdio: "ignore",
-    }).unref()
-
-    // Wait until the emulator appears in `adb devices`
-    process.stdout.write("  Waiting for emulator to appear in adb")
-    while (true) {
-      sleep(2000)
-      process.stdout.write(".")
-      const now = runningEmulators(adb)
-      if (now.length > 0) {
-        deviceId = now[0]
-        break
-      }
-    }
-    console.log(` ${deviceId}`)
-
-    waitForBoot(adb, deviceId)
+    console.error("\n✗ No emulator is running.")
+    console.error("  Start one from Android Studio → Device Manager → ▶ next to your AVD.")
+    console.error("  Then re-run: npm run emulator\n")
+    process.exit(1)
   }
 
-  // 4. Deploy
-  console.log(`\n→ Deploying to ${deviceId}...`)
-  run(`npx cap run android --target ${deviceId}`)
+  // 4. Build debug APK via Gradle, then install with adb directly
+  // (avoids `cap run` which fails to locate gradlew on Windows)
+  const androidDir = join(frontendDir, "android")
+  const gradlew = process.platform === "win32" ? "gradlew.bat" : "./gradlew"
+  const apkPath = join(androidDir, "app", "build", "outputs", "apk", "debug", "app-debug.apk")
+  const appId = "com.verdia.financetracker"
+
+  console.log(`\n→ Building debug APK...`)
+  run(`${gradlew} assembleDebug`, { cwd: androidDir, shell: true })
+
+  console.log(`\n→ Installing APK on ${deviceId}...`)
+  run(`${adb} -s ${deviceId} install -r "${apkPath}"`)
+
+  console.log(`\n→ Launching app...`)
+  run(`${adb} -s ${deviceId} shell am start -n ${appId}/.MainActivity`)
 
   console.log("\n✓ App is running on the emulator!\n")
 }
