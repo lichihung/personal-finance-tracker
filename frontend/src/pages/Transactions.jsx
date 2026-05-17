@@ -6,7 +6,7 @@ import { FiChevronRight, FiChevronLeft, FiPlus } from "react-icons/fi"
 import TransactionFormModal from "../components/transactions/TransactionFormModal"
 import { getTransactions, createTransaction, updateTransaction, deleteTransaction, getTransactionMonths } from "../api/transactionService"
 import { getCategories } from "../api/categoryService"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import { getErrorMessage, SUCCESS_MESSAGES } from "../utils/messages"
 import { trackEvent } from "../utils/analytics"
 
@@ -37,6 +37,7 @@ export default function Transactions() {
   const toast = useToast()
   const cancelRef = useRef()
   const navigate = useNavigate()
+  const location = useLocation()
   const isDemo = localStorage.getItem("isDemo") === "true"
 
 
@@ -118,6 +119,14 @@ export default function Transactions() {
   useEffect(() => {
     loadCategories()
   }, [])
+
+  // auto-open "Add Transaction" modal when navigated from Dashboard
+  useEffect(() => {
+    if (location.state?.openAdd) {
+      onOpen()
+      navigate(location.pathname, { replace: true, state: {} })
+    }
+  }, [location.state, onOpen, navigate, location.pathname])
 
   useEffect(() => {
     const onFocus = () => loadCategories()
