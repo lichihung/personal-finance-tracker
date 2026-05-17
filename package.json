@@ -1,0 +1,9 @@
+{
+  "name": "personal-finance-tracker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "emulator": "node scripts/emulator.js",
+    "build:android": "node scripts/emulator.js --build-only"
+  }
+}
