@@ -54,11 +54,9 @@ install-android: install-web
 # ── Run ────────────────────────────────────────────────────────────────────────
 
 run-web:
-	@[ -d "$(BACKEND_DIR)/.venv" ] || (echo "[ERROR] Backend not set up. Run 'make install-web' first." && exit 1)
 	@[ -d "$(FRONTEND_DIR)/node_modules" ] || (echo "[ERROR] Frontend not set up. Run 'make install-web' first." && exit 1)
-	@echo "Opening backend and frontend in separate windows..."
+	@echo "Opening frontend in a separate window (API: remote)..."
 	$(eval WINDIR := $(shell cygpath -w $(CURDIR)))
-	@powershell -NoProfile -Command "Start-Process cmd -ArgumentList '/k', 'scripts\run-backend.bat' -WorkingDirectory '$(WINDIR)'"
 	@powershell -NoProfile -Command "Start-Process cmd -ArgumentList '/k', 'scripts\run-frontend.bat' -WorkingDirectory '$(WINDIR)'"
 	@sleep 4 && powershell -NoProfile -Command "Start-Process 'http://localhost:5173'"
 
