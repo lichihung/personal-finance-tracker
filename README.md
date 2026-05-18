@@ -91,13 +91,7 @@ Start the app:
 make run-web
 ```
 
-This opens the Django backend and Vite frontend in separate terminal windows, then launches the browser at `http://localhost:5173`.
-
-By default the frontend talks to the local Django backend (`http://localhost:8000/api`), which uses a fresh local database. To use your real account instead, create `frontend/.env.local` pointing to the remote backend:
-
-```bash
-VITE_API_BASE_URL=https://personal-finance-tracker-edzo.onrender.com/api
-```
+This opens a Vite frontend window and launches the browser at `http://localhost:5173`. The frontend connects to the remote backend, so you can log in with your real account straight away.
 
 ### Android Emulator
 
