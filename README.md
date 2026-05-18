@@ -79,26 +79,38 @@ Demo mode is read-only.
 
 ## Run Locally
 
-### Backend
+### Web
 
+Install dependencies (first time only):
 ```bash
-cd backend
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver
+make install-web
 ```
 
-### Frontend
-
+Start the app:
 ```bash
-cd frontend
-npm install
-npm run dev
+make run-web
 ```
 
-### Environment Variables
+This opens the Django backend and Vite frontend in separate terminal windows, then launches the browser at `http://localhost:5173`.
+
+By default the frontend talks to the local Django backend (`http://localhost:8000/api`), which uses a fresh local database. To use your real account instead, create `frontend/.env.local` pointing to the remote backend:
+
 ```bash
-VITE_API_BASE_URL=http://127.0.0.1:8000/api
+VITE_API_BASE_URL=https://personal-finance-tracker-edzo.onrender.com/api
 ```
+
+### Android Emulator
+
+Install dependencies (first time only):
+```bash
+make install-android
+```
+
+Build and launch the emulator:
+```bash
+make run-android
+```
+
+This builds the frontend, syncs it into the Android project via Capacitor, and deploys the APK to a running emulator. The app always connects to the remote backend.
+
+Requires Android Studio (or standalone Android SDK) with at least one AVD configured.
