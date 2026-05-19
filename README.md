@@ -111,12 +111,14 @@ Requires Android Studio (or standalone Android SDK) with at least one AVD config
 
 ### Android Release (Google Play)
 
-Before building a release, you need two files outside the repo (never committed):
+#### Prerequisites
+
+Two files must exist outside the repo (never committed):
 
 ```
-~/personal-finance-tracker-android-keys/
+C:\Users\VESPER\personal-finance-tracker-android-keys\
     verdia.jks        ← signing keystore
-    key.properties    ← keystore credentials, points to verdia.jks
+    key.properties    ← keystore credentials
 ```
 
 `key.properties` format:
@@ -124,18 +126,26 @@ Before building a release, you need two files outside the repo (never committed)
 storePassword=your-password
 keyPassword=your-password
 keyAlias=verdia
-storeFile=C:\\Users\\YOU\\personal-finance-tracker-android-keys\\verdia.jks
+storeFile=C:\\Users\\VESPER\\personal-finance-tracker-android-keys\\verdia.jks
 ```
 
-Build the signed AAB:
+#### 1. Build the signed AAB
+
 ```bash
 make release
 ```
 
-This prompts for `versionCode` and `versionName`, then runs `npm build` → `cap sync` → `gradlew bundleRelease`. The output AAB is at:
+This prompts for `versionCode` and `versionName` (press Enter to keep current), then runs `npm build` → `cap sync` → `gradlew bundleRelease`. The output AAB is at:
 
 ```
 frontend/android/app/build/outputs/bundle/release/app-release.aab
 ```
 
-Upload the AAB to Google Play Console under your closed testing track.
+#### 2. Upload to Google Play Console
+
+1. Go to **Google Play Console** → select the app
+2. **Testing → Closed testing** → **Manage track** (Closed Test)
+3. Click **Create new release**
+4. Upload `app-release.aab`
+5. Fill in release notes describing what changed
+6. Click **Save** → **Review release** → **Start rollout**
