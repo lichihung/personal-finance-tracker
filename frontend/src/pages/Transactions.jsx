@@ -30,6 +30,11 @@ const formatShortDate = (dateString) => {
   return `${month}-${day}`
 }
 
+const formatAmount = (amount) => {
+  const n = Number(amount)
+  return n % 1 === 0 ? String(n) : n.toFixed(2)
+}
+
 const today = () => new Date().toLocaleDateString("en-CA")
 
 export default function Transactions() {
@@ -673,7 +678,7 @@ export default function Transactions() {
                   <Td>
                     <Text noOfLines={1}>{t.description}</Text>
                   </Td>
-                  <Td isNumeric>{t.amount}</Td>
+                  <Td isNumeric>{formatAmount(t.amount)}</Td>
                 </Tr>
               ))}
             </Tbody>
@@ -721,7 +726,7 @@ export default function Transactions() {
                   <Td>
                     <Text noOfLines={1}>{t.description}</Text>
                   </Td>
-                  <Td isNumeric fontWeight="500">{t.amount}</Td>
+                  <Td isNumeric fontWeight="500">{formatAmount(t.amount)}</Td>
                 </Tr>
               ))}
             </Tbody>
