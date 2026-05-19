@@ -108,3 +108,34 @@ make run-android
 This builds the frontend, syncs it into the Android project via Capacitor, and deploys the APK to a running emulator. The app always connects to the remote backend.
 
 Requires Android Studio (or standalone Android SDK) with at least one AVD configured.
+
+### Android Release (Google Play)
+
+Before building a release, you need two files outside the repo (never committed):
+
+```
+~/personal-finance-tracker-android-keys/
+    verdia.jks        ← signing keystore
+    key.properties    ← keystore credentials, points to verdia.jks
+```
+
+`key.properties` format:
+```
+storePassword=your-password
+keyPassword=your-password
+keyAlias=verdia
+storeFile=C:\\Users\\YOU\\personal-finance-tracker-android-keys\\verdia.jks
+```
+
+Build the signed AAB:
+```bash
+make release
+```
+
+This prompts for `versionCode` and `versionName`, then runs `npm build` → `cap sync` → `gradlew bundleRelease`. The output AAB is at:
+
+```
+frontend/android/app/build/outputs/bundle/release/app-release.aab
+```
+
+Upload the AAB to Google Play Console under your closed testing track.
