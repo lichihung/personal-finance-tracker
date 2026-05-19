@@ -108,3 +108,44 @@ make run-android
 This builds the frontend, syncs it into the Android project via Capacitor, and deploys the APK to a running emulator. The app always connects to the remote backend.
 
 Requires Android Studio (or standalone Android SDK) with at least one AVD configured.
+
+### Android Release (Google Play)
+
+#### Prerequisites
+
+Two files must exist outside the repo (never committed):
+
+```
+C:\Users\VESPER\personal-finance-tracker-android-keys\
+    verdia.jks        ← signing keystore
+    key.properties    ← keystore credentials
+```
+
+`key.properties` format:
+```
+storePassword=your-password
+keyPassword=your-password
+keyAlias=verdia
+storeFile=C:\\Users\\VESPER\\personal-finance-tracker-android-keys\\verdia.jks
+```
+
+#### 1. Build the signed AAB
+
+```bash
+make release
+```
+
+This prompts for `versionCode` and `versionName` (press Enter to keep current), then runs `npm build` → `cap sync` → `gradlew bundleRelease`. The output AAB is at:
+
+```
+frontend/android/app/build/outputs/bundle/release/app-release.aab
+```
+
+#### 2. Upload to Google Play Console
+
+1. Go to **Google Play Console** → select the app
+2. **Testing → Closed testing** → **Manage track** (Closed Test)
+3. Click **Create new release**
+4. Upload `app-release.aab`
+5. Fill in release notes describing what changed
+6. Click **Save** → **Review release** → **Start rollout**

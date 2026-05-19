@@ -64,15 +64,31 @@ run-android:
 # ── Release ────────────────────────────────────────────────────────────────────
 
 release:
-	@[ -d "$(FRONTEND_DIR)/node_modules" ] || (echo "[ERROR] Frontend not set up. Run 'make install-android' first." && exit 1)
-	@echo "=== Building frontend ==="
-	@cd $(FRONTEND_DIR) && npm run build
-	@echo ""
-	@echo "=== Syncing Capacitor ==="
-	@cd $(FRONTEND_DIR) && npx cap sync android
-	@echo ""
-	@echo "=== Building release AAB ==="
-	@cd $(FRONTEND_DIR)/android && ./gradlew bundleRelease
-	@echo ""
-	@echo "=== Done ==="
-	@echo "  AAB: $(FRONTEND_DIR)/android/app/build/outputs/bundle/release/app-release.aab"
+	@ROOT=$$(pwd); \
+	GRADLE=$$ROOT/$(FRONTEND_DIR)/android/app/build.gradle; \
+	CURRENT_VC=$$(grep 'versionCode [0-9]' $$GRADLE | awk '{print $$2}'); \
+	CURRENT_VN=$$(grep 'versionName "' $$GRADLE | sed 's/.*"\(.*\)".*/\1/'); \
+	echo "Current version: $$CURRENT_VN (versionCode $$CURRENT_VC)"; \
+	echo ""; \
+	read -p "New versionCode [$$CURRENT_VC]: " NEW_VC; \
+	NEW_VC=$${NEW_VC:-$$CURRENT_VC}; \
+	read -p "New versionName [$$CURRENT_VN]: " NEW_VN; \
+	NEW_VN=$${NEW_VN:-$$CURRENT_VN}; \
+	echo ""; \
+	sed -i "s/versionCode [0-9]*/versionCode $$NEW_VC/" $$GRADLE; \
+	sed -i "s/versionName \"[^\"]*\"/versionName \"$$NEW_VN\"/" $$GRADLE; \
+	echo "=== Installing frontend dependencies ==="; \
+	cd $$ROOT/$(FRONTEND_DIR) && npm install; \
+	echo ""; \
+	echo "=== Building frontend ==="; \
+	npm run build; \
+	echo ""; \
+	echo "=== Syncing Capacitor ==="; \
+	npx cap sync android; \
+	echo ""; \
+	echo "=== Building release AAB ==="; \
+	cd $$ROOT/$(FRONTEND_DIR)/android && ./gradlew bundleRelease; \
+	echo ""; \
+	echo "=== Done ==="; \
+	echo "  Version: $$NEW_VN (versionCode $$NEW_VC)"; \
+	echo "  AAB: $(FRONTEND_DIR)/android/app/build/outputs/bundle/release/app-release.aab"
