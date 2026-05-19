@@ -1,4 +1,4 @@
-.PHONY: install-web install-android run-web run-android
+.PHONY: install-web install-android run-web run-android release
 
 FRONTEND_DIR := frontend
 BACKEND_DIR  := backend
@@ -60,3 +60,19 @@ run-web:
 
 run-android:
 	node scripts/emulator.js
+
+# ── Release ────────────────────────────────────────────────────────────────────
+
+release:
+	@[ -d "$(FRONTEND_DIR)/node_modules" ] || (echo "[ERROR] Frontend not set up. Run 'make install-android' first." && exit 1)
+	@echo "=== Building frontend ==="
+	@cd $(FRONTEND_DIR) && npm run build
+	@echo ""
+	@echo "=== Syncing Capacitor ==="
+	@cd $(FRONTEND_DIR) && npx cap sync android
+	@echo ""
+	@echo "=== Building release AAB ==="
+	@cd $(FRONTEND_DIR)/android && ./gradlew bundleRelease
+	@echo ""
+	@echo "=== Done ==="
+	@echo "  AAB: $(FRONTEND_DIR)/android/app/build/outputs/bundle/release/app-release.aab"
