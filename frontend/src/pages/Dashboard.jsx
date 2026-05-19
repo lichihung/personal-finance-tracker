@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { FiPlus } from "react-icons/fi"
 import { apiFetch } from "../api/clientFetch"
 import { PieChart, Pie, Tooltip, Legend, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Cell, BarChart, Bar } from "recharts"
+import { Capacitor } from "@capacitor/core"
 
 function getCurrentMonth() {
   if (localStorage.getItem("isDemo") === "true") {
@@ -152,6 +153,33 @@ export default function Dashboard() {
     "#bdd2c8",
     "#e6f1ed",
   ]
+
+  const isNative = Capacitor.isNativePlatform()
+
+  const PieLegendTable = () => {
+    const total = pieData.reduce((s, e) => s + e.value, 0)
+    return (
+      <Box mt={4} w="full">
+        {pieData.map((entry, i) => (
+          <HStack key={i} justify="space-between" py={1.5} px={1}>
+            <HStack spacing={3}>
+              <Box
+                w="12px"
+                h="12px"
+                borderRadius="3px"
+                bg={PIE_COLORS[i % PIE_COLORS.length]}
+                flexShrink={0}
+              />
+              <Text fontSize="sm" color="brand.900">{entry.name}</Text>
+            </HStack>
+            <Text fontSize="sm" color="brand.900">
+              {Math.round(entry.value / total * 100)}%
+            </Text>
+          </HStack>
+        ))}
+      </Box>
+    )
+  }
 
   const CustomLegend = ({ payload }) => {
     const sorted = [...payload].sort(
@@ -393,10 +421,11 @@ export default function Dashboard() {
                       }}
                       labelStyle={{ display: "none" }}
                     />
-                    <Legend verticalAlign="bottom" align="center" content={<CustomLegend />} />
+                    {!isNative && <Legend verticalAlign="bottom" align="center" content={<CustomLegend />} />}
                   </PieChart>
                 </ResponsiveContainer>
               )}
+              {pieData.length > 0 && isNative && <PieLegendTable />}
             </Box>
 
             <Box bg="transparent" p={0} w="full" display="flex" flexDirection="column" alignItems={{ base: "center", md: "stretch" }}>
