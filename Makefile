@@ -64,7 +64,9 @@ run-android:
 # ── Release ────────────────────────────────────────────────────────────────────
 
 release:
-	@[ -d "$(FRONTEND_DIR)/node_modules" ] || (echo "[ERROR] Frontend not set up. Run 'make install-android' first." && exit 1)
+	@echo "=== Installing frontend dependencies ==="
+	@cd $(FRONTEND_DIR) && npm install
+	@echo ""
 	@echo "=== Building frontend ==="
 	@cd $(FRONTEND_DIR) && npm run build
 	@echo ""
