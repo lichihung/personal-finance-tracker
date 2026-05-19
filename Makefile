@@ -46,8 +46,6 @@ install-android: install-web
 	@echo "=== Android ==="
 	@command -v adb > /dev/null 2>&1 || (echo "[ERROR] adb not found — install Android Studio or standalone SDK" && exit 1)
 	@echo "  adb    $$(adb version | head -1)"
-	@echo "  Syncing Capacitor..."
-	@cd $(FRONTEND_DIR) && npx cap sync android
 	@echo ""
 	@echo "Android setup complete. Run 'make run-android' to launch the emulator."
 
