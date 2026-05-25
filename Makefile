@@ -1,4 +1,4 @@
-.PHONY: install-web install-android run-web run-android release
+.PHONY: install-web install-android run-web run-android run-android-device release
 
 FRONTEND_DIR := frontend
 BACKEND_DIR  := backend
@@ -61,6 +61,9 @@ run-web:
 run-android:
 	node scripts/emulator.js
 
+run-android-device:
+	node scripts/device.js
+
 # ── Release ────────────────────────────────────────────────────────────────────
 
 release:
@@ -81,7 +84,7 @@ release:
 	cd $$ROOT/$(FRONTEND_DIR) && npm install; \
 	echo ""; \
 	echo "=== Building frontend ==="; \
-	npm run build; \
+	VITE_API_BASE_URL=https://personal-finance-tracker-edzo.onrender.com/api npm run build; \
 	echo ""; \
 	echo "=== Syncing Capacitor ==="; \
 	npx cap sync android; \

@@ -28,3 +28,9 @@ backend/.env
 .vscode/
 .idea/
 .env
+
+# =========================
+# Claude Code
+# =========================
+.claude/settings.local.json
+.claude/worktrees/
