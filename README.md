@@ -109,6 +109,23 @@ This builds the frontend, syncs it into the Android project via Capacitor, and d
 
 Requires Android Studio (or standalone Android SDK) with at least one AVD configured.
 
+### Android Physical Device
+
+To test on your own phone (production-accurate — same release build and API URL as real users):
+
+1. On your phone: **Settings → Developer options → USB debugging** (enable it)
+2. Connect via USB and tap **Allow** when the phone prompts
+3. Set USB mode to **File Transfer** when asked
+
+Then run:
+```bash
+make run-android-device
+```
+
+This builds a release APK with the production API URL, installs it on the connected device, and launches the app. No emulator needed.
+
+> If you see `unauthorized` in `adb devices`, tap **Allow USB debugging** on your phone and retry.
+
 ### Android Release (Google Play)
 
 #### Prerequisites
